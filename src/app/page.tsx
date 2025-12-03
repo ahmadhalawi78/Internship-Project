@@ -1,8 +1,8 @@
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
-import { HomeShell } from "@/components/home/HomeShell";
-import { supabaseServer } from "@/lib/supabase/server";
-import type { FeedItem } from "@/components/feed/HomeFeed";
+import { Header } from "@/frontend/components/layout/Header";
+import { Footer } from "@/frontend/components/layout/Footer";
+import { HomeShell } from "@/frontend/components/home/HomeShell";
+import { supabaseServer } from "@/backend/lib/supabase/server";
+import type { FeedItem } from "@/frontend/components/feed/HomeFeed";
 
 type ListingRow = {
   id: string;
