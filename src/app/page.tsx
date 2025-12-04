@@ -1,6 +1,6 @@
 import { Header } from "@/frontend/components/layout/Header";
-import { Footer } from "@/frontend/components/layout/Footer";
-import { HomeShell } from "@/frontend/components/home/HomeShell";
+import Footer from "@/frontend/components/layout/Footer";
+import HomeShell from "@/frontend/components/home/HomeShell";
 import { supabaseServer } from "@/backend/lib/supabase/server";
 import type { FeedItem } from "@/frontend/components/feed/HomeFeed";
 
@@ -26,8 +26,12 @@ export default async function HomePage() {
   const items: FeedItem[] =
     (data as ListingRow[] | null)?.map((row) => {
       const cat = (row.category ?? "").toLowerCase();
-      const category: FeedItem["category"] =
-        cat === "food" ? "food" : "bartering"; // default to bartering if weird
+      // Map category to valid FeedItem category
+      const validCategories: FeedItem["category"][] = ["food", "bartering", "books", "cars", "electronics", "furniture", "clothing", "tools"];
+      const category: FeedItem["category"] = 
+        validCategories.includes(cat as FeedItem["category"]) 
+          ? (cat as FeedItem["category"])
+          : "bartering"; // default to bartering if category doesn't match
 
       return {
         id: row.id,
