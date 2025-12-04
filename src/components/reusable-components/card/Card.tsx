@@ -5,31 +5,41 @@ import Image from "next/image";
 import RecCard from "./RecCard";
 import SquareCard from "./SquareCard";
 
-
 interface CardProps {
+  id: string;
   title: string;
   location: string;
   category: string;
   categoryColor?: string;
   img?: string;
   icon?: React.ElementType;
-  onFavorite?: () => void; // when click on the heart
+  isInitiallyFavorited?: boolean;
+  onFavorite?: () => void;
   variant?: "square" | "wide";
-  onClickCard?: () => void; //when click on the card
+  onClickCard?: () => void;
+  // New props for chat functionality
+  listingOwnerId?: string;
+  currentUserId?: string;
+  showMessageButton?: boolean;
 }
 
 export default function Card({
+  id,
   title,
   location,
   category,
   categoryColor = "blue",
   img,
   icon: Icon,
+  isInitiallyFavorited = false,
   onFavorite,
   variant = "square",
   onClickCard,
+  // New props
+  listingOwnerId,
+  currentUserId,
+  showMessageButton = true,
 }: CardProps) {
-  
   const renderMedia = () => {
     if (img) {
       return (
@@ -44,21 +54,50 @@ export default function Card({
     if (Icon) {
       return (
         <div className="flex items-center justify-center w-full h-full">
-          <Icon size={48} className="text-gray-400"
-/>
+          <Icon size={48} className="text-gray-400" />
         </div>
       );
     }
     return null;
   };
-{/* Rectangle card*/} 
+
+  const shouldShowMessageButton = Boolean(
+    showMessageButton &&
+      currentUserId &&
+      listingOwnerId &&
+      currentUserId !== listingOwnerId
+  );
+
   if (variant === "wide") {
     return (
-      <RecCard title={title} location={location} onClickCard={onClickCard} renderMedia={renderMedia} category={category} categoryColor={categoryColor} onFavorite={onFavorite} />
+      <RecCard
+        id={id}
+        title={title}
+        location={location}
+        onClickCard={onClickCard}
+        renderMedia={renderMedia}
+        category={category}
+        categoryColor={categoryColor}
+        isInitiallyFavorited={isInitiallyFavorited}
+        onFavorite={onFavorite}
+      />
     );
   }
-{/*square card*/}
-return(
-  <SquareCard title={title} location={location} onClickCard={onClickCard} renderMedia={renderMedia} category={category} categoryColor={categoryColor} onFavorite={onFavorite}/>
-);
+
+  return (
+    <SquareCard
+      id={id}
+      title={title}
+      location={location}
+      onClickCard={onClickCard}
+      renderMedia={renderMedia}
+      category={category}
+      categoryColor={categoryColor}
+      isInitiallyFavorited={isInitiallyFavorited}
+      onFavorite={onFavorite}
+      shouldShowMessageButton={shouldShowMessageButton}
+      listingOwnerId={listingOwnerId}
+      listingTitle={title}
+    />
+  );
 }
