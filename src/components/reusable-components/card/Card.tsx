@@ -17,6 +17,10 @@ interface CardProps {
   onFavorite?: () => void;
   variant?: "square" | "wide";
   onClickCard?: () => void;
+  // New props for chat functionality
+  listingOwnerId?: string;
+  currentUserId?: string;
+  showMessageButton?: boolean;
 }
 
 export default function Card({
@@ -31,6 +35,10 @@ export default function Card({
   onFavorite,
   variant = "square",
   onClickCard,
+  // New props
+  listingOwnerId,
+  currentUserId,
+  showMessageButton = true,
 }: CardProps) {
   const renderMedia = () => {
     if (img) {
@@ -52,6 +60,13 @@ export default function Card({
     }
     return null;
   };
+
+  const shouldShowMessageButton = Boolean(
+    showMessageButton &&
+      currentUserId &&
+      listingOwnerId &&
+      currentUserId !== listingOwnerId
+  );
 
   if (variant === "wide") {
     return (
@@ -80,6 +95,9 @@ export default function Card({
       categoryColor={categoryColor}
       isInitiallyFavorited={isInitiallyFavorited}
       onFavorite={onFavorite}
+      shouldShowMessageButton={shouldShowMessageButton}
+      listingOwnerId={listingOwnerId}
+      listingTitle={title}
     />
   );
 }

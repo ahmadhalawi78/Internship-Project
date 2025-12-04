@@ -4,7 +4,8 @@ import { useState } from "react";
 import { HomeFeed, type FeedItem } from "@/frontend/components/feed/HomeFeed";
 
 type HomeShellProps = {
-  items: (FeedItem & { isFavorited?: boolean })[];
+  items: (FeedItem & { isFavorited?: boolean; userId?: string })[];
+  currentUserId?: string;
 };
 
 type TabId = "bartering" | "food";
@@ -14,7 +15,7 @@ const TABS: { id: TabId; label: string }[] = [
   { id: "food", label: "Food" },
 ];
 
-export const HomeShell = ({ items }: HomeShellProps) => {
+export const HomeShell = ({ items, currentUserId }: HomeShellProps) => {
   const [activeTab, setActiveTab] = useState<TabId>("bartering");
 
   const filteredItems = items.filter((item) => item.category === activeTab);
@@ -54,8 +55,8 @@ export const HomeShell = ({ items }: HomeShellProps) => {
           })}
         </div>
 
-        {/* Feed for current tab */}
-        <HomeFeed items={filteredItems} />
+        {/* Feed for current tab - Pass currentUserId */}
+        <HomeFeed items={filteredItems} currentUserId={currentUserId} />
       </div>
     </section>
   );

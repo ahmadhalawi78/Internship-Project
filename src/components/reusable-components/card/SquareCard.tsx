@@ -1,6 +1,7 @@
-import { Heart, MapPin } from "lucide-react";
+import { Heart, MapPin, MessageSquare } from "lucide-react";
 import React, { useState } from "react";
 import { toggleFavorite } from "@/app/actions/listings";
+import MessageButton from "@/frontend/components/chat/MessageButton"; // Import
 
 interface SquareCardProps {
   id: string;
@@ -12,6 +13,9 @@ interface SquareCardProps {
   onFavorite?: () => void;
   onClickCard?: () => void;
   renderMedia?: () => React.ReactNode;
+  shouldShowMessageButton?: boolean;
+  listingOwnerId?: string;
+  listingTitle?: string;
 }
 
 const SquareCard = ({
@@ -24,6 +28,9 @@ const SquareCard = ({
   categoryColor,
   isInitiallyFavorited = false,
   onFavorite,
+  shouldShowMessageButton = false,
+  listingOwnerId,
+  listingTitle = title,
 }: SquareCardProps) => {
   const [isFavorite, setIsFavorite] = useState(isInitiallyFavorited);
   const [isLoading, setIsLoading] = useState(false);
@@ -38,7 +45,6 @@ const SquareCard = ({
 
       if (result.success) {
         setIsFavorite(result.favorited);
-
         onFavorite?.();
       } else if (result.error) {
         console.error("Failed to toggle favorite:", result.error);
@@ -69,7 +75,7 @@ const SquareCard = ({
         <button
           onClick={handleFavorite}
           disabled={isLoading}
-          className="absolute top-3 right-3 bg-white p-2 rounded-full shadow hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          className="absolute top-3 right-3 bg-white p-2 rounded-full shadow hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed z-10"
         >
           <Heart
             size={16}
@@ -86,6 +92,17 @@ const SquareCard = ({
           <MapPin size={14} className="mr-1" />
           {location}
         </div>
+
+        {/* Message Button */}
+        {shouldShowMessageButton && listingOwnerId && (
+          <div className="mt-3">
+            <MessageButton
+              listingId={id}
+              listingOwnerId={listingOwnerId}
+              listingTitle={listingTitle}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

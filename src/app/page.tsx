@@ -4,11 +4,13 @@ import { Footer } from "@/frontend/components/layout/Footer";
 import { HomeShell } from "@/frontend/components/home/HomeShell";
 import { supabaseServer } from "@/backend/lib/supabase/server";
 
+// Update the type to include user_id
 type ListingRow = {
   id: string;
   title: string;
   category: string | null;
   location: string | null;
+  user_id: string; // Add this line
 };
 
 export default async function HomePage() {
@@ -19,9 +21,10 @@ export default async function HomePage() {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // Update query to include user_id
   const { data: listings, error } = await supabase
     .from("listings")
-    .select("id, title, category, location")
+    .select("id, title, category, location, user_id") // Add user_id here
     .order("created_at", { ascending: false });
 
   let favoriteIds: string[] = [];
@@ -50,6 +53,7 @@ export default async function HomePage() {
         category,
         location: row.location ?? "Unknown",
         isFavorited: favoriteIds.includes(row.id),
+        userId: row.user_id, // Add this to pass through
       };
     }) ?? [];
 
@@ -58,7 +62,8 @@ export default async function HomePage() {
       <Header />
 
       <main className="flex-1">
-        <HomeShell items={items} />
+        {/* Pass currentUserId to HomeShell */}
+        <HomeShell items={items} currentUserId={user?.id} />
       </main>
 
       <Footer />

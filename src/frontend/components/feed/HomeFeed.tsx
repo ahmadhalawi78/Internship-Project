@@ -9,16 +9,18 @@ export type FeedItem = {
   category: "bartering" | "food";
   location: string;
   isFavorited?: boolean;
+  userId?: string;
 };
 
 type HomeFeedProps = {
   items: FeedItem[];
+  currentUserId?: string;
 };
 
-export const HomeFeed = ({ items }: HomeFeedProps) => {
+export const HomeFeed = ({ items, currentUserId }: HomeFeedProps) => {
   if (!items || items.length === 0) {
     return (
-      <div className="flex min-h-40 items-center justify-center rounded border border-dashed border-slate-200 bg-slate-50 text-xs text-slate-500">
+      <div className="flex min-h-[160px] items-center justify-center rounded border border-dashed border-slate-200 bg-slate-50 text-xs text-slate-500">
         No listings yet in this category.
       </div>
     );
@@ -41,7 +43,7 @@ export const HomeFeed = ({ items }: HomeFeedProps) => {
             location={item.location}
             category={item.category}
             categoryColor={item.category === "food" ? "green" : "blue"}
-            isInitiallyFavorited={item.isFavorited || false}
+            isInitiallyFavorited={item.isFavorited}
             variant="square"
             onClickCard={() => {
               console.log("Navigate to listing:", item.id);
@@ -49,6 +51,10 @@ export const HomeFeed = ({ items }: HomeFeedProps) => {
             onFavorite={() => {
               console.log("Favorite toggled for:", item.id);
             }}
+            // Pass the new props
+            listingOwnerId={item.userId}
+            currentUserId={currentUserId}
+            showMessageButton={true}
           />
         </motion.div>
       ))}
