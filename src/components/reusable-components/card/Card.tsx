@@ -1,7 +1,5 @@
 "use client";
 import React from "react";
-import { Heart, MapPin } from "lucide-react";
-import Image from "next/image";
 import RecCard from "./RecCard";
 import SquareCard from "./SquareCard";
 
@@ -43,22 +41,28 @@ export default function Card({
   const renderMedia = () => {
     if (img) {
       return (
-        <Image
-          src={img}
-          alt={title}
-          fill
-          className="object-contain rounded-lg"
-        />
+        <div className="relative w-full h-full overflow-hidden bg-gray-50">
+          <img
+            src={img}
+            alt={title}
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+            loading="lazy"
+          />
+        </div>
       );
     }
     if (Icon) {
       return (
-        <div className="flex items-center justify-center w-full h-full">
+        <div className="flex items-center justify-center w-full h-full bg-gradient-to-br from-gray-50 to-gray-100">
           <Icon size={48} className="text-gray-400" />
         </div>
       );
     }
-    return null;
+    return (
+      <div className="flex items-center justify-center w-full h-full bg-gradient-to-br from-gray-50 to-gray-100">
+        <span className="text-gray-400 text-sm">No media</span>
+      </div>
+    );
   };
 
   const shouldShowMessageButton = Boolean(
