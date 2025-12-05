@@ -2,6 +2,10 @@
 
 import { supabaseServer } from "@/backend/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import {
+  createFavoriteNotification,
+  createNotification,
+} from "../actions/notificatons";
 
 export type CreateListingInput = {
   title: string;
@@ -37,6 +41,15 @@ export async function createListing(listing: CreateListingInput) {
       console.error("Error creating listing:", error);
       return { error: error.message };
     }
+
+    await createNotification({
+      userId: userData.user.id,
+      type: "listing_created",
+      title: "Listing Created",
+      message: `Your listing "${listing.title}" has been created successfully.`,
+      data: { listingId: data.id, listingTitle: listing.title },
+      actionUrl: `/listings/${data.id}`,
+    });
 
     revalidatePath("/");
     return { success: true, data };
@@ -209,6 +222,7 @@ export async function toggleFavorite(listingId: string) {
       .single();
 
     if (existing) {
+      // Remove from favorites
       const { error } = await supabase
         .from("favorites")
         .delete()
@@ -218,12 +232,31 @@ export async function toggleFavorite(listingId: string) {
       revalidatePath("/");
       return { success: true, favorited: false };
     } else {
+      // Add to favorites
       const { error } = await supabase.from("favorites").insert({
         user_id: userData.user.id,
         listing_id: listingId,
       });
 
       if (error) throw error;
+
+      // Get listing details
+      const { data: listing } = await supabase
+        .from("listings")
+        .select("user_id, title")
+        .eq("id", listingId)
+        .single();
+
+      // Only create notification if the favorite is not from the listing owner
+      if (listing && listing.user_id !== userData.user.id) {
+        await createFavoriteNotification(
+          listingId,
+          listing.title,
+          userData.user.id,
+          listing.user_id
+        );
+      }
+
       revalidatePath("/");
       return { success: true, favorited: true };
     }
