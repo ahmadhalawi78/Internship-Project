@@ -2,19 +2,36 @@
 
 import { supabaseServer } from "@/backend/lib/supabase/server";
 import { revalidatePath } from "next/cache";
-import {
-  createFavoriteNotification,
-  createNotification,
-} from "../actions/notificatons";
+import { createNotification } from "../actions/notificatons";
+
+export type ListingImageInput = {
+  image_url: string;
+  path: string;
+  position: number;
+};
+
+const LISTING_IMAGES_BUCKET = "listing-images";
 
 export type CreateListingInput = {
   title: string;
   description: string;
   category: string;
-  location: string;
-  image_url?: string;
-  contact_info?: string;
-  status?: "available" | "taken";
+  type: string;
+  status?: string;
+  quantity?: number;
+
+  city?: string;
+  area?: string;
+  latitude?: number;
+  longitude?: number;
+
+  is_urgent?: boolean;
+  expires_at?: string | null;
+
+  location?: string; // newly added column
+  contact_info?: string; // newly added column
+
+  images?: ListingImageInput[];
 };
 
 export async function createListing(listing: CreateListingInput) {
@@ -26,20 +43,39 @@ export async function createListing(listing: CreateListingInput) {
       return { error: "You must be logged in to create a listing" };
     }
 
+    const { images, ...listingData } = listing;
+
     const { data, error } = await supabase
       .from("listings")
       .insert({
-        ...listing,
-        user_id: userData.user.id,
-        status: listing.status || "available",
+        ...listingData,
+        owner_id: userData.user.id,
+        status: listingData.status || "available",
         created_at: new Date().toISOString(),
       })
-      .select()
+      .select("*")
       .single();
 
-    if (error) {
+    if (error || !data) {
       console.error("Error creating listing:", error);
-      return { error: error.message };
+      return { error: error?.message ?? "Failed to create listing" };
+    }
+
+    if (images && images.length > 0) {
+      const payload = images.map((img) => ({
+        listing_id: data.id,
+        image_url: img.image_url,
+        path: img.path,
+        position: img.position, // 1-based index
+      }));
+
+      const { error: imagesError } = await supabase
+        .from("listing_images")
+        .insert(payload);
+
+      if (imagesError) {
+        console.error("Error inserting listing images:", imagesError);
+      }
     }
 
     await createNotification({
@@ -54,7 +90,7 @@ export async function createListing(listing: CreateListingInput) {
     revalidatePath("/");
     return { success: true, data };
   } catch (error) {
-    console.error("Server error:", error);
+    console.error("Server error creating listing:", error);
     return { error: "An unexpected error occurred" };
   }
 }
@@ -72,7 +108,7 @@ export async function updateListing(id: string, updates: UpdateListingInput) {
 
     const { data: listing } = await supabase
       .from("listings")
-      .select("user_id")
+      .select("owner_id")
       .eq("id", id)
       .single();
 
@@ -80,7 +116,7 @@ export async function updateListing(id: string, updates: UpdateListingInput) {
       return { error: "Listing not found" };
     }
 
-    if (listing.user_id !== userData.user.id) {
+    if (listing.owner_id !== userData.user.id) {
       return { error: "You can only update your own listings" };
     }
 
@@ -101,9 +137,10 @@ export async function updateListing(id: string, updates: UpdateListingInput) {
 
     revalidatePath("/");
     revalidatePath(`/listings/${id}`);
+
     return { success: true, data };
   } catch (error) {
-    console.error("Server error:", error);
+    console.error("Server error updating listing:", error);
     return { error: "An unexpected error occurred" };
   }
 }
@@ -119,7 +156,7 @@ export async function deleteListing(id: string) {
 
     const { data: listing } = await supabase
       .from("listings")
-      .select("user_id")
+      .select("owner_id")
       .eq("id", id)
       .single();
 
@@ -127,8 +164,35 @@ export async function deleteListing(id: string) {
       return { error: "Listing not found" };
     }
 
-    if (listing.user_id !== userData.user.id) {
+    if (listing.owner_id !== userData.user.id) {
       return { error: "You can only delete your own listings" };
+    }
+
+    const { data: images, error: imagesError } = await supabase
+      .from("listing_images")
+      .select("path")
+      .eq("listing_id", id);
+
+    if (imagesError) {
+      console.error(
+        "Error fetching listing images before delete:",
+        imagesError
+      );
+    }
+
+    if (images && images.length > 0) {
+      const paths = images.map((img) => img.path);
+
+      const { error: storageError } = await supabase.storage
+        .from(LISTING_IMAGES_BUCKET)
+        .remove(paths);
+
+      if (storageError) {
+        console.error(
+          "Error deleting listing images from storage:",
+          storageError
+        );
+      }
     }
 
     const { error } = await supabase.from("listings").delete().eq("id", id);
@@ -140,9 +204,10 @@ export async function deleteListing(id: string) {
 
     revalidatePath("/");
     revalidatePath(`/listings/${id}`);
+
     return { success: true };
   } catch (error) {
-    console.error("Server error:", error);
+    console.error("Server error deleting listing:", error);
     return { error: "An unexpected error occurred" };
   }
 }
@@ -156,10 +221,12 @@ export async function getListingById(id: string) {
       .select(
         `
         *,
-        profiles:user_id (
-          username,
-          avatar_url,
-          email
+        listing_images (
+          id,
+          image_url,
+          path,
+          position,
+          created_at
         )
       `
       )
@@ -173,7 +240,7 @@ export async function getListingById(id: string) {
 
     return { success: true, data };
   } catch (error) {
-    console.error("Server error:", error);
+    console.error("Server error fetching listing:", error);
     return { error: "An unexpected error occurred" };
   }
 }
@@ -190,17 +257,17 @@ export async function getUserListings() {
     const { data, error } = await supabase
       .from("listings")
       .select("*")
-      .eq("user_id", userData.user.id)
+      .eq("owner_id", userData.user.id)
       .order("created_at", { ascending: false });
 
     if (error) {
-      console.error("Error fetching user listings:", error);
+      console.error("Error fetching listings:", error);
       return { error: error.message };
     }
 
     return { success: true, data };
   } catch (error) {
-    console.error("Server error:", error);
+    console.error("Server error fetching listings:", error);
     return { error: "An unexpected error occurred" };
   }
 }
@@ -226,37 +293,21 @@ export async function toggleFavorite(listingId: string) {
       const { error } = await supabase
         .from("favorites")
         .delete()
-        .eq("id", existing.id);
+        .eq("user_id", userData.user.id)
+        .eq("listing_id", listingId);
 
       if (error) throw error;
+
       revalidatePath("/");
+
       return { success: true, favorited: false };
     } else {
-      // Add to favorites
       const { error } = await supabase.from("favorites").insert({
         user_id: userData.user.id,
         listing_id: listingId,
       });
 
       if (error) throw error;
-
-      // Get listing details
-      const { data: listing } = await supabase
-        .from("listings")
-        .select("user_id, title")
-        .eq("id", listingId)
-        .single();
-
-      // Only create notification if the favorite is not from the listing owner
-      if (listing && listing.user_id !== userData.user.id) {
-        await createFavoriteNotification(
-          listingId,
-          listing.title,
-          userData.user.id,
-          listing.user_id
-        );
-      }
-
       revalidatePath("/");
       return { success: true, favorited: true };
     }
