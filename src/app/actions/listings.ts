@@ -2,14 +2,15 @@
 
 import { supabaseServer } from "@/backend/lib/supabase/server";
 import { revalidatePath } from "next/cache";
-
-const LISTING_IMAGES_BUCKET = "listing-images";
+import { createNotification } from "../actions/notificatons";
 
 export type ListingImageInput = {
-  image_url: string; // public URL
-  path: string; // internal storage path
-  position: number; // 1-based index
+  image_url: string;
+  path: string;
+  position: number;
 };
+
+const LISTING_IMAGES_BUCKET = "listing-images";
 
 export type CreateListingInput = {
   title: string;
@@ -76,6 +77,15 @@ export async function createListing(listing: CreateListingInput) {
         console.error("Error inserting listing images:", imagesError);
       }
     }
+
+    await createNotification({
+      userId: userData.user.id,
+      type: "listing_created",
+      title: "Listing Created",
+      message: `Your listing "${listing.title}" has been created successfully.`,
+      data: { listingId: data.id, listingTitle: listing.title },
+      actionUrl: `/listings/${data.id}`,
+    });
 
     revalidatePath("/");
     return { success: true, data };
@@ -164,7 +174,10 @@ export async function deleteListing(id: string) {
       .eq("listing_id", id);
 
     if (imagesError) {
-      console.error("Error fetching listing images before delete:", imagesError);
+      console.error(
+        "Error fetching listing images before delete:",
+        imagesError
+      );
     }
 
     if (images && images.length > 0) {
@@ -276,6 +289,7 @@ export async function toggleFavorite(listingId: string) {
       .single();
 
     if (existing) {
+      // Remove from favorites
       const { error } = await supabase
         .from("favorites")
         .delete()
@@ -287,19 +301,16 @@ export async function toggleFavorite(listingId: string) {
       revalidatePath("/");
 
       return { success: true, favorited: false };
+    } else {
+      const { error } = await supabase.from("favorites").insert({
+        user_id: userData.user.id,
+        listing_id: listingId,
+      });
+
+      if (error) throw error;
+      revalidatePath("/");
+      return { success: true, favorited: true };
     }
-
-    const { error } = await supabase.from("favorites").insert({
-      user_id: userData.user.id,
-      listing_id: listingId,
-      created_at: new Date().toISOString(),
-    });
-
-    if (error) throw error;
-
-    revalidatePath("/");
-
-    return { success: true, favorited: true };
   } catch (error) {
     console.error("Error toggling favorite:", error);
     return { error: "An unexpected error occurred" };
