@@ -1,3 +1,4 @@
+"use client"
 import { DesktopNav } from "./DesktopNav";
 import { MobileNav } from "./MobileNav";
 
