@@ -1,16 +1,14 @@
-// src/app/page.tsx
 import { Header } from "@/frontend/components/layout/Header";
 import { Footer } from "@/frontend/components/layout/Footer";
 import { HomeShell } from "@/frontend/components/home/HomeShell";
 import { supabaseServer } from "@/backend/lib/supabase/server";
 
-// Update the type to include user_id
 type ListingRow = {
   id: string;
   title: string;
   category: string | null;
   location: string | null;
-  user_id: string; // Add this line
+  owner_id: string;
 };
 
 export default async function HomePage() {
@@ -21,10 +19,9 @@ export default async function HomePage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Update query to include user_id
   const { data: listings, error } = await supabase
     .from("listings")
-    .select("id, title, category, location, user_id") // Add user_id here
+    .select("id, title, category, location, owner_id")
     .order("created_at", { ascending: false });
 
   let favoriteIds: string[] = [];
@@ -53,7 +50,7 @@ export default async function HomePage() {
         category,
         location: row.location ?? "Unknown",
         isFavorited: favoriteIds.includes(row.id),
-        userId: row.user_id, // Add this to pass through
+        userId: row.owner_id,
       };
     }) ?? [];
 

@@ -3,7 +3,6 @@
 import { supabaseServer } from "@/backend/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
-// Update NotificationType to include your actual ENUM values
 export type NotificationType =
   | "new_message"
   | "new_listing_nearby"
@@ -46,7 +45,9 @@ export type Notification = {
 };
 
 // Helper function to map types for backward compatibility
-export function mapNotificationType(type: string): NotificationType {
+export async function mapNotificationType(
+  type: string
+): Promise<NotificationType> {
   const typeMap: Record<string, NotificationType> = {
     message_received: "new_message",
     system_alert: "system",
@@ -62,7 +63,7 @@ export async function createNotification(input: CreateNotificationInput) {
     const supabase = await supabaseServer();
 
     // Map type for backward compatibility with existing ENUM
-    const mappedType = mapNotificationType(input.type);
+    const mappedType = await mapNotificationType(input.type);
 
     // Check user notification preferences
     const { data: preferences } = await supabase
@@ -149,7 +150,7 @@ export async function getUserNotifications(options?: {
 
     if (type) {
       // Map type for query
-      const mappedType = mapNotificationType(type);
+      const mappedType = await mapNotificationType(type);
       query = query.eq("type", mappedType);
     }
 
@@ -500,7 +501,7 @@ export async function createFavoriteNotification(
 
   const notification = await createNotification({
     userId: listingOwnerId,
-    type: "review", // Maps to your existing 'review' enum
+    type: "review",
     title: "Someone favorited your listing",
     message: `Your listing "${listingTitle}" was favorited.`,
     data: { listingId, listingTitle, favoritedById },
@@ -518,7 +519,7 @@ export async function createListingNearbyNotification(
 ) {
   const notification = await createNotification({
     userId,
-    type: "new_listing_nearby", // Your existing enum value
+    type: "new_listing_nearby",
     title: "New listing near you",
     message: `"${listingTitle}" was posted in ${location}`,
     data: { listingId, listingTitle, location },

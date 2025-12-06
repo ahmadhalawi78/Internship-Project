@@ -28,8 +28,8 @@ export type CreateListingInput = {
   is_urgent?: boolean;
   expires_at?: string | null;
 
-  location?: string; // newly added column
-  contact_info?: string; // newly added column
+  location?: string;
+  contact_info?: string;
 
   images?: ListingImageInput[];
 };
@@ -66,7 +66,7 @@ export async function createListing(listing: CreateListingInput) {
         listing_id: data.id,
         image_url: img.image_url,
         path: img.path,
-        position: img.position, // 1-based index
+        position: img.position,
       }));
 
       const { error: imagesError } = await supabase
