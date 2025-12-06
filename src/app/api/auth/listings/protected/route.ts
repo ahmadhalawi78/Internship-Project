@@ -33,10 +33,18 @@ export async function GET(request: NextRequest) {
     }
 
     const supabase = await supabaseServer();
+    const { searchParams } = new URL(request.url);
+    const sortByParam = searchParams.get("sortBy") || "created_at";
+    const sortOrderParam = searchParams.get("sortOrder") || "desc";
+    const ALLOWED_SORT_COLUMNS = ["created_at", "price", "title"];
+    const sortBy = ALLOWED_SORT_COLUMNS.includes(sortByParam)
+      ? sortByParam
+      : "created_at";
+    const ascending = sortOrderParam.toLowerCase() === "asc";
     const { data: listings, error } = await supabase
       .from("listings")
       .select("*")
-      .order("created_at", { ascending: false })
+      .order(sortBy, { ascending }) 
       .limit(50);
 
     if (error) {
