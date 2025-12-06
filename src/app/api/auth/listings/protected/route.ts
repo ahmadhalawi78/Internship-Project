@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const sortByParam = searchParams.get("sortBy") || "created_at";
     const sortOrderParam = searchParams.get("sortOrder") || "desc";
-    const ALLOWED_SORT_COLUMNS = ["created_at", "price", "title"];
+    const ALLOWED_SORT_COLUMNS = ["created_at", "location"];
     const sortBy = ALLOWED_SORT_COLUMNS.includes(sortByParam)
       ? sortByParam
       : "created_at";
