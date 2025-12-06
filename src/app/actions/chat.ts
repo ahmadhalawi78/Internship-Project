@@ -2,6 +2,7 @@
 
 import { supabaseServer } from "@/backend/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { createChatNotification } from "../actions/notificatons";
 
 export async function createOrGetChatThread(
   listingId: string,
@@ -68,6 +69,7 @@ export async function sendMessage(threadId: string, content: string) {
       return { error: "You must be logged in to send messages" };
     }
 
+    // Validate thread exists and user is participant
     const { data: thread } = await supabase
       .from("chat_threads")
       .select("user1_id, user2_id")
@@ -85,6 +87,7 @@ export async function sendMessage(threadId: string, content: string) {
       return { error: "You are not a participant in this chat" };
     }
 
+    // Create message
     const { data: message, error } = await supabase
       .from("chat_messages")
       .insert({
@@ -105,10 +108,21 @@ export async function sendMessage(threadId: string, content: string) {
       return { error: error.message };
     }
 
+    // Update thread's last_message_at
     await supabase
       .from("chat_threads")
       .update({ last_message_at: new Date().toISOString() })
       .eq("id", threadId);
+
+    // Get the other participant (thread variable is available here)
+    const recipientId =
+      thread.user1_id === userData.user.id ? thread.user2_id : thread.user1_id;
+
+    // Get sender name
+    const senderName = userData.user.email?.split("@")[0] || "User";
+
+    // Create notification
+    await createChatNotification(threadId, senderName, content, recipientId);
 
     revalidatePath(`/chat/${threadId}`);
     revalidatePath("/chat");
