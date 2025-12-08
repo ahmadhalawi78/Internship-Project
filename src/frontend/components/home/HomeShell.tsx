@@ -559,7 +559,7 @@ export default function HomeShell({ items }: HomeShellProps) {
                   }}
                 >
                   <div
-                    className={`relative h-48 w-full overflow-hidden bg-gradient-to-br ${
+                    className={`relative h-48 w-full overflow-hidden bg-linear-to-br ${
                       categoryColor === "orange"
                         ? "from-orange-50 to-amber-50"
                         : categoryColor === "purple"
@@ -673,7 +673,7 @@ export default function HomeShell({ items }: HomeShellProps) {
                   }}
                 >
                   <div
-                    className={`relative h-24 w-24 flex-shrink-0 rounded-lg overflow-hidden bg-gradient-to-br ${
+                    className={`relative h-24 w-24 shrink-0 rounded-lg overflow-hidden bg-linear-to-br ${
                       categoryColor === "orange"
                         ? "from-orange-50 to-amber-50"
                         : categoryColor === "purple"
@@ -724,7 +724,7 @@ export default function HomeShell({ items }: HomeShellProps) {
                           e.stopPropagation();
                           toggleLike(item.id);
                         }}
-                        className="flex-shrink-0 p-1.5 rounded-md hover:bg-slate-50 transition-colors"
+                        className="shrink-0 p-1.5 rounded-md hover:bg-slate-50 transition-colors"
                       >
                         <Heart
                           className={`h-4 w-4 transition-all duration-200 ${
@@ -788,7 +788,7 @@ export default function HomeShell({ items }: HomeShellProps) {
       {showChat && (
         <div className="fixed bottom-6 right-6 z-50 w-96 h-[600px] bg-white rounded-lg shadow-2xl border border-slate-200 flex flex-col overflow-hidden">
           {/* Chat Header */}
-          <div className="flex items-center justify-between p-4 border-b border-slate-200 bg-gradient-to-r from-blue-600 to-blue-700">
+          <div className="flex items-center justify-between p-4 border-b border-slate-200 bg-linear-to-r from-blue-600 to-blue-700">
             <div className="flex items-center gap-2">
               <div className="h-2 w-2 rounded-full bg-green-400 animate-pulse" />
               <h3 className="font-semibold text-white">Loop AI Assistant</h3>

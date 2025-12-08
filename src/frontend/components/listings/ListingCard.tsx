@@ -23,8 +23,8 @@ export default function ListingCard({
       <div
         className={`relative h-48 w-full overflow-hidden transition-all duration-300 ${
           isFood
-            ? "bg-gradient-to-br from-orange-100 via-rose-100 to-pink-100"
-            : "bg-gradient-to-br from-blue-100 via-emerald-100 to-teal-100"
+            ? "bg-linear-to-br from-orange-100 via-rose-100 to-pink-100"
+            : "bg-linear-to-br from-blue-100 via-emerald-100 to-teal-100"
         }`}
       >
         {imageUrl ? (
@@ -78,7 +78,7 @@ export default function ListingCard({
         </div>
       </div>
 
-      <div className="h-1 w-0 bg-gradient-to-r from-blue-600 to-emerald-600 transition-all duration-300 group-hover:w-full" />
+      <div className="h-1 w-0 bg-linear-to-r from-blue-600 to-emerald-600 transition-all duration-300 group-hover:w-full" />
     </div>
   );
 }
@@ -108,9 +108,9 @@ function Demo() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-emerald-50 p-8">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-emerald-50 p-8">
       <div className="mx-auto max-w-7xl">
-        <h1 className="mb-8 text-4xl font-black bg-gradient-to-r from-slate-900 to-blue-900 bg-clip-text text-transparent">
+        <h1 className="mb-8 text-4xl font-black bg-linear-to-r from-slate-900 to-blue-900 bg-clip-text text-transparent">
           Listing Cards
         </h1>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

@@ -6,15 +6,26 @@ import {
   Menu,
   X,
   User,
-  Plus,
   Info,
   LogOut,
   Package,
   Utensils,
   Plus,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react"; // Add useEffect
 import { useAuth } from "@/frontend/hooks/useAuth";
+
+// Add interface for floating element styles
+interface FloatingElementStyle {
+  width: string;
+  height: string;
+  background: string;
+  left: string;
+  top: string;
+  animationDelay: string;
+  animationDuration: string;
+  opacity: number;
+}
 
 interface SearchResult {
   id: number;
@@ -31,9 +42,27 @@ export const MobileNav = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [logoutHesitate, setLogoutHesitate] = useState(false);
   const { user, loading, signOut } = useAuth();
+  const [floatingElements, setFloatingElements] = useState<
+    FloatingElementStyle[]
+  >([]); // Add state for floating elements
 
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [showResults, setShowResults] = useState(false);
+
+  // Add useEffect to generate random styles only on client
+  useEffect(() => {
+    const elements = [...Array(8)].map((_, i) => ({
+      width: `${4 + Math.random() * 6}px`,
+      height: `${4 + Math.random() * 6}px`,
+      background: i % 2 === 0 ? "#10b981" : "#1e40af",
+      left: `${Math.random() * 100}%`,
+      top: `${Math.random() * 100}%`,
+      animationDelay: `${i * 1.2}s`,
+      animationDuration: `${6 + Math.random() * 4}s`,
+      opacity: 0.3,
+    }));
+    setFloatingElements(elements);
+  }, []);
 
   const handleSearch = () => {
     if (!searchValue.trim()) return;
@@ -123,23 +152,15 @@ export const MobileNav = () => {
   };
 
   return (
-    <div className="relative bg-gradient-to-br from-slate-50 via-blue-50 to-emerald-50 overflow-hidden">
+    <div className="relative bg-linear-to-br from-slate-50 via-blue-50 to-emerald-50 overflow-hidden">
       {/* Animated background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(8)].map((_, i) => (
+        {/* Replace inline random generation with mapped state */}
+        {floatingElements.map((style, i) => (
           <div
             key={i}
             className="absolute rounded-full blur-sm animate-float"
-            style={{
-              width: `${4 + Math.random() * 6}px`,
-              height: `${4 + Math.random() * 6}px`,
-              background: i % 2 === 0 ? "#10b981" : "#1e40af",
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${i * 1.2}s`,
-              animationDuration: `${6 + Math.random() * 4}s`,
-              opacity: 0.3,
-            }}
+            style={style}
           />
         ))}
       </div>
@@ -166,8 +187,8 @@ export const MobileNav = () => {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
             <div className="relative">
-              <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500 to-emerald-500 blur-md opacity-50 group-hover:opacity-75 transition-opacity" />
-              <div className="relative h-10 w-10 rounded-xl bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform overflow-hidden">
+              <div className="absolute inset-0 rounded-xl bg-linear-to-br from-blue-500 to-emerald-500 blur-md opacity-50 group-hover:opacity-75 transition-opacity" />
+              <div className="relative h-10 w-10 rounded-xl bg-linear-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform overflow-hidden">
                 <svg
                   width="40"
                   height="40"
@@ -216,7 +237,7 @@ export const MobileNav = () => {
             className="relative flex h-12 w-12 items-center justify-center rounded-xl border-2 border-slate-200 bg-white shadow-lg transition-all duration-300 hover:border-blue-400 hover:shadow-xl hover:scale-110 active:scale-95"
           >
             <div
-              className={`absolute inset-0 rounded-xl bg-gradient-to-br transition-all duration-300 ${
+              className={`absolute inset-0 rounded-xl bg-linear-to-br transition-all duration-300 ${
                 open
                   ? "from-blue-400/20 to-emerald-400/20"
                   : "from-transparent to-transparent"
@@ -233,7 +254,7 @@ export const MobileNav = () => {
         {/* Search */}
         <div className="relative mb-3">
           <div
-            className={`absolute inset-0 rounded-xl bg-gradient-to-r from-blue-400 to-emerald-400 blur-lg transition-all duration-300 ${
+            className={`absolute inset-0 rounded-xl bg-linear-to-r from-blue-400 to-emerald-400 blur-lg transition-all duration-300 ${
               searchValue ? "opacity-20" : "opacity-0"
             }`}
           />
@@ -254,7 +275,7 @@ export const MobileNav = () => {
             <button
               onClick={handleSearch}
               disabled={isSearching || !searchValue.trim()}
-              className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-emerald-600 px-3 py-1.5 text-xs font-bold text-white shadow-md transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-1.5 rounded-lg bg-linear-to-r from-blue-600 to-emerald-600 px-3 py-1.5 text-xs font-bold text-white shadow-md transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSearching ? (
                 <div className="h-3 w-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -283,14 +304,14 @@ export const MobileNav = () => {
                       }
                       setShowResults(false);
                     }}
-                    className="w-full flex items-start gap-3 p-3 rounded-lg hover:bg-gradient-to-r hover:from-blue-50 hover:to-emerald-50 transition-all duration-150 text-left"
+                    className="w-full flex items-start gap-3 p-3 rounded-lg hover:bg-linear-to-r hover:from-blue-50 hover:to-emerald-50 transition-all duration-150 text-left"
                   >
                     <div
-                      className={`h-10 w-10 rounded-lg flex-shrink-0 flex items-center justify-center ${
+                      className={`h-10 w-10 rounded-lg shrink-0 flex items-center justify-center ${
                         result.category === "food"
-                          ? "bg-gradient-to-br from-orange-100 to-rose-100"
+                          ? "bg-linear-to-br from-orange-100 to-rose-100"
                           : result.category === "bartering"
-                          ? "bg-gradient-to-br from-blue-100 to-emerald-100"
+                          ? "bg-linear-to-br from-blue-100 to-emerald-100"
                           : "bg-slate-100"
                       }`}
                     >
@@ -344,7 +365,7 @@ export const MobileNav = () => {
                 ) : user ? (
                   <>
                     {/* User Header */}
-                    <div className="relative p-5 bg-gradient-to-br from-slate-900 via-blue-900 to-emerald-900 overflow-hidden">
+                    <div className="relative p-5 bg-linear-to-br from-slate-900 via-blue-900 to-emerald-900 overflow-hidden">
                       <div className="absolute inset-0 opacity-10">
                         {[...Array(3)].map((_, i) => (
                           <div
@@ -385,9 +406,9 @@ export const MobileNav = () => {
                     <div className="p-3 space-y-2">
                       <button
                         onClick={handlePostListing}
-                        className="group w-full flex items-center gap-3 rounded-xl p-3 transition-all duration-150 hover:bg-gradient-to-r hover:from-blue-50 hover:to-emerald-50 hover:scale-105 active:scale-100"
+                        className="group w-full flex items-center gap-3 rounded-xl p-3 transition-all duration-150 hover:bg-linear-to-r hover:from-blue-50 hover:to-emerald-50 hover:scale-105 active:scale-100"
                       >
-                        <div className="h-12 w-12 rounded-lg bg-gradient-to-br from-blue-100 to-emerald-100 flex items-center justify-center transition-all duration-150 group-hover:scale-110 group-hover:rotate-12 shadow-md">
+                        <div className="h-12 w-12 rounded-lg bg-linear-to-br from-blue-100 to-emerald-100 flex items-center justify-center transition-all duration-150 group-hover:scale-110 group-hover:rotate-12 shadow-md">
                           <Plus className="h-5 w-5 text-blue-600" />
                         </div>
                         <div className="flex-1 text-left">
@@ -460,7 +481,7 @@ export const MobileNav = () => {
                     <Link
                       href="/auth/login"
                       onClick={() => setOpen(false)}
-                      className="block w-full rounded-xl bg-gradient-to-r from-blue-600 to-emerald-600 px-5 py-3.5 text-center text-sm font-black text-white shadow-xl transition-all duration-300 hover:shadow-2xl hover:scale-105 active:scale-95"
+                      className="block w-full rounded-xl bg-linear-to-r from-blue-600 to-emerald-600 px-5 py-3.5 text-center text-sm font-black text-white shadow-xl transition-all duration-300 hover:shadow-2xl hover:scale-105 active:scale-95"
                     >
                       Sign In
                     </Link>
