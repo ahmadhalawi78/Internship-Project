@@ -26,7 +26,7 @@ type HomeFeedProps = {
 export default function HomeFeed({ items }: HomeFeedProps) {
   if (!items || items.length === 0) {
     return (
-      <div className="flex min-h-[300px] items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 bg-gradient-to-br from-slate-50 to-blue-50">
+      <div className="flex min-h-[300px] items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 bg-linear-to-br from-slate-50 to-blue-50">
         <div className="text-center">
           <div className="text-7xl mb-4 animate-bounce">🌱</div>
           <p className="text-xl font-black text-slate-700">No listings yet</p>
@@ -64,8 +64,8 @@ export default function HomeFeed({ items }: HomeFeedProps) {
           <div
             className={`relative h-48 w-full overflow-hidden transition-all duration-300 ${
               item.category === "food"
-                ? "bg-gradient-to-br from-orange-100 via-rose-100 to-pink-100"
-                : "bg-gradient-to-br from-blue-100 via-emerald-100 to-teal-100"
+                ? "bg-linear-to-br from-orange-100 via-rose-100 to-pink-100"
+                : "bg-linear-to-br from-blue-100 via-emerald-100 to-teal-100"
             }`}
           >
             <div className="absolute inset-0 flex items-center justify-center">
@@ -100,7 +100,7 @@ export default function HomeFeed({ items }: HomeFeedProps) {
             </div>
           </div>
 
-          <div className="h-1 w-0 bg-gradient-to-r from-blue-600 to-emerald-600 transition-all duration-300 group-hover:w-full" />
+          <div className="h-1 w-0 bg-linear-to-r from-blue-600 to-emerald-600 transition-all duration-300 group-hover:w-full" />
         </article>
       ))}
     </div>
@@ -130,9 +130,9 @@ function Demo() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-emerald-50 p-8">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-emerald-50 p-8">
       <div className="mx-auto max-w-7xl">
-        <h1 className="mb-8 text-4xl font-black bg-gradient-to-r from-slate-900 to-blue-900 bg-clip-text text-transparent">
+        <h1 className="mb-8 text-4xl font-black bg-linear-to-r from-slate-900 to-blue-900 bg-clip-text text-transparent">
           Home Feed
         </h1>
         <HomeFeed items={mockItems} />
