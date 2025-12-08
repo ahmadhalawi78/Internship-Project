@@ -1,5 +1,5 @@
 import { Header } from "@/frontend/components/layout/Header";
-import { Footer } from "@/frontend/components/layout/Footer";
+import Footer from "@/frontend/components/layout/Footer";
 import ChatThreadList from "../../frontend/components/chat/ChatThreadList";
 import { supabaseServer } from "@/backend/lib/supabase/server";
 import { redirect } from "next/navigation";
