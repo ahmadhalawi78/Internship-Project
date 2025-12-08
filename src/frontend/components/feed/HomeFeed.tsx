@@ -1,15 +1,27 @@
 import { Package, Utensils, MapPin } from "lucide-react";
+import Card from "../../../components/reusable-components/card/Card";
 
 export type FeedItem = {
   id: string;
   title: string;
-  category: "food" | "bartering" | "books" | "cars" | "electronics" | "furniture" | "clothing" | "tools";
+  category:
+    | "food"
+    | "bartering"
+    | "books"
+    | "cars"
+    | "electronics"
+    | "furniture"
+    | "clothing"
+    | "tools";
   location: string;
+  isFavorited?: boolean;
+  userId?: string;
 };
 
-interface HomeFeedProps {
+type HomeFeedProps = {
   items: FeedItem[];
-}
+  currentUserId?: string;
+};
 
 export default function HomeFeed({ items }: HomeFeedProps) {
   if (!items || items.length === 0) {
@@ -18,7 +30,9 @@ export default function HomeFeed({ items }: HomeFeedProps) {
         <div className="text-center">
           <div className="text-7xl mb-4 animate-bounce">🌱</div>
           <p className="text-xl font-black text-slate-700">No listings yet</p>
-          <p className="text-sm font-semibold text-slate-500 mt-2">Start sharing with your community!</p>
+          <p className="text-sm font-semibold text-slate-500 mt-2">
+            Start sharing with your community!
+          </p>
         </div>
       </div>
     );
@@ -31,7 +45,7 @@ export default function HomeFeed({ items }: HomeFeedProps) {
           key={item.id}
           className="group relative flex flex-col overflow-hidden rounded-2xl border-2 border-slate-200 bg-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:border-blue-400 cursor-pointer"
           style={{
-            animation: `fadeInUp 0.5s ease-out ${index * 0.1}s both`
+            animation: `fadeInUp 0.5s ease-out ${index * 0.1}s both`,
           }}
         >
           <style>{`
@@ -47,11 +61,13 @@ export default function HomeFeed({ items }: HomeFeedProps) {
             }
           `}</style>
 
-          <div className={`relative h-48 w-full overflow-hidden transition-all duration-300 ${
-            item.category === "food" 
-              ? "bg-gradient-to-br from-orange-100 via-rose-100 to-pink-100" 
-              : "bg-gradient-to-br from-blue-100 via-emerald-100 to-teal-100"
-          }`}>
+          <div
+            className={`relative h-48 w-full overflow-hidden transition-all duration-300 ${
+              item.category === "food"
+                ? "bg-gradient-to-br from-orange-100 via-rose-100 to-pink-100"
+                : "bg-gradient-to-br from-blue-100 via-emerald-100 to-teal-100"
+            }`}
+          >
             <div className="absolute inset-0 flex items-center justify-center">
               {item.category === "food" ? (
                 <Utensils className="h-24 w-24 text-orange-300 opacity-50 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12" />
@@ -59,13 +75,15 @@ export default function HomeFeed({ items }: HomeFeedProps) {
                 <Package className="h-24 w-24 text-blue-300 opacity-50 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12" />
               )}
             </div>
-            
+
             <div className="absolute top-3 right-3">
-              <span className={`rounded-xl px-3 py-1.5 text-xs font-black shadow-lg backdrop-blur-sm ${
-                item.category === "food"
-                  ? "bg-orange-500/90 text-white"
-                  : "bg-blue-500/90 text-white"
-              }`}>
+              <span
+                className={`rounded-xl px-3 py-1.5 text-xs font-black shadow-lg backdrop-blur-sm ${
+                  item.category === "food"
+                    ? "bg-orange-500/90 text-white"
+                    : "bg-blue-500/90 text-white"
+                }`}
+              >
                 {item.category === "food" ? "Food" : "Bartering"}
               </span>
             </div>
@@ -75,7 +93,7 @@ export default function HomeFeed({ items }: HomeFeedProps) {
             <h3 className="text-lg font-black text-slate-800 leading-tight transition-colors group-hover:text-blue-600">
               {item.title}
             </h3>
-            
+
             <div className="mt-auto flex items-center gap-2 text-sm font-semibold text-slate-500">
               <MapPin className="h-4 w-4 text-emerald-500" />
               <span>{item.location}</span>
@@ -91,9 +109,24 @@ export default function HomeFeed({ items }: HomeFeedProps) {
 
 function Demo() {
   const mockItems: FeedItem[] = [
-    { id: "1", title: "Vintage Camera", category: "bartering", location: "Beirut" },
-    { id: "2", title: "Fresh Vegetables", category: "food", location: "Baabda" },
-    { id: "3", title: "Handmade Pottery", category: "bartering", location: "Jounieh" },
+    {
+      id: "1",
+      title: "Vintage Camera",
+      category: "bartering",
+      location: "Beirut",
+    },
+    {
+      id: "2",
+      title: "Fresh Vegetables",
+      category: "food",
+      location: "Baabda",
+    },
+    {
+      id: "3",
+      title: "Handmade Pottery",
+      category: "bartering",
+      location: "Jounieh",
+    },
   ];
 
   return (

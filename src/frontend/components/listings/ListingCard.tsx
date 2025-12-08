@@ -8,18 +8,25 @@ interface ListingCardProps {
   category: string;
 }
 
-export default function ListingCard({ title, imageUrl, location, category }: ListingCardProps) {
+export default function ListingCard({
+  title,
+  imageUrl,
+  location,
+  category,
+}: ListingCardProps) {
   const [isLiked, setIsLiked] = useState(false);
 
   const isFood = category === "Food";
 
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-2xl border-2 border-slate-200 bg-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:border-blue-400 cursor-pointer">
-      <div className={`relative h-48 w-full overflow-hidden transition-all duration-300 ${
-        isFood 
-          ? "bg-gradient-to-br from-orange-100 via-rose-100 to-pink-100" 
-          : "bg-gradient-to-br from-blue-100 via-emerald-100 to-teal-100"
-      }`}>
+      <div
+        className={`relative h-48 w-full overflow-hidden transition-all duration-300 ${
+          isFood
+            ? "bg-gradient-to-br from-orange-100 via-rose-100 to-pink-100"
+            : "bg-gradient-to-br from-blue-100 via-emerald-100 to-teal-100"
+        }`}
+      >
         {imageUrl ? (
           <img
             src={imageUrl}
@@ -42,19 +49,19 @@ export default function ListingCard({ title, imageUrl, location, category }: Lis
         >
           <Heart
             className={`h-5 w-5 transition-all duration-200 ${
-              isLiked
-                ? "fill-red-500 text-red-500"
-                : "text-slate-600"
+              isLiked ? "fill-red-500 text-red-500" : "text-slate-600"
             }`}
           />
         </button>
 
         <div className="absolute top-3 left-3">
-          <span className={`rounded-xl px-3 py-1.5 text-xs font-black shadow-lg backdrop-blur-sm ${
-            isFood
-              ? "bg-orange-500/90 text-white"
-              : "bg-blue-500/90 text-white"
-          }`}>
+          <span
+            className={`rounded-xl px-3 py-1.5 text-xs font-black shadow-lg backdrop-blur-sm ${
+              isFood
+                ? "bg-orange-500/90 text-white"
+                : "bg-blue-500/90 text-white"
+            }`}
+          >
             {category}
           </span>
         </div>
@@ -80,22 +87,24 @@ function Demo() {
   const listings = [
     {
       title: "Vintage Camera for Trade",
-      imageUrl: "https://images.unsplash.com/photo-1606215457740-27b951fc0304?w=400&h=300&fit=crop",
+      imageUrl:
+        "https://images.unsplash.com/photo-1606215457740-27b951fc0304?w=400&h=300&fit=crop",
       location: "Beirut",
-      category: "Bartering"
+      category: "Bartering",
     },
     {
       title: "Fresh Organic Vegetables",
-      imageUrl: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&h=300&fit=crop",
+      imageUrl:
+        "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&h=300&fit=crop",
       location: "Baabda",
-      category: "Food"
+      category: "Food",
     },
     {
       title: "Handmade Pottery Set",
       imageUrl: "",
       location: "Jounieh",
-      category: "Bartering"
-    }
+      category: "Bartering",
+    },
   ];
 
   return (
