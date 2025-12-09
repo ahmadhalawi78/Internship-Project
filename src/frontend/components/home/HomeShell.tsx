@@ -1,5 +1,7 @@
 "use client";
 
+export type { FeedItem } from "@/frontend/components/feed/HomeFeed";
+
 import { useState, useRef, useEffect } from "react";
 import {
   Package,
@@ -23,13 +25,16 @@ import {
   X,
   Loader2,
 } from "lucide-react";
-import type { FeedItem } from "@/frontend/components/feed/HomeFeed";
 import { ChatService } from "@/lib/api/chatService";
 import { ChatEvents } from "@/lib/events/chatEvents";
 import type { ChatMessage } from "@/types/chat";
 
+// Import the FeedItem type from HomeFeed
+import type { FeedItem } from "@/frontend/components/feed/HomeFeed";
+
 interface HomeShellProps {
   items?: FeedItem[];
+  currentUserId?: string;
 }
 
 type CategoryType =
@@ -49,37 +54,89 @@ const mockItems: FeedItem[] = [
     title: "Vintage Camera",
     category: "bartering",
     location: "Beirut",
+    isFavorited: false,
+    userId: "user-1",
   },
-  { id: "2", title: "Fresh Vegetables", category: "food", location: "Baabda" },
+  {
+    id: "2",
+    title: "Fresh Vegetables",
+    category: "food",
+    location: "Baabda",
+    isFavorited: false,
+    userId: "user-2",
+  },
   {
     id: "3",
     title: "Handmade Pottery",
     category: "bartering",
     location: "Jounieh",
+    isFavorited: false,
+    userId: "user-3",
   },
-  { id: "4", title: "Homemade Bread", category: "food", location: "Tripoli" },
-  { id: "5", title: "Vintage Books", category: "books", location: "Zahle" },
-  { id: "6", title: "Organic Honey", category: "food", location: "Byblos" },
-  { id: "7", title: "2010 Toyota Camry", category: "cars", location: "Beirut" },
+  {
+    id: "4",
+    title: "Homemade Bread",
+    category: "food",
+    location: "Tripoli",
+    isFavorited: false,
+    userId: "user-4",
+  },
+  {
+    id: "5",
+    title: "Vintage Books",
+    category: "books",
+    location: "Zahle",
+    isFavorited: false,
+    userId: "user-5",
+  },
+  {
+    id: "6",
+    title: "Organic Honey",
+    category: "food",
+    location: "Byblos",
+    isFavorited: false,
+    userId: "user-6",
+  },
+  {
+    id: "7",
+    title: "2010 Toyota Camry",
+    category: "cars",
+    location: "Beirut",
+    isFavorited: false,
+    userId: "user-7",
+  },
   {
     id: "8",
     title: "MacBook Pro 2020",
     category: "electronics",
     location: "Jounieh",
+    isFavorited: false,
+    userId: "user-8",
   },
   {
     id: "9",
     title: "Wooden Dining Table",
     category: "furniture",
     location: "Tripoli",
+    isFavorited: false,
+    userId: "user-9",
   },
   {
     id: "10",
     title: "Designer Jacket",
     category: "clothing",
     location: "Beirut",
+    isFavorited: false,
+    userId: "user-10",
   },
-  { id: "11", title: "Power Drill Set", category: "tools", location: "Baabda" },
+  {
+    id: "11",
+    title: "Power Drill Set",
+    category: "tools",
+    location: "Baabda",
+    isFavorited: false,
+    userId: "user-11",
+  },
 ];
 
 const categoryConfig = {
@@ -116,7 +173,7 @@ type ChatEvent = (typeof ChatEvents)[keyof typeof ChatEvents];
 // Define a type for the event handler callback
 type EventHandler<T> = (data: T) => void;
 
-export default function HomeShell({ items }: HomeShellProps) {
+export default function HomeShell({ items, currentUserId }: HomeShellProps) {
   const [activeTab, setActiveTab] = useState<CategoryType>("all");
   const [likedItems, setLikedItems] = useState<Set<string>>(new Set());
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -132,7 +189,14 @@ export default function HomeShell({ items }: HomeShellProps) {
   const [isTyping, setIsTyping] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  const displayItems = items && items.length > 0 ? items : mockItems;
+  // Process items with default values for optional properties
+  const displayItems = (items && items.length > 0 ? items : mockItems).map(
+    (item) => ({
+      ...item,
+      isFavorited: item.isFavorited ?? false,
+      userId: item.userId ?? "unknown",
+    })
+  );
 
   const filteredItems =
     activeTab === "all"
@@ -140,6 +204,12 @@ export default function HomeShell({ items }: HomeShellProps) {
       : displayItems.filter((item) => item.category === activeTab);
 
   const toggleLike = (id: string) => {
+    if (!currentUserId) {
+      // Optionally show a login prompt or toast notification
+      console.log("Please log in to like items");
+      return;
+    }
+
     setLikedItems((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(id)) {
@@ -192,7 +262,8 @@ export default function HomeShell({ items }: HomeShellProps) {
       (data: unknown) => {
         const eventData = data as MessageReceivedEventData;
         const newMessage: ChatMessage = {
-          id: Date.now().toString(),
+          // Use a unique ID
+          id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
           role: "assistant",
           content: eventData.message,
           timestamp: new Date(),
@@ -206,7 +277,8 @@ export default function HomeShell({ items }: HomeShellProps) {
       (data: unknown) => {
         const eventData = data as ChatErrorEventData;
         const errorMessage: ChatMessage = {
-          id: Date.now().toString(),
+          // Use a unique ID
+          id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
           role: "assistant",
           content: `Sorry, I encountered an error: ${eventData.error}`,
           timestamp: new Date(),
@@ -231,8 +303,9 @@ export default function HomeShell({ items }: HomeShellProps) {
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || isLoading) return;
 
+    // Use a more unique ID (timestamp + random string)
     const userMessage: ChatMessage = {
-      id: Date.now().toString(),
+      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       role: "user",
       content: inputMessage,
       timestamp: new Date(),
@@ -246,7 +319,7 @@ export default function HomeShell({ items }: HomeShellProps) {
       await ChatService.sendMessage([...chatMessages, userMessage]);
     } catch (error) {
       const errorMessage: ChatMessage = {
-        id: Date.now().toString(),
+        id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         role: "assistant",
         content: `Error: ${
           error instanceof Error ? error.message : "Unknown error"
@@ -546,7 +619,14 @@ export default function HomeShell({ items }: HomeShellProps) {
         ) : viewMode === "grid" ? (
           <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
             {filteredItems.map((item, index) => {
-              const isLiked = likedItems.has(item.id);
+              // Check both the item's isFavorited property and local likedItems state
+              const isFavoritedFromServer = item.isFavorited ?? false;
+              const isLikedLocally = likedItems.has(item.id);
+              const isLiked = currentUserId
+                ? item.userId === currentUserId
+                  ? isFavoritedFromServer
+                  : isLikedLocally
+                : false;
               const categoryColor = getCategoryColor(item.category);
               const CategoryIcon = getCategoryIcon(item.category);
 
@@ -660,7 +740,14 @@ export default function HomeShell({ items }: HomeShellProps) {
         ) : (
           <div className="space-y-3">
             {filteredItems.map((item, index) => {
-              const isLiked = likedItems.has(item.id);
+              // Check both the item's isFavorited property and local likedItems state
+              const isFavoritedFromServer = item.isFavorited ?? false;
+              const isLikedLocally = likedItems.has(item.id);
+              const isLiked = currentUserId
+                ? item.userId === currentUserId
+                  ? isFavoritedFromServer
+                  : isLikedLocally
+                : false;
               const categoryColor = getCategoryColor(item.category);
               const CategoryIcon = getCategoryIcon(item.category);
 
