@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Bell, Mail, Smartphone, Globe, Volume2, VolumeX } from "lucide-react";
 import {
   getUserNotificationPreferences,
   updateNotificationPreferences,
 } from "../../../app/actions/notificatons";
+import { addDaysIso } from "@/lib/time";
 
 type NotificationPreference = {
   user_id: string;
@@ -194,11 +195,7 @@ export default function NotificationPreferences() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  useEffect(() => {
-    loadPreferences();
-  }, []);
-
-  const loadPreferences = async () => {
+  const loadPreferences = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -211,7 +208,12 @@ export default function NotificationPreferences() {
     }
 
     setLoading(false);
-  };
+  }, []);
+
+  useEffect(() => {
+    const t = setTimeout(() => void loadPreferences(), 0);
+    return () => clearTimeout(t);
+  }, [loadPreferences]);
 
   const handleTogglePreference = async (
     type: NotificationType,
@@ -233,7 +235,7 @@ export default function NotificationPreferences() {
   ) => {
     if (!preferences) return;
 
-    const update: any = {};
+    const update: Record<string, unknown> = {};
     if (channel === "email") update.email_enabled = enabled;
     if (channel === "push") update.push_enabled = enabled;
     if (channel === "in_app") update.in_app_enabled = enabled;
@@ -247,13 +249,11 @@ export default function NotificationPreferences() {
 
   const handleMuteToggle = async (muted: boolean) => {
     await savePreferences({
-      muted_until: muted
-        ? new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
-        : null,
+      muted_until: muted ? addDaysIso(1) : null,
     });
   };
 
-  const savePreferences = async (updates: any) => {
+  const savePreferences = async (updates: Record<string, unknown>) => {
     if (!preferences) return;
 
     setSaving(true);
@@ -267,7 +267,6 @@ export default function NotificationPreferences() {
     } else if (result.success && result.data) {
       setPreferences(result.data);
       setSuccess(true);
-      // Hide success message after 3 seconds
       setTimeout(() => setSuccess(false), 3000);
     }
 
@@ -597,7 +596,7 @@ export default function NotificationPreferences() {
             Reset Changes
           </button>
           <button
-            onClick={() => savePreferences({})} // Save current state
+            onClick={() => savePreferences({})}
             disabled={saving}
             className="rounded-md bg-blue-900 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:opacity-50"
           >

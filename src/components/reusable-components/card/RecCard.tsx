@@ -7,7 +7,6 @@ interface RecCardProps {
   title: string;
   location: string;
   category: string;
-  categoryColor: string;
   isInitiallyFavorited?: boolean;
   onFavorite?: () => void;
   onClickCard?: () => void;
@@ -21,7 +20,6 @@ const RecCard = ({
   onClickCard,
   renderMedia,
   category,
-  categoryColor,
   isInitiallyFavorited = false,
   onFavorite,
 }: RecCardProps) => {

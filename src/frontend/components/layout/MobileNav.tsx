@@ -37,7 +37,6 @@ interface SearchResult {
 
 export const MobileNav = () => {
   const [open, setOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [logoutHesitate, setLogoutHesitate] = useState(false);
@@ -61,7 +60,8 @@ export const MobileNav = () => {
       animationDuration: `${6 + Math.random() * 4}s`,
       opacity: 0.3,
     }));
-    setFloatingElements(elements);
+    const t = setTimeout(() => setFloatingElements(elements), 0);
+    return () => clearTimeout(t);
   }, []);
 
   const handleSearch = () => {

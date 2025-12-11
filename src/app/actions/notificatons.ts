@@ -25,7 +25,7 @@ export type CreateNotificationInput = {
   type: NotificationType;
   title: string;
   message: string;
-  data?: Record<string, any>;
+  data?: Record<string, unknown>;
   actionUrl?: string;
   expiresAt?: Date;
 };
@@ -36,15 +36,13 @@ export type Notification = {
   type: NotificationType;
   title: string;
   message: string;
-  data: Record<string, any>;
+  data: Record<string, unknown>;
   is_read: boolean;
   action_url?: string;
   created_at: string;
   read_at?: string;
   expires_at?: string;
 };
-
-// Helper function to map types for backward compatibility
 export async function mapNotificationType(
   type: string
 ): Promise<NotificationType> {
@@ -61,18 +59,14 @@ export async function mapNotificationType(
 export async function createNotification(input: CreateNotificationInput) {
   try {
     const supabase = await supabaseServer();
-
-    // Map type for backward compatibility with existing ENUM
     const mappedType = await mapNotificationType(input.type);
 
-    // Check user notification preferences
+
     const { data: preferences } = await supabase
       .from("notification_preferences")
       .select("preferences, in_app_enabled")
       .eq("user_id", input.userId)
       .single();
-
-    // Skip if user has disabled this notification type
     if (preferences) {
       const isEnabled = preferences.preferences?.[mappedType] !== false;
       const inAppEnabled = preferences.in_app_enabled !== false;
@@ -104,8 +98,6 @@ export async function createNotification(input: CreateNotificationInput) {
       console.error("Error creating notification:", error);
       return { error: error.message };
     }
-
-    // Send real-time event
     await supabase.channel(`notifications:${input.userId}`).send({
       type: "broadcast",
       event: "new_notification",
@@ -119,8 +111,6 @@ export async function createNotification(input: CreateNotificationInput) {
     return { error: "An unexpected error occurred" };
   }
 }
-
-//Get user notifications
 export async function getUserNotifications(options?: {
   limit?: number;
   offset?: number;
@@ -149,12 +139,9 @@ export async function getUserNotifications(options?: {
     }
 
     if (type) {
-      // Map type for query
       const mappedType = await mapNotificationType(type);
       query = query.eq("type", mappedType);
     }
-
-    // Filter out expired notifications
     query = query.or(
       `expires_at.is.null,expires_at.gt.${new Date().toISOString()}`
     );
@@ -178,7 +165,6 @@ export async function getUserNotifications(options?: {
   }
 }
 
-//Mark notification as read
 export async function markNotificationAsRead(notificationId: string) {
   try {
     const supabase = await supabaseServer();
@@ -187,8 +173,6 @@ export async function markNotificationAsRead(notificationId: string) {
     if (!userData.user) {
       return { error: "You must be logged in" };
     }
-
-    // Verify notification belongs to user
     const { data: notification } = await supabase
       .from("notifications")
       .select("user_id")
@@ -219,8 +203,6 @@ export async function markNotificationAsRead(notificationId: string) {
     return { error: "An unexpected error occurred" };
   }
 }
-
-//Mark all notifications as read
 export async function markAllNotificationsAsRead() {
   try {
     const supabase = await supabaseServer();
@@ -251,8 +233,6 @@ export async function markAllNotificationsAsRead() {
     return { error: "An unexpected error occurred" };
   }
 }
-
-//Delete notification
 export async function deleteNotification(notificationId: string) {
   try {
     const supabase = await supabaseServer();
@@ -261,8 +241,6 @@ export async function deleteNotification(notificationId: string) {
     if (!userData.user) {
       return { error: "You must be logged in" };
     }
-
-    // Verify notification belongs to user
     const { data: notification } = await supabase
       .from("notifications")
       .select("user_id")
@@ -290,8 +268,6 @@ export async function deleteNotification(notificationId: string) {
     return { error: "An unexpected error occurred" };
   }
 }
-
-//Get notification counts
 export async function getNotificationCounts() {
   try {
     const supabase = await supabaseServer();
@@ -324,8 +300,6 @@ export async function getNotificationCounts() {
     return { error: "An unexpected error occurred" };
   }
 }
-
-//Get or create user notification preferences
 export async function getUserNotificationPreferences() {
   try {
     const supabase = await supabaseServer();
@@ -342,7 +316,6 @@ export async function getUserNotificationPreferences() {
       .single();
 
     if (error && error.code === "PGRST116") {
-      // Create default preferences if they don't exist
       const defaultPreferences = {
         user_id: userData.user.id,
         email_enabled: true,
@@ -394,7 +367,6 @@ export async function getUserNotificationPreferences() {
   }
 }
 
-//Update notification preferences
 export async function updateNotificationPreferences(
   updates: Partial<{
     email_enabled: boolean;
@@ -432,9 +404,6 @@ export async function updateNotificationPreferences(
     return { error: "An unexpected error occurred" };
   }
 }
-
-//Helper functions for creating specific notifications
-
 export async function createListingNotification(
   listingId: string,
   listingTitle: string,
@@ -473,7 +442,7 @@ export async function createChatNotification(
 ) {
   const notification = await createNotification({
     userId: recipientId,
-    type: "new_message", // Maps to your existing 'new_message' enum
+    type: "new_message",
     title: `New message from ${senderName}`,
     message:
       messagePreview.length > 100

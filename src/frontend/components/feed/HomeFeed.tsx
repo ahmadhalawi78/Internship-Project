@@ -1,5 +1,4 @@
 import { Package, Utensils, MapPin } from "lucide-react";
-import Card from "../../../components/reusable-components/card/Card";
 
 export type FeedItem = {
   id: string;
@@ -103,40 +102,6 @@ export default function HomeFeed({ items }: HomeFeedProps) {
           <div className="h-1 w-0 bg-linear-to-r from-blue-600 to-emerald-600 transition-all duration-300 group-hover:w-full" />
         </article>
       ))}
-    </div>
-  );
-}
-
-function Demo() {
-  const mockItems: FeedItem[] = [
-    {
-      id: "1",
-      title: "Vintage Camera",
-      category: "bartering",
-      location: "Beirut",
-    },
-    {
-      id: "2",
-      title: "Fresh Vegetables",
-      category: "food",
-      location: "Baabda",
-    },
-    {
-      id: "3",
-      title: "Handmade Pottery",
-      category: "bartering",
-      location: "Jounieh",
-    },
-  ];
-
-  return (
-    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-emerald-50 p-8">
-      <div className="mx-auto max-w-7xl">
-        <h1 className="mb-8 text-4xl font-black bg-linear-to-r from-slate-900 to-blue-900 bg-clip-text text-transparent">
-          Home Feed
-        </h1>
-        <HomeFeed items={mockItems} />
-      </div>
     </div>
   );
 }

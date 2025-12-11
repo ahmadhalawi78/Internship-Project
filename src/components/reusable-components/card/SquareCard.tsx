@@ -8,7 +8,6 @@ interface SquareCardProps {
   title: string;
   location: string;
   category: string;
-  categoryColor: string;
   isInitiallyFavorited?: boolean;
   onFavorite?: () => void;
   onClickCard?: () => void;
@@ -25,7 +24,6 @@ const SquareCard = ({
   onClickCard,
   renderMedia,
   category,
-  categoryColor,
   isInitiallyFavorited = false,
   onFavorite,
   shouldShowMessageButton = false,
@@ -64,19 +62,17 @@ const SquareCard = ({
         w-full max-w-[480px] min-w-[300px]
         xs:max-w-[340px] xs:min-w-[260px]
         sm:max-w-none sm:min-w-[200px]
-        transition-all duration-300 ease-out
         mx-auto"
     >
       {/* Image/Media Container */}
       <div
         className="
-          relative aspect-square xs:aspect-[4/3] sm:aspect-[5/4] md:aspect-[4/3] 
+          relative aspect-square xs:aspect-[4/3] sm:aspect-5/4 md:aspect-4/3 
           bg-gray-50 overflow-hidden border-b border-gray-100
-          transition-all duration-300 ease-out
         "
       >
         {renderMedia && renderMedia()}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent"></div>
+        <div className="absolute inset-0 bg-linear-to-t from-black/5 to-transparent"></div>
 
         {/* Category Badge */}
         <span
@@ -106,7 +102,6 @@ const SquareCard = ({
             border border-white/50
             h-6 w-6 xs:h-7 xs:w-7 sm:h-8 sm:w-8
             flex items-center justify-center
-            transition-all duration-300 ease-out
           "
           aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
         >
@@ -134,7 +129,6 @@ const SquareCard = ({
             line-clamp-1 xs:line-clamp-2
             leading-tight xs:leading-snug
             text-gray-900 group-hover:text-blue-700 transition-colors
-            transition-all duration-300 ease-out
           "
           title={title}
         >
@@ -149,7 +143,7 @@ const SquareCard = ({
             transition-all duration-300 ease-out
           "
         >
-          <MapPin className="h-3 w-3 xs:h-3.5 xs:w-3.5 sm:h-3.5 sm:w-3.5 flex-shrink-0
+          <MapPin className="h-3 w-3 xs:h-3.5 xs:w-3.5 sm:h-3.5 sm:w-3.5 shrink-0
             transition-all duration-300 ease-out" />
           <span className="truncate leading-tight" title={location}>
             {location}

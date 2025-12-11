@@ -11,6 +11,7 @@ import {
   Package,
   Utensils,
 } from "lucide-react";
+import Link from "next/link";
 import { useState, useEffect } from "react";
 
 import { useAuth } from "@/frontend/hooks/useAuth";
@@ -58,7 +59,8 @@ export default function DesktopNav() {
       animationDuration: `${6 + Math.random() * 4}s`,
       opacity: 0.4,
     }));
-    setFloatingElements(elements);
+    const t = setTimeout(() => setFloatingElements(elements), 0);
+    return () => clearTimeout(t);
   }, []);
 
   const handleSearch = () => {
@@ -189,10 +191,9 @@ export default function DesktopNav() {
 
       <div className="relative mx-auto max-w-7xl px-8 py-8">
         <div className="flex justify-center mb-8">
-          <a
+          <Link
             href="/"
             className="group relative"
-            onClick={(e) => e.preventDefault()}
             onMouseEnter={() => setLogoHovered(true)}
             onMouseLeave={() => setLogoHovered(false)}
           >
@@ -356,7 +357,7 @@ export default function DesktopNav() {
                 </div>
               </div>
             </div>
-          </a>
+          </Link>
         </div>
 
         <div className="flex items-center gap-4">

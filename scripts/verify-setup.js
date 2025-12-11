@@ -1,18 +1,13 @@
-#!/usr/bin/env node
 
-/**
- * Setup Verification Script
- * Run this to verify your Supabase Auth setup is correct
- */
-
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const fs = require('fs');
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const path = require('path');
 
 console.log('🔍 Verifying Supabase Auth Setup...\n');
 
 let hasErrors = false;
 
-// Check for .env.local file
 const envPath = path.join(process.cwd(), '.env.local');
 if (!fs.existsSync(envPath)) {
     console.log('❌ .env.local file not found');
@@ -20,8 +15,6 @@ if (!fs.existsSync(envPath)) {
     hasErrors = true;
 } else {
     console.log('✅ .env.local file exists');
-    
-    // Check for required environment variables
     const envContent = fs.readFileSync(envPath, 'utf8');
     const requiredVars = [
         'NEXT_PUBLIC_SUPABASE_URL',
@@ -45,7 +38,6 @@ if (!fs.existsSync(envPath)) {
     });
 }
 
-// Check for required files
 console.log('\n📁 Checking required files...');
 const requiredFiles = [
     'src/frontend/lib/supabase/client.ts',
@@ -68,7 +60,6 @@ requiredFiles.forEach(file => {
     }
 });
 
-// Check package.json for required dependencies
 console.log('\n📦 Checking dependencies...');
 const packageJsonPath = path.join(process.cwd(), 'package.json');
 if (fs.existsSync(packageJsonPath)) {
@@ -85,8 +76,6 @@ if (fs.existsSync(packageJsonPath)) {
         }
     });
 }
-
-// Summary
 console.log('\n' + '='.repeat(50));
 if (hasErrors) {
     console.log('❌ Setup incomplete. Please fix the issues above.');
