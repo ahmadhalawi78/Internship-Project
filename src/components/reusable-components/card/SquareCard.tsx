@@ -63,20 +63,19 @@ const SquareCard = ({
         hover:shadow-md transition-all duration-300 cursor-pointer active:scale-[0.98]
         w-full max-w-[480px] min-w-[300px]
         xs:max-w-[340px] xs:min-w-[260px]
-        sm:max-w-none sm:min-w-[200px]
-        transition-all duration-300 ease-out
+        sm:max-w-none sm:min-w-[200px] ease-out
         mx-auto"
     >
       {/* Image/Media Container */}
       <div
         className="
-          relative aspect-square xs:aspect-[4/3] sm:aspect-[5/4] md:aspect-[4/3] 
+          relative aspect-square xs:aspect-[4/3] sm:aspect-5/4 md:aspect-4/3 
           bg-gray-50 overflow-hidden border-b border-gray-100
           transition-all duration-300 ease-out
         "
       >
         {renderMedia && renderMedia()}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent"></div>
+        <div className="absolute inset-0 bg-linear-to-t from-black/5 to-transparent"></div>
 
         {/* Category Badge */}
         <span
@@ -105,8 +104,7 @@ const SquareCard = ({
             disabled:opacity-50 disabled:cursor-not-allowed 
             border border-white/50
             h-6 w-6 xs:h-7 xs:w-7 sm:h-8 sm:w-8
-            flex items-center justify-center
-            transition-all duration-300 ease-out
+            flex items-center justify-center ease-out
           "
           aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
         >
@@ -125,16 +123,17 @@ const SquareCard = ({
       </div>
 
       {/* Content Container */}
-      <div className="p-2 xs:p-2.5 sm:p-4 space-y-1 xs:space-y-1.5 sm:space-y-2
-        transition-all duration-300 ease-out">
+      <div
+        className="p-2 xs:p-2.5 sm:p-4 space-y-1 xs:space-y-1.5 sm:space-y-2
+        transition-all duration-300 ease-out"
+      >
         {/* Title */}
         <h3
           className="
             font-semibold text-sm xs:text-base sm:text-base 
             line-clamp-1 xs:line-clamp-2
             leading-tight xs:leading-snug
-            text-gray-900 group-hover:text-blue-700 transition-colors
-            transition-all duration-300 ease-out
+            text-gray-900 group-hover:text-blue-700 transition-colors duration-300 ease-out
           "
           title={title}
         >
@@ -149,8 +148,10 @@ const SquareCard = ({
             transition-all duration-300 ease-out
           "
         >
-          <MapPin className="h-3 w-3 xs:h-3.5 xs:w-3.5 sm:h-3.5 sm:w-3.5 flex-shrink-0
-            transition-all duration-300 ease-out" />
+          <MapPin
+            className="h-3 w-3 xs:h-3.5 xs:w-3.5 sm:h-3.5 sm:w-3.5 shrink-0
+            transition-all duration-300 ease-out"
+          />
           <span className="truncate leading-tight" title={location}>
             {location}
           </span>
@@ -158,8 +159,10 @@ const SquareCard = ({
 
         {/* Message Button */}
         {shouldShowMessageButton && listingOwnerId && (
-          <div className="pt-1 xs:pt-2 sm:pt-3 mt-1 xs:mt-2 sm:mt-3 border-t border-gray-100
-            transition-all duration-300 ease-out">
+          <div
+            className="pt-1 xs:pt-2 sm:pt-3 mt-1 xs:mt-2 sm:mt-3 border-t border-gray-100
+            transition-all duration-300 ease-out"
+          >
             <MessageButton
               listingId={id}
               listingOwnerId={listingOwnerId}

@@ -53,13 +53,13 @@ export default function Card({
     }
     if (Icon) {
       return (
-        <div className="flex items-center justify-center w-full h-full bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="flex items-center justify-center w-full h-full bg-linear-to-br from-gray-50 to-gray-100">
           <Icon size={48} className="text-gray-400" />
         </div>
       );
     }
     return (
-      <div className="flex items-center justify-center w-full h-full bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="flex items-center justify-center w-full h-full bg-linear-to-br from-gray-50 to-gray-100">
         <span className="text-gray-400 text-sm">No media</span>
       </div>
     );
