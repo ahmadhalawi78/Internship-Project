@@ -1,64 +1,55 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState } from "react";
 import { createListing } from "@/app/actions/listings";
-import { useRouter } from "next/navigation";
+
+type FormState = {
+  error?: string;
+  success?: boolean;
+};
 
 export default function CreateListingForm() {
-  const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    category: "bartering",
-    location: "",
-    contact_info: "",
-    type: "offer",
-  });
+  const [state, formAction, isPending] = useActionState<FormState, FormData>(
+    async (prevState, formData) => {
+      const listing = {
+        title: formData.get("title") as string,
+        description: formData.get("description") as string,
+        category: formData.get("category") as string,
+        location: formData.get("location") as string,
+        contact_info: formData.get("contact_info") as string,
+        type: formData.get("type") as string,
+      };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-
-    const result = await createListing(formData);
-
-    if (result.error) {
-      setError(result.error);
-      setLoading(false);
-    } else {
-      router.push("/");
-      router.refresh();
-    }
-  };
-
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
-  ) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
+      const result = await createListing(listing);
+      return result;
+    },
+    {}
+  );
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl mx-auto p-6">
-      {error && (
-        <div className="bg-red-50 text-red-800 p-3 rounded-md">{error}</div>
+    <form action={formAction} className="space-y-6 max-w-2xl mx-auto p-6">
+      {state?.error && (
+        <div className="bg-red-50 text-red-800 p-3 rounded-md">
+          {state.error}
+        </div>
+      )}
+
+      {state?.success && (
+        <div className="bg-green-50 text-green-800 p-3 rounded-md">
+          Listing created successfully! Redirecting...
+        </div>
       )}
 
       <div>
         <label className="block text-sm font-medium mb-1">Type</label>
         <select
           name="type"
-          value={formData.type}
-          onChange={handleChange}
+          defaultValue=""
           required
-          className="w-full p-2 border rounded-md"
+          disabled={isPending}
+          className="w-full p-2 border rounded-md disabled:opacity-50"
         >
+          <option value="">Select a type...</option>
           <option value="offer">I'm Offering</option>
           <option value="request">I'm Requesting</option>
         </select>
@@ -69,10 +60,9 @@ export default function CreateListingForm() {
         <input
           type="text"
           name="title"
-          value={formData.title}
-          onChange={handleChange}
           required
-          className="w-full p-2 border rounded-md"
+          disabled={isPending}
+          className="w-full p-2 border rounded-md disabled:opacity-50"
           placeholder="What are you offering?"
         />
       </div>
@@ -81,11 +71,10 @@ export default function CreateListingForm() {
         <label className="block text-sm font-medium mb-1">Description</label>
         <textarea
           name="description"
-          value={formData.description}
-          onChange={handleChange}
           required
           rows={4}
-          className="w-full p-2 border rounded-md"
+          disabled={isPending}
+          className="w-full p-2 border rounded-md disabled:opacity-50"
           placeholder="Describe your item or service..."
         />
       </div>
@@ -94,10 +83,12 @@ export default function CreateListingForm() {
         <label className="block text-sm font-medium mb-1">Category</label>
         <select
           name="category"
-          value={formData.category}
-          onChange={handleChange}
-          className="w-full p-2 border rounded-md"
+          defaultValue=""
+          required
+          disabled={isPending}
+          className="w-full p-2 border rounded-md disabled:opacity-50"
         >
+          <option value="">Select a category...</option>
           <option value="bartering">Bartering</option>
           <option value="food">Food</option>
           <option value="services">Services</option>
@@ -110,10 +101,9 @@ export default function CreateListingForm() {
         <input
           type="text"
           name="location"
-          value={formData.location}
-          onChange={handleChange}
           required
-          className="w-full p-2 border rounded-md"
+          disabled={isPending}
+          className="w-full p-2 border rounded-md disabled:opacity-50"
           placeholder="City, region"
         />
       </div>
@@ -125,19 +115,18 @@ export default function CreateListingForm() {
         <input
           type="text"
           name="contact_info"
-          value={formData.contact_info}
-          onChange={handleChange}
-          className="w-full p-2 border rounded-md"
+          disabled={isPending}
+          className="w-full p-2 border rounded-md disabled:opacity-50"
           placeholder="How should people contact you?"
         />
       </div>
 
       <button
         type="submit"
-        disabled={loading}
+        disabled={isPending}
         className="w-full bg-blue-900 text-white py-2 rounded-md hover:bg-blue-800 disabled:opacity-50"
       >
-        {loading ? "Creating..." : "Create Listing"}
+        {isPending ? "Creating..." : "Create Listing"}
       </button>
     </form>
   );

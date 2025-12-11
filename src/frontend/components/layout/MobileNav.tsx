@@ -13,6 +13,7 @@ import {
   Plus,
 } from "lucide-react";
 import { useState, useEffect } from "react"; // Add useEffect
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/frontend/hooks/useAuth";
 
 // Add interface for floating element styles
@@ -142,12 +143,12 @@ export const MobileNav = () => {
   };
 
   const handlePostListing = () => {
-    alert("Navigating to Post Listing page...");
+    router.push("/create-listing");
     setOpen(false);
   };
 
   const handleAbout = () => {
-    alert("Navigating to About page...");
+    router.push("/about");
     setOpen(false);
   };
 
