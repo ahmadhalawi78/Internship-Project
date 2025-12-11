@@ -75,6 +75,32 @@ const SquareCard = ({
             onFavoriteChange={handleFavoriteChange}
             variant="icon"
             size={16}
+        {/* Favorite Button */}
+        <button
+          onClick={handleFavorite}
+          disabled={isLoading}
+          className="
+            absolute top-1.5 right-1.5 xs:top-2 xs:right-2 sm:top-3 sm:right-3 
+            bg-white/90 backdrop-blur-sm p-1 xs:p-1.5 sm:p-2 
+            rounded-full shadow-sm hover:shadow-md 
+            transition-all duration-200 hover:scale-110 active:scale-95
+            disabled:opacity-50 disabled:cursor-not-allowed 
+            border border-white/50
+            h-6 w-6 xs:h-7 xs:w-7 sm:h-8 sm:w-8
+            flex items-center justify-center ease-out
+          "
+          aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+        >
+          <Heart
+            className={`
+              h-2.5 w-2.5 xs:h-3 xs:w-3 sm:h-4 sm:w-4
+              transition-all duration-300 ease-out
+              ${
+                isFavorite
+                  ? "fill-red-500 text-red-500"
+                  : "text-gray-600 group-hover:text-red-400"
+              }
+            `}
           />
         </div>
       </div>
@@ -83,6 +109,12 @@ const SquareCard = ({
       <div className="p-2 xs:p-2.5 sm:p-4 space-y-1 xs:space-y-1.5 sm:space-y-2
         transition-all duration-300 ease-out">
         {}
+      {/* Content Container */}
+      <div
+        className="p-2 xs:p-2.5 sm:p-4 space-y-1 xs:space-y-1.5 sm:space-y-2
+        transition-all duration-300 ease-out"
+      >
+        {/* Title */}
         <h3
           className="
             font-semibold text-sm xs:text-base sm:text-base 
@@ -112,8 +144,10 @@ const SquareCard = ({
 
         {}
         {shouldShowMessageButton && listingOwnerId && (
-          <div className="pt-1 xs:pt-2 sm:pt-3 mt-1 xs:mt-2 sm:mt-3 border-t border-gray-100
-            transition-all duration-300 ease-out">
+          <div
+            className="pt-1 xs:pt-2 sm:pt-3 mt-1 xs:mt-2 sm:mt-3 border-t border-gray-100
+            transition-all duration-300 ease-out"
+          >
             <MessageButton
               listingId={id}
               listingOwnerId={listingOwnerId}

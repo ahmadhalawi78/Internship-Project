@@ -14,6 +14,7 @@ export default function CreateListingForm() {
     category: "bartering",
     location: "",
     contact_info: "",
+    type: "offer",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -48,6 +49,20 @@ export default function CreateListingForm() {
       {error && (
         <div className="bg-red-50 text-red-800 p-3 rounded-md">{error}</div>
       )}
+
+      <div>
+        <label className="block text-sm font-medium mb-1">Type</label>
+        <select
+          name="type"
+          value={formData.type}
+          onChange={handleChange}
+          required
+          className="w-full p-2 border rounded-md"
+        >
+          <option value="offer">I'm Offering</option>
+          <option value="request">I'm Requesting</option>
+        </select>
+      </div>
 
       <div>
         <label className="block text-sm font-medium mb-1">Title</label>

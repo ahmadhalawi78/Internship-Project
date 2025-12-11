@@ -149,164 +149,182 @@ export default function CreateListingForm() {
                     />
                 </div>
 
-                {/* CATEGORY */}
-                <div>
-                    <label className="font-medium block mb-1">Category</label>
-                    <select
-                        name="category"
-                        className="w-full border rounded p-2"
-                        value={formData.category}
-                        onChange={handleChange}
-                        required
-                    >
-                        <option value="items">Items</option>
-                        <option value="food">Food</option>
-                        <option value="services">Services</option>
-                        <option value="other">Other</option>
-                    </select>
-                </div>
-
-                {/* TYPE */}
-                <div>
-                    <label className="font-medium block mb-1">Type</label>
-                    <select
-                        name="type"
-                        className="w-full border rounded p-2"
-                        value={formData.type}
-                        onChange={handleChange}
-                        required
-                    >
-                        <option value="offer">Offer</option>
-                        <option value="request">Request</option>
-                    </select>
-                </div>
-
-                {/* STATUS */}
-                <div>
-                    <label className="font-medium block mb-1">Status</label>
-                    <select
-                        name="status"
-                        className="w-full border rounded p-2"
-                        value={formData.status}
-                        onChange={handleChange}
-                        required
-                    >
-                        <option value="active">Active</option>
-                        <option value="reserved">Reserved</option>
-                        <option value="completed">Completed</option>
-                        <option value="archived">Archived</option>
-                    </select>
-                </div>
-
-                {/* URGENCY BOOLEAN */}
-                <div className="flex items-center gap-2">
-                    <input
-                        type="checkbox"
-                        name="is_urgent"
-                        checked={formData.is_urgent}
-                        onChange={handleChange}
-                    />
-                    <label className="font-medium">Mark as urgent</label>
-                </div>
-
-                {/* URGENCY ENUM */}
-                <div>
-                    <label className="font-medium block mb-1">Urgency Level</label>
-                    <select
-                        name="urgency"
-                        className="w-full border rounded p-2"
-                        value={formData.urgency}
-                        onChange={handleChange}
-                    >
-                        <option value="low">Low</option>
-                        <option value="normal">Normal</option>
-                        <option value="high">High</option>
-                        <option value="critical">Critical</option>
-                    </select>
-                </div>
-
-                {/* CITY */}
-                <div>
-                    <label className="font-medium block mb-1">City</label>
-                    <input
-                        type="text"
-                        name="city"
-                        className="w-full border rounded p-2"
-                        value={formData.city}
-                        onChange={handleChange}
-                    />
-                </div>
-
-                {/* AREA */}
-                <div>
-                    <label className="font-medium block mb-1">Area</label>
-                    <input
-                        type="text"
-                        name="area"
-                        className="w-full border rounded p-2"
-                        value={formData.area}
-                        onChange={handleChange}
-                    />
-                </div>
-
-                {/* Location */}
-                <div>
-                    <label className="font-medium block mb-1">Location (Optional)</label>
-                    <input
-                        type="text"
-                        name="location"
-                        className="w-full border rounded p-2"
-                        value={formData.location}
-                        onChange={handleChange}
-                    />
-                </div>
-
-                {/* Contact Info */}
-                <div>
-                    <label className="font-medium block mb-1">Contact Info</label>
-                    <input
-                        type="text"
-                        name="contact_info"
-                        className="w-full border rounded p-2"
-                        value={formData.contact_info}
-                        onChange={handleChange}
-                    />
-                </div>
-
-                {/* IMAGES */}
-                <div>
-                    <label className="font-medium block mb-2">Images</label>
-
-                    <input type="file" accept="image/*" multiple onChange={handleImageSelect} />
-
-                    {/* PREVIEWS */}
-                    {previews.length > 0 && (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-3">
-                            {previews.map((src, index) => (
-                                <div
-                                    key={index}
-                                    className="border rounded overflow-hidden bg-gray-100"
-                                >
-                                    <img
-                                        src={src}
-                                        alt="preview"
-                                        className="w-full h-auto object-contain"
-                                    />
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
-
-                {/* SUBMIT BUTTON */}
-                <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50"
-                >
-                    {loading ? "Creating..." : "Create Listing"}
-                </button>
-            </form>
+        {/* DESCRIPTION */}
+        <div>
+          <label className="font-medium block mb-1">Description</label>
+          <textarea
+            name="description"
+            rows={4}
+            className="w-full border rounded p-2"
+            value={formData.description}
+            onChange={handleChange}
+            required
+          />
         </div>
-    );
+
+        {/* CATEGORY */}
+        <div>
+          <label className="font-medium block mb-1">Category</label>
+          <select
+            name="category"
+            className="w-full border rounded p-2"
+            value={formData.category}
+            onChange={handleChange}
+            required
+          >
+            <option value="items">Items</option>
+            <option value="food">Food</option>
+            <option value="services">Services</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        {/* TYPE */}
+        <div>
+          <label className="font-medium block mb-1">Type</label>
+          <select
+            name="type"
+            className="w-full border rounded p-2"
+            value={formData.type}
+            onChange={handleChange}
+            required
+          >
+            <option value="offer">Offer</option>
+            <option value="request">Request</option>
+          </select>
+        </div>
+
+        {/* STATUS */}
+        <div>
+          <label className="font-medium block mb-1">Status</label>
+          <select
+            name="status"
+            className="w-full border rounded p-2"
+            value={formData.status}
+            onChange={handleChange}
+            required
+          >
+            <option value="active">Active</option>
+            <option value="reserved">Reserved</option>
+            <option value="completed">Completed</option>
+            <option value="archived">Archived</option>
+          </select>
+        </div>
+
+        {/* URGENCY BOOLEAN */}
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            name="is_urgent"
+            checked={formData.is_urgent}
+            onChange={handleChange}
+          />
+          <label className="font-medium">Mark as urgent</label>
+        </div>
+
+        {/* URGENCY ENUM */}
+        <div>
+          <label className="font-medium block mb-1">Urgency Level</label>
+          <select
+            name="urgency"
+            className="w-full border rounded p-2"
+            value={formData.urgency}
+            onChange={handleChange}
+          >
+            <option value="low">Low</option>
+            <option value="normal">Normal</option>
+            <option value="high">High</option>
+            <option value="critical">Critical</option>
+          </select>
+        </div>
+
+        {/* CITY */}
+        <div>
+          <label className="font-medium block mb-1">City</label>
+          <input
+            type="text"
+            name="city"
+            className="w-full border rounded p-2"
+            value={formData.city}
+            onChange={handleChange}
+          />
+        </div>
+
+        {/* AREA */}
+        <div>
+          <label className="font-medium block mb-1">Area</label>
+          <input
+            type="text"
+            name="area"
+            className="w-full border rounded p-2"
+            value={formData.area}
+            onChange={handleChange}
+          />
+        </div>
+
+        {/* Location */}
+        <div>
+          <label className="font-medium block mb-1">Location (Optional)</label>
+          <input
+            type="text"
+            name="location"
+            className="w-full border rounded p-2"
+            value={formData.location}
+            onChange={handleChange}
+          />
+        </div>
+
+        {/* Contact Info */}
+        <div>
+          <label className="font-medium block mb-1">Contact Info</label>
+          <input
+            type="text"
+            name="contact_info"
+            className="w-full border rounded p-2"
+            value={formData.contact_info}
+            onChange={handleChange}
+          />
+        </div>
+
+        {/* IMAGES */}
+        <div>
+          <label className="font-medium block mb-2">Images</label>
+
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={handleImageSelect}
+          />
+
+          {/* PREVIEWS */}
+          {previews.length > 0 && (
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-3">
+              {previews.map((src, index) => (
+                <div
+                  key={index}
+                  className="border rounded overflow-hidden bg-gray-100"
+                >
+                  <img
+                    src={src}
+                    alt="preview"
+                    className="w-full h-auto object-contain"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* SUBMIT BUTTON */}
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+        >
+          {loading ? "Creating..." : "Create Listing"}
+        </button>
+      </form>
+    </div>
+  );
 }
