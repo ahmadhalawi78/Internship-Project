@@ -3,6 +3,7 @@ import Footer from "@/frontend/components/layout/Footer";
 import HomeShell from "@/frontend/components/home/HomeShell";
 import { FeedItem } from "@/frontend/components/feed/HomeFeed";
 import { supabaseServer } from "@/backend/lib/supabase/server";
+import Link from "next/link";
 
 type ListingRow = {
   id: string;

@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 import { useAuth } from "@/frontend/hooks/useAuth";
 
@@ -37,6 +38,7 @@ interface SearchResult {
 
 export default function DesktopNav() {
   const { user, loading, signOut } = useAuth();
+  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [isSearching, setIsSearching] = useState(false);
@@ -142,17 +144,17 @@ export default function DesktopNav() {
   };
 
   const handlePostListing = () => {
-    alert("Navigating to Post Listing page...");
+    router.push("/create-listing");
     setMenuOpen(false);
   };
 
   const handleAbout = () => {
-    alert("Navigating to About page...");
+    router.push("/about");
     setMenuOpen(false);
   };
 
   return (
-    <div className="relative bg-linear-to-br from-slate-50 via-blue-50 to-emerald-50 overflow-hidden">
+    <div className="relative bg-linear-to-br from-slate-50 via-blue-50 to-emerald-50">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {floatingElements.map((style, i) => (
           <div
@@ -620,15 +622,13 @@ export default function DesktopNav() {
                       </>
                     ) : (
                       <div className="p-6">
-                        <button
-                          onClick={() => {
-                            alert("Navigating to login page...");
-                            setMenuOpen(false);
-                          }}
+                        <Link
+                          href="/auth/login"
+                          onClick={() => setMenuOpen(false)}
                           className="block w-full rounded-2xl bg-linear-to-r from-blue-600 to-emerald-600 px-6 py-4 text-center text-base font-black text-white shadow-xl transition-all duration-300 hover:shadow-2xl hover:scale-105 active:scale-95"
                         >
                           Sign In
-                        </button>
+                        </Link>
                       </div>
                     )}
                   </div>

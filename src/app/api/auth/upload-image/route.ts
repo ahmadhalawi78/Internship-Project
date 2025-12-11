@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { supabaseServer } from "@/backend/lib/supabase/server";
 
-const LISTING_IMAGES_BUCKET = "listing-images";
+const LISTING_IMAGES_BUCKET = "uploads";
 const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
 const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
