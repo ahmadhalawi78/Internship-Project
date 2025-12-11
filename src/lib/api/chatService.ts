@@ -1,5 +1,5 @@
-import { ChatMessage, ChatResponse } from '@/types/chat';
-import { ChatEventManager, ChatEvents } from '@/lib/events/chatEvents';
+import { ChatMessage, ChatResponse } from "@/types/chat";
+import { ChatEventManager, ChatEvents } from "@/lib/events/chatEvents";
 
 export class ChatService {
   private static eventManager = ChatEventManager.getInstance();
@@ -13,13 +13,13 @@ export class ChatService {
         timestamp: new Date(),
       });
 
-      const response = await fetch('/api/chat', {
-        method: 'POST',
+      const response = await fetch("/api/chat", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          messages: messages.map(m => ({
+          messages: messages.map((m) => ({
             role: m.role,
             content: m.content,
           })),
@@ -28,7 +28,7 @@ export class ChatService {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to send message');
+        throw new Error(errorData.error || "Failed to send message");
       }
 
       const data: ChatResponse = await response.json();
@@ -42,10 +42,9 @@ export class ChatService {
       this.eventManager.emit(ChatEvents.TYPING_END, {});
 
       return data.message;
-
     } catch (error) {
       this.eventManager.emit(ChatEvents.CHAT_ERROR, {
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error.message : "Unknown error",
         timestamp: new Date(),
       });
 
