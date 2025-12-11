@@ -151,27 +151,8 @@ const categoryConfig = {
   tools: { label: "Tools", icon: Wrench, color: "emerald" },
 } as const;
 
-// Define proper event data types
-interface TypingEventData {
-  isTyping: boolean;
-}
-
-interface MessageReceivedEventData {
-  message: string;
-  conversationId?: string;
-  timestamp?: Date;
-}
-
-interface ChatErrorEventData {
-  error: string;
-  code?: string;
-}
-
 // Define the ChatEvent type based on ChatEvents enum
 type ChatEvent = (typeof ChatEvents)[keyof typeof ChatEvents];
-
-// Define a type for the event handler callback
-type EventHandler<T> = (data: T) => void;
 
 export default function HomeShell({ items, currentUserId }: HomeShellProps) {
   const [activeTab, setActiveTab] = useState<CategoryType>("all");

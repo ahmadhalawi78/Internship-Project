@@ -1,13 +1,12 @@
-import { Heart, MapPin } from "lucide-react";
-import React, { useState } from "react";
-import { toggleFavorite } from "@/app/actions/listings";
+import { MapPin } from "lucide-react";
+import React, { useCallback } from "react";
+import FavoriteToggle from "@/components/reusable-components/FavoriteToggle";
 
 interface RecCardProps {
   id: string;
   title: string;
   location: string;
   category: string;
-  categoryColor: string;
   isInitiallyFavorited?: boolean;
   onFavorite?: () => void;
   onClickCard?: () => void;
@@ -21,33 +20,12 @@ const RecCard = ({
   onClickCard,
   renderMedia,
   category,
-  categoryColor,
   isInitiallyFavorited = false,
   onFavorite,
 }: RecCardProps) => {
-  const [isFavorite, setIsFavorite] = useState(isInitiallyFavorited);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleFavorite = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (isLoading) return;
-
-    setIsLoading(true);
-    try {
-      const result = await toggleFavorite(id);
-
-      if (result.success) {
-        setIsFavorite(result.favorited);
-        onFavorite?.();
-      } else if (result.error) {
-        console.error("Failed to toggle favorite:", result.error);
-      }
-    } catch (error) {
-      console.error("Error toggling favorite:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const handleFavoriteChange = useCallback(() => {
+    if (onFavorite) onFavorite();
+  }, [onFavorite]);
 
   return (
     <div
@@ -102,6 +80,18 @@ const RecCard = ({
           <span className="truncate">{location}</span>
         </div>
       </div>
+
+  {/* Favorite Button */}
+  <div onClick={(e) => e.stopPropagation()} className="shrink-0 max-[199px]:self-end max-[199px]:mt-2">
+    <FavoriteToggle
+      listingId={id}
+      isInitiallyFavorited={isInitiallyFavorited}
+      onFavoriteChange={handleFavoriteChange}
+      variant="icon"
+      size={16}
+    />
+  </div>
+</div>
 
       {/* Favorite Button */}
       <button

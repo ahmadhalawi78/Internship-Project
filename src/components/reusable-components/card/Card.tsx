@@ -15,7 +15,6 @@ interface CardProps {
   onFavorite?: () => void;
   variant?: "square" | "wide";
   onClickCard?: () => void;
-  // New props for chat functionality
   listingOwnerId?: string;
   currentUserId?: string;
   showMessageButton?: boolean;
@@ -26,7 +25,6 @@ export default function Card({
   title,
   location,
   category,
-  categoryColor = "blue",
   img,
   icon: Icon,
   isInitiallyFavorited = false,
@@ -81,7 +79,6 @@ export default function Card({
         onClickCard={onClickCard}
         renderMedia={renderMedia}
         category={category}
-        categoryColor={categoryColor}
         isInitiallyFavorited={isInitiallyFavorited}
         onFavorite={onFavorite}
       />
@@ -96,12 +93,10 @@ export default function Card({
       onClickCard={onClickCard}
       renderMedia={renderMedia}
       category={category}
-      categoryColor={categoryColor}
       isInitiallyFavorited={isInitiallyFavorited}
       onFavorite={onFavorite}
       shouldShowMessageButton={shouldShowMessageButton}
       listingOwnerId={listingOwnerId}
-      listingTitle={title}
     />
   );
 }

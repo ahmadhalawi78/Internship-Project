@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 import HomeMobileFrame from "./home/page";
 import ListingDetailMobileFrame from "./listing-detail/page";
 import AuthMobileFrame from "./auth/page";
@@ -10,7 +10,7 @@ export default function MobileFramesPage() {
     "home"
   );
 
-  const frames = [
+  const frames: { id: "home" | "listing" | "auth"; label: string; component: ReactNode }[] = [
     { id: "home", label: "Home", component: <HomeMobileFrame /> },
     {
       id: "listing",
@@ -21,7 +21,7 @@ export default function MobileFramesPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-blue-900 p-4 md:p-8">
+    <div className="min-h-screen bg-linear-to-br from-slate-900 to-blue-900 p-4 md:p-8">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8 text-center">
@@ -38,7 +38,7 @@ export default function MobileFramesPage() {
           {frames.map((frame) => (
             <button
               key={frame.id}
-              onClick={() => setActiveFrame(frame.id as any)}
+              onClick={() => setActiveFrame(frame.id)}
               className={`px-6 py-3 rounded-xl font-medium transition-all ${
                 activeFrame === frame.id
                   ? "bg-white text-slate-900 shadow-lg"
@@ -54,7 +54,7 @@ export default function MobileFramesPage() {
         <div className="relative">
           {/* Device Frame */}
           <div className="relative mx-auto max-w-md">
-            <div className="absolute -inset-4 bg-gradient-to-r from-blue-500/20 to-emerald-500/20 rounded-3xl blur-2xl" />
+            <div className="absolute -inset-4 bg-linear-to-r from-blue-500/20 to-emerald-500/20 rounded-3xl blur-2xl" />
             <div className="relative bg-slate-800 rounded-3xl p-6 shadow-2xl">
               <div className="text-center mb-4">
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-slate-700 rounded-full">

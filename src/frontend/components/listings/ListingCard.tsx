@@ -1,21 +1,23 @@
-import { MapPin, Heart, Package, Utensils } from "lucide-react";
-import { useState } from "react";
+import { MapPin, Package, Utensils } from "lucide-react";
+import FavoriteToggle from "@/components/reusable-components/FavoriteToggle";
 
 interface ListingCardProps {
+  id: string;
   title: string;
   imageUrl?: string | null;
   location: string;
   category: string;
+  isInitiallyFavorited?: boolean;
 }
 
 export default function ListingCard({
+  id,
   title,
   imageUrl,
   location,
   category,
+  isInitiallyFavorited = false,
 }: ListingCardProps) {
-  const [isLiked, setIsLiked] = useState(false);
-
   const isFood = category === "Food";
 
   return (
@@ -44,13 +46,14 @@ export default function ListingCard({
         )}
 
         <button
-          onClick={() => setIsLiked(!isLiked)}
           className="absolute top-3 right-3 flex h-10 w-10 items-center justify-center rounded-xl bg-white/90 backdrop-blur-sm shadow-lg transition-all duration-200 hover:scale-110 active:scale-95"
+          onClick={(e) => e.stopPropagation()}
         >
-          <Heart
-            className={`h-5 w-5 transition-all duration-200 ${
-              isLiked ? "fill-red-500 text-red-500" : "text-slate-600"
-            }`}
+          <FavoriteToggle
+            listingId={id}
+            isInitiallyFavorited={isInitiallyFavorited}
+            variant="icon"
+            size={20}
           />
         </button>
 
@@ -79,46 +82,6 @@ export default function ListingCard({
       </div>
 
       <div className="h-1 w-0 bg-linear-to-r from-blue-600 to-emerald-600 transition-all duration-300 group-hover:w-full" />
-    </div>
-  );
-}
-
-function Demo() {
-  const listings = [
-    {
-      title: "Vintage Camera for Trade",
-      imageUrl:
-        "https://images.unsplash.com/photo-1606215457740-27b951fc0304?w=400&h=300&fit=crop",
-      location: "Beirut",
-      category: "Bartering",
-    },
-    {
-      title: "Fresh Organic Vegetables",
-      imageUrl:
-        "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&h=300&fit=crop",
-      location: "Baabda",
-      category: "Food",
-    },
-    {
-      title: "Handmade Pottery Set",
-      imageUrl: "",
-      location: "Jounieh",
-      category: "Bartering",
-    },
-  ];
-
-  return (
-    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-emerald-50 p-8">
-      <div className="mx-auto max-w-7xl">
-        <h1 className="mb-8 text-4xl font-black bg-linear-to-r from-slate-900 to-blue-900 bg-clip-text text-transparent">
-          Listing Cards
-        </h1>
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {listings.map((listing, i) => (
-            <ListingCard key={i} {...listing} />
-          ))}
-        </div>
-      </div>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   MessageSquare,
   Heart,
@@ -38,32 +38,36 @@ export default function NotificationList() {
   const [page, setPage] = useState(0);
   const limit = 20;
 
-  useEffect(() => {
-    loadNotifications();
-  }, []);
+  const loadNotifications = useCallback(
+    async (loadMore = false) => {
+      const currentPage = loadMore ? page + 1 : 0;
 
-  const loadNotifications = async (loadMore = false) => {
-    const currentPage = loadMore ? page + 1 : 0;
+      setLoading(true);
+      const result = await getUserNotifications({
+        limit,
+        offset: currentPage * limit,
+        includeRead: true,
+      });
 
-    setLoading(true);
-    const result = await getUserNotifications({
-      limit,
-      offset: currentPage * limit,
-      includeRead: true,
-    });
-
-    if (result.success && result.data) {
-      if (loadMore) {
-        setNotifications((prev) => [...prev, ...result.data]);
-        setPage(currentPage);
-      } else {
-        setNotifications(result.data);
-        setPage(0);
+      if (result.success && result.data) {
+        if (loadMore) {
+          setNotifications((prev) => [...prev, ...result.data]);
+          setPage(currentPage);
+        } else {
+          setNotifications(result.data);
+          setPage(0);
+        }
+        setHasMore(result.hasMore || false);
       }
-      setHasMore(result.hasMore || false);
-    }
-    setLoading(false);
-  };
+      setLoading(false);
+    },
+    [page, limit]
+  );
+
+  useEffect(() => {
+    const t = setTimeout(() => void loadNotifications(), 0);
+    return () => clearTimeout(t);
+  }, [loadNotifications]);
 
   const handleMarkAsRead = async (id: string) => {
     const result = await markNotificationAsRead(id);
@@ -123,7 +127,7 @@ export default function NotificationList() {
           No notifications yet
         </h3>
         <p className="text-slate-600">
-          When you receive notifications, they'll appear here.
+          When you receive notifications, they will appear here.
         </p>
       </div>
     );

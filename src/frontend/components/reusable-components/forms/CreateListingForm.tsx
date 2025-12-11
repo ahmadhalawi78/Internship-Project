@@ -5,136 +5,149 @@ import { useRouter } from "next/navigation";
 import { createListing } from "@/app/actions/listings";
 
 export default function CreateListingForm() {
-  const router = useRouter();
+    const router = useRouter();
 
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    category: "items",
-    type: "offer",
-    status: "active",
-    city: "",
-    area: "",
-    location: "",
-    contact_info: "",
-    is_urgent: false,
-    urgency: "normal",
-  });
+    const [formData, setFormData] = useState({
+        title: "",
+        description: "",
+        category: "items",
+        type: "offer",
+        status: "active",
+        city: "",
+        area: "",
+        location: "",
+        contact_info: "",
+        is_urgent: false,
+        urgency: "normal",
+    });
 
-  const [images, setImages] = useState<File[]>([]);
-  const [previews, setPreviews] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
-  ) => {
-    const target = e.target;
+    const [images, setImages] = useState<File[]>([]);
+    const [previews, setPreviews] = useState<string[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const handleChange = (
+        e: React.ChangeEvent<
+            HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+        >
+    ) => {
+        const target = e.target;
 
-    if (target instanceof HTMLInputElement && target.type === "checkbox") {
-      setFormData((prev) => ({
-        ...prev,
-        [target.name]: target.checked,
-      }));
-      return;
-    }
+        if (target instanceof HTMLInputElement && target.type === "checkbox") {
+            setFormData((prev) => ({
+                ...prev,
+                [target.name]: target.checked,
+            }));
+            return;
+        }
 
-    setFormData((prev) => ({
-      ...prev,
-      [target.name]: target.value,
-    }));
-  };
+        setFormData((prev) => ({
+            ...prev,
+            [target.name]: target.value,
+        }));
+    };
 
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files ? Array.from(e.target.files) : [];
-    setImages(files);
-    setPreviews(files.map((file) => URL.createObjectURL(file)));
-  };
+    const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files ? Array.from(e.target.files) : [];
+        setImages(files);
+        setPreviews(files.map((file) => URL.createObjectURL(file)));
+    };
 
-  const uploadImages = async () => {
-    const uploaded: { url: string; path: string }[] = [];
+    const uploadImages = async () => {
+        const uploaded: { url: string; path: string }[] = [];
 
-    for (const file of images) {
-      const fd = new FormData();
-      fd.append("file", file);
+        for (const file of images) {
+            const fd = new FormData();
+            fd.append("file", file);
 
-      const res = await fetch("/api/upload-image", {
-        method: "POST",
-        body: fd,
-      });
+            const res = await fetch("/api/upload-image", {
+                method: "POST",
+                body: fd,
+            });
 
-      const data = await res.json();
+            const data = await res.json();
 
-      if (!res.ok) {
-        throw new Error(data.error || "Failed to upload image");
-      }
+            if (!res.ok) {
+                throw new Error(data.error || "Failed to upload image");
+            }
 
-      uploaded.push({
-        url: data.url,
-        path: data.path,
-      });
-    }
+            uploaded.push({
+                url: data.url,
+                path: data.path,
+            });
+        }
 
-    return uploaded;
-  };
+        return uploaded;
+    };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
 
-    try {
-      const uploaded = await uploadImages();
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        setError(null);
 
-      const formattedImages = uploaded.map((img, i) => ({
-        image_url: img.url,
-        path: img.path,
-        position: i + 1,
-      }));
+        try {
+            const uploaded = await uploadImages();
 
-      const result = await createListing({
-        ...formData,
-        images: formattedImages,
-      });
+            const formattedImages = uploaded.map((img, i) => ({
+                image_url: img.url,
+                path: img.path,
+                position: i + 1,
+            }));
 
-      if (result.error) {
-        setError(result.error);
-        setLoading(false);
-        return;
-      }
+            const result = await createListing({
+                ...formData,
+                images: formattedImages,
+            });
 
-      router.push("/");
-      router.refresh();
-    } catch (err: any) {
-      setError(err.message);
-      setLoading(false);
-    }
-  };
+            if (result.error) {
+                setError(result.error);
+                setLoading(false);
+                return;
+            }
 
-  return (
-    <div className="max-w-2xl mx-auto p-6">
-      <h2 className="text-2xl font-semibold mb-6">Create a New Listing</h2>
+            router.push("/");
+            router.refresh();
+        } catch (err) {
+            if (err instanceof Error) setError(err.message);
+            else setError(String(err));
+            setLoading(false);
+        }
+    };
 
-      {error && (
-        <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-md">
-          {error}
-        </div>
-      )}
+    return (
+        <div className="max-w-2xl mx-auto p-6">
+            <h2 className="text-2xl font-semibold mb-6">Create a New Listing</h2>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* TITLE */}
-        <div>
-          <label className="font-medium block mb-1">Title</label>
-          <input
-            type="text"
-            name="title"
-            className="w-full border rounded p-2"
-            value={formData.title}
-            onChange={handleChange}
-            required
-          />
-        </div>
+            {error && (
+                <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-md">{error}</div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+                {/* TITLE */}
+                <div>
+                    <label className="font-medium block mb-1">Title</label>
+                    <input
+                        type="text"
+                        name="title"
+                        className="w-full border rounded p-2"
+                        value={formData.title}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
+
+                {/* DESCRIPTION */}
+                <div>
+                    <label className="font-medium block mb-1">Description</label>
+                    <textarea
+                        name="description"
+                        rows={4}
+                        className="w-full border rounded p-2"
+                        value={formData.description}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
 
         {/* DESCRIPTION */}
         <div>

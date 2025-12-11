@@ -15,7 +15,7 @@ class SecureApiClient {
     }
   }
 
-  async request<T = any>(
+  async request<T = unknown>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
@@ -34,13 +34,13 @@ class SecureApiClient {
     });
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({
-        error: "Unknown error",
-      }));
-      throw new Error(error.error || `API Error: ${response.status}`);
+      const parsed = await response
+        .json()
+        .catch(() => ({ error: "Unknown error" } as { error: string }));
+      throw new Error((parsed as { error?: string }).error || `API Error: ${response.status}`);
     }
 
-    return response.json();
+    return (await response.json()) as T;
   }
 
   private generateRequestId(): string {
@@ -48,7 +48,7 @@ class SecureApiClient {
   }
 }
 
-export async function secureFetch<T = any>(
+export async function secureFetch<T = unknown>(
   endpoint: string,
   options?: RequestInit
 ): Promise<T> {
@@ -63,7 +63,7 @@ export async function secureFetch<T = any>(
     throw new Error(`API Error: ${response.status}`);
   }
 
-  return response.json();
+  return (await response.json()) as T;
 }
 
 export const apiClient = new SecureApiClient(

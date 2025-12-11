@@ -2,10 +2,92 @@
 
 import { useState } from "react";
 import { supabaseBrowser } from "@/frontend/lib/supabase/client";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function SignupPage() {
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [success, setSuccess] = useState(false);
+  
+    const handleSignup = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        setError(null);
+
+        if (password !== confirmPassword) {
+            setError("Passwords do not match");
+            setLoading(false);
+            return;
+        }
+
+        if (password.length < 6) {
+            setError("Password must be at least 6 characters");
+            setLoading(false);
+            return;
+        }
+
+        const supabase = supabaseBrowser();
+        const { error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+                emailRedirectTo: `${window.location.origin}/api/auth/callback`,
+            },
+        });
+
+        if (error) {
+            setError(error.message);
+            setLoading(false);
+        } else {
+            setSuccess(true);
+            setLoading(false);
+        }
+    };
+
+    const handleOAuthSignup = async (provider: "google" | "github") => {
+        setLoading(true);
+        setError(null);
+
+        const supabase = supabaseBrowser();
+        const { error } = await supabase.auth.signInWithOAuth({
+            provider,
+            options: {
+                redirectTo: `${window.location.origin}/api/auth/callback`,
+            },
+        });
+
+        if (error) {
+            setError(error.message);
+            setLoading(false);
+        }
+    };
+
+    if (success) {
+        return (
+            <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4">
+                <div className="w-full max-w-md space-y-8 rounded-lg bg-white p-8 shadow-sm text-center">
+                    <div className="space-y-4">
+                        <h2 className="text-2xl font-bold text-slate-900">
+                            Check your email
+                        </h2>
+                            <p className="text-sm text-slate-600">
+                            A confirmation link has been sent to{" "}
+                            <span className="font-medium">{email}</span>.
+                            Please click the link to verify your account.
+                        </p>
+                        <Link
+                            href="/auth/login"
+                            className="inline-block text-sm font-medium text-blue-900 hover:text-blue-800"
+                        >
+                            Back to sign in
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        );
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");

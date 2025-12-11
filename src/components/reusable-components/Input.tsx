@@ -1,5 +1,5 @@
 "user client";
-import { ReactNode, ChangeEventHandler } from "react";
+import { ReactNode } from "react";
 
 interface InputProps {
   type?: string;
