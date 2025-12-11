@@ -1,21 +1,23 @@
-import { MapPin, Heart, Package, Utensils } from "lucide-react";
-import { useState } from "react";
+import { MapPin, Package, Utensils } from "lucide-react";
+import FavoriteToggle from "@/components/reusable-components/FavoriteToggle";
 
 interface ListingCardProps {
+  id: string;
   title: string;
   imageUrl?: string | null;
   location: string;
   category: string;
+  isInitiallyFavorited?: boolean;
 }
 
 export default function ListingCard({
+  id,
   title,
   imageUrl,
   location,
   category,
+  isInitiallyFavorited = false,
 }: ListingCardProps) {
-  const [isLiked, setIsLiked] = useState(false);
-
   const isFood = category === "Food";
 
   return (
@@ -44,13 +46,14 @@ export default function ListingCard({
         )}
 
         <button
-          onClick={() => setIsLiked(!isLiked)}
           className="absolute top-3 right-3 flex h-10 w-10 items-center justify-center rounded-xl bg-white/90 backdrop-blur-sm shadow-lg transition-all duration-200 hover:scale-110 active:scale-95"
+          onClick={(e) => e.stopPropagation()}
         >
-          <Heart
-            className={`h-5 w-5 transition-all duration-200 ${
-              isLiked ? "fill-red-500 text-red-500" : "text-slate-600"
-            }`}
+          <FavoriteToggle
+            listingId={id}
+            isInitiallyFavorited={isInitiallyFavorited}
+            variant="icon"
+            size={20}
           />
         </button>
 

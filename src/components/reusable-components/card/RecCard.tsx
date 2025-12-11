@@ -1,6 +1,6 @@
-import { Heart, MapPin } from "lucide-react";
-import React, { useState } from "react";
-import { toggleFavorite } from "@/app/actions/listings";
+import { MapPin } from "lucide-react";
+import React, { useCallback } from "react";
+import FavoriteToggle from "@/components/reusable-components/FavoriteToggle";
 
 interface RecCardProps {
   id: string;
@@ -23,29 +23,9 @@ const RecCard = ({
   isInitiallyFavorited = false,
   onFavorite,
 }: RecCardProps) => {
-  const [isFavorite, setIsFavorite] = useState(isInitiallyFavorited);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleFavorite = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (isLoading) return;
-
-    setIsLoading(true);
-    try {
-      const result = await toggleFavorite(id);
-
-      if (result.success) {
-        setIsFavorite(result.favorited);
-        onFavorite?.();
-      } else if (result.error) {
-        console.error("Failed to toggle favorite:", result.error);
-      }
-    } catch (error) {
-      console.error("Error toggling favorite:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const handleFavoriteChange = useCallback(() => {
+    if (onFavorite) onFavorite();
+  }, [onFavorite]);
 
   return (
    <div
@@ -100,21 +80,15 @@ const RecCard = ({
   </div>
 
   {/* Favorite Button */}
-  <button
-    onClick={handleFavorite}
-    disabled={isLoading}
-    className="
-      bg-white p-1.5 sm:p-2 rounded-full shadow 
-      hover:bg-gray-100 active:bg-gray-200 transition 
-      shrink-0 
-      max-[199px]:self-end max-[199px]:mt-2
-    "
-  >
-    <Heart
+  <div onClick={(e) => e.stopPropagation()} className="shrink-0 max-[199px]:self-end max-[199px]:mt-2">
+    <FavoriteToggle
+      listingId={id}
+      isInitiallyFavorited={isInitiallyFavorited}
+      onFavoriteChange={handleFavoriteChange}
+      variant="icon"
       size={16}
-      className={`${isFavorite ? "fill-red-500 text-red-500" : "text-gray-700"}`}
     />
-  </button>
+  </div>
 </div>
 
   );
