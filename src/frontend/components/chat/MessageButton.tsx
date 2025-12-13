@@ -8,13 +8,11 @@ import { useRouter } from "next/navigation";
 interface MessageButtonProps {
   listingId: string;
   listingOwnerId: string;
-  listingTitle: string;
 }
 
 export default function MessageButton({
   listingId,
   listingOwnerId,
-  listingTitle,
 }: MessageButtonProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

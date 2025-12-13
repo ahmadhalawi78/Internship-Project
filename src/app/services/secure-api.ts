@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { RequestBody } from "@/types/common";
 
 type ApiConfig = {
   baseURL: string;
@@ -25,11 +25,11 @@ export class SecureApiService {
     }
   }
 
-  async request<T = any>(
+  async request<T = unknown>(
     endpoint: string,
     options: {
       method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
-      body?: any;
+      body?: RequestBody;
       headers?: Record<string, string>;
       cache?: RequestCache;
     } = {}
@@ -61,7 +61,7 @@ export class SecureApiService {
         throw new Error(`API Error: ${response.status} ${response.statusText}`);
       }
 
-      const data = await response.json();
+      const data = (await response.json()) as T;
 
       this.logRequest(requestId, "success", {
         endpoint,
@@ -81,7 +81,7 @@ export class SecureApiService {
     }
   }
 
-  private sanitizeBody(body: any): any {
+  private sanitizeBody(body: RequestBody): RequestBody | undefined {
     const sensitiveFields = [
       "password",
       "creditCard",
@@ -90,25 +90,27 @@ export class SecureApiService {
       "token",
     ];
 
-    const sanitized = { ...body };
+    if (typeof body !== "object" || body === null) return body;
+
+    const sanitized = { ...(body as Record<string, unknown>) } as Record<string, unknown>;
 
     sensitiveFields.forEach((field) => {
-      if (sanitized[field]) {
+      if (Object.prototype.hasOwnProperty.call(sanitized, field)) {
         sanitized[field] = "[REDACTED]";
       }
     });
 
-    return sanitized;
+    return sanitized as RequestBody;
   }
 
   private generateRequestId(): string {
-    return `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    return `req_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
   }
 
   private logRequest(
     requestId: string,
     status: "success" | "error",
-    details: Record<string, any>
+    details: Record<string, unknown>
   ) {
     console.log(`[API Request ${status.toUpperCase()}]`, {
       requestId,
@@ -117,7 +119,7 @@ export class SecureApiService {
     });
   }
 
-  async get<T = any>(
+  async get<T = unknown>(
     endpoint: string,
     options?: {
       headers?: Record<string, string>;
@@ -130,9 +132,9 @@ export class SecureApiService {
     });
   }
 
-  async post<T = any>(
+  async post<T = unknown>(
     endpoint: string,
-    body: any,
+    body: RequestBody,
     options?: {
       headers?: Record<string, string>;
     }

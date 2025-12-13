@@ -15,7 +15,6 @@ interface CardProps {
   onFavorite?: () => void;
   variant?: "square" | "wide";
   onClickCard?: () => void;
-  // New props for chat functionality
   listingOwnerId?: string;
   currentUserId?: string;
   showMessageButton?: boolean;
@@ -26,7 +25,6 @@ export default function Card({
   title,
   location,
   category,
-  categoryColor = "blue",
   img,
   icon: Icon,
   isInitiallyFavorited = false,
@@ -53,13 +51,13 @@ export default function Card({
     }
     if (Icon) {
       return (
-        <div className="flex items-center justify-center w-full h-full bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="flex items-center justify-center w-full h-full bg-linear-to-br from-gray-50 to-gray-100">
           <Icon size={48} className="text-gray-400" />
         </div>
       );
     }
     return (
-      <div className="flex items-center justify-center w-full h-full bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="flex items-center justify-center w-full h-full bg-linear-to-br from-gray-50 to-gray-100">
         <span className="text-gray-400 text-sm">No media</span>
       </div>
     );
@@ -81,7 +79,6 @@ export default function Card({
         onClickCard={onClickCard}
         renderMedia={renderMedia}
         category={category}
-        categoryColor={categoryColor}
         isInitiallyFavorited={isInitiallyFavorited}
         onFavorite={onFavorite}
       />
@@ -96,12 +93,10 @@ export default function Card({
       onClickCard={onClickCard}
       renderMedia={renderMedia}
       category={category}
-      categoryColor={categoryColor}
       isInitiallyFavorited={isInitiallyFavorited}
       onFavorite={onFavorite}
       shouldShowMessageButton={shouldShowMessageButton}
       listingOwnerId={listingOwnerId}
-      listingTitle={title}
     />
   );
 }

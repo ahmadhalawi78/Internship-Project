@@ -1,7 +1,7 @@
 "use client";
 
 import { Bell, Check } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   getNotificationCounts,
   markAllNotificationsAsRead,
@@ -16,13 +16,7 @@ export default function NotificationBell() {
   const router = useRouter();
   const { user } = useAuth();
 
-  useEffect(() => {
-    if (user) {
-      fetchCounts();
-    }
-  }, [user]);
-
-  const fetchCounts = async () => {
+  const fetchCounts = useCallback(async () => {
     if (!user) return;
 
     setLoading(true);
@@ -31,7 +25,13 @@ export default function NotificationBell() {
       setUnreadCount(result.data.unread);
     }
     setLoading(false);
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+    const t = setTimeout(() => void fetchCounts(), 0);
+    return () => clearTimeout(t);
+  }, [user, fetchCounts]);
 
   const handleMarkAllAsRead = async () => {
     if (!user || unreadCount === 0) return;

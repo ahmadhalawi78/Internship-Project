@@ -13,6 +13,7 @@ import {
   Plus,
 } from "lucide-react";
 import { useState, useEffect } from "react"; // Add useEffect
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/frontend/hooks/useAuth";
 
 // Add interface for floating element styles
@@ -37,7 +38,6 @@ interface SearchResult {
 
 export const MobileNav = () => {
   const [open, setOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [logoutHesitate, setLogoutHesitate] = useState(false);
@@ -61,7 +61,8 @@ export const MobileNav = () => {
       animationDuration: `${6 + Math.random() * 4}s`,
       opacity: 0.3,
     }));
-    setFloatingElements(elements);
+    const t = setTimeout(() => setFloatingElements(elements), 0);
+    return () => clearTimeout(t);
   }, []);
 
   const handleSearch = () => {
@@ -142,12 +143,12 @@ export const MobileNav = () => {
   };
 
   const handlePostListing = () => {
-    alert("Navigating to Post Listing page...");
+    router.push("/create-listing");
     setOpen(false);
   };
 
   const handleAbout = () => {
-    alert("Navigating to About page...");
+    router.push("/about");
     setOpen(false);
   };
 

@@ -17,9 +17,9 @@ const sizes = {
 
 const variants = {
   primary:
-   "bg-gradient-to-r from-[#6692C4] to-[#345B5D] text-white hover:from-[#8AB1D6] hover:to-[#4F7F82] active:from-[#5579A7] active:to-[#2A4A4C] transition-all duration-200",
+    "bg-gradient-to-r from-[#6692C4] to-[#345B5D] text-white hover:from-[#8AB1D6] hover:to-[#4F7F82] active:from-[#5579A7] active:to-[#2A4A4C] transition-all duration-200",
   secondary:
-    "bg-black text-white hover:bg-gray-800 active:bg-gray-900 disabled:bg-gray-400"
+    "bg-black text-white hover:bg-gray-800 active:bg-gray-900 disabled:bg-gray-400",
 };
 
 export default function Button({

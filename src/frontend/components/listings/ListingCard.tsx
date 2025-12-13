@@ -2,8 +2,11 @@ import { MapPin, Heart, Package, Utensils, Star } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { MapPin, Package, Utensils } from "lucide-react";
+import FavoriteToggle from "@/components/reusable-components/FavoriteToggle";
 
 interface ListingCardProps {
+  id: string;
   title: string;
   imageUrl?: string | null;
   location: string;
@@ -12,9 +15,11 @@ interface ListingCardProps {
   rating?: number; // 0-5
   href?: string;
   badges?: string[];
+  isInitiallyFavorited?: boolean;
 }
 
 export default function ListingCard({
+  id,
   title,
   imageUrl,
   location,
@@ -33,6 +38,8 @@ export default function ListingCard({
     }
   }, [isLiked]);
 
+  isInitiallyFavorited = false,
+}: ListingCardProps) {
   const isFood = category === "Food";
 
   return (
@@ -70,11 +77,14 @@ export default function ListingCard({
           onClick={() => setIsLiked(!isLiked)}
           aria-label={isLiked ? "Remove from favorites" : "Add to favorites"}
           className="absolute top-3 right-3 z-20 flex h-10 w-10 items-center justify-center rounded-xl bg-white/90 backdrop-blur-sm shadow-lg transition-all duration-200 hover:scale-110 active:scale-95"
+          className="absolute top-3 right-3 flex h-10 w-10 items-center justify-center rounded-xl bg-white/90 backdrop-blur-sm shadow-lg transition-all duration-200 hover:scale-110 active:scale-95"
+          onClick={(e) => e.stopPropagation()}
         >
-          <Heart
-            className={`h-5 w-5 transition-all duration-200 ${
-              isLiked ? "fill-red-500 text-red-500" : "text-slate-600"
-            }`}
+          <FavoriteToggle
+            listingId={id}
+            isInitiallyFavorited={isInitiallyFavorited}
+            variant="icon"
+            size={20}
           />
         </button>
 

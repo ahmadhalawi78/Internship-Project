@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { MobileFrame } from "@/components/ui/mobileframe";
 import {
-  ArrowLeft,
   Heart,
   Share2,
   MapPin,
@@ -12,7 +11,6 @@ import {
   Shield,
   MessageCircle,
   Phone,
-  ChevronDown,
 } from "lucide-react";
 
 export default function ListingDetailMobileFrame() {
@@ -54,7 +52,7 @@ export default function ListingDetailMobileFrame() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-100 to-blue-50 p-4 md:p-8 flex items-center justify-center">
+    <div className="min-h-screen bg-linear-to-br from-slate-100 to-blue-50 p-4 md:p-8 flex items-center justify-center">
       <MobileFrame
         showBackButton={true}
         headerRight={

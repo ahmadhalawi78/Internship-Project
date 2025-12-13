@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Send } from "lucide-react";
 import { getThreadMessages, sendMessage } from "@/app/actions/chat";
+import { useChatSubscription } from "@/hooks/useChatSubscription";
+import { ChatEventManager, ChatEvents } from "@/lib/events/chatEvents";
 
 interface ChatThreadProps {
   threadId: string;
@@ -12,36 +14,62 @@ interface ChatThreadProps {
   otherUserName?: string;
 }
 
+type MessageRow = {
+  id: string;
+  sender_id: string;
+  thread_id: string;
+  content: string;
+  created_at: string;
+};
+
 export default function ChatThread({
   threadId,
   currentUserId,
-  otherUserId,
-  listingTitle,
   otherUserName,
 }: ChatThreadProps) {
-  const [messages, setMessages] = useState<any[]>([]);
+  const [messages, setMessages] = useState<MessageRow[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    loadMessages();
-  }, [threadId]);
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  const loadMessages = async () => {
+  const loadMessages = useCallback(async () => {
     setLoading(true);
     const result = await getThreadMessages(threadId);
 
     if (result.success && result.data) {
-      setMessages(result.data);
+      setMessages(result.data as MessageRow[]);
     }
     setLoading(false);
-  };
+  }, [threadId]);
+
+  useEffect(() => {
+    const t = setTimeout(() => void loadMessages(), 0);
+    return () => clearTimeout(t);
+  }, [loadMessages]);
+
+  useChatSubscription(threadId);
+
+  useEffect(() => {
+    const manager = ChatEventManager.getInstance();
+    const off = manager.on(ChatEvents.MESSAGE_RECEIVED, (data) => {
+      const msg = data as MessageRow | undefined;
+      if (!msg) return;
+      if (msg.thread_id === threadId) {
+        setMessages((prev) => (prev.some((m) => m.id === msg.id) ? prev : [...prev, msg]));
+      }
+    });
+
+    return () => off();
+  }, [threadId]);
+
+  const scrollToBottom = useCallback(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, []);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, scrollToBottom]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,9 +85,7 @@ export default function ChatThread({
     setSending(false);
   };
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+
 
   return (
     <div className="flex flex-col h-[600px] rounded-lg border border-slate-200 bg-white shadow-sm">

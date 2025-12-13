@@ -3,8 +3,8 @@
 import { useState } from "react";
 
 type UploadImageResponse = {
-    url: string;
-    path: string;
+  url: string;
+  path: string;
 };
 
 export function useImageUpload() {
@@ -35,9 +35,10 @@ export function useImageUpload() {
             }
 
             return data as UploadImageResponse;
-        } catch (err: any) {
+        } catch (err) {
             console.error("Image upload failed:", err);
-            setError(err.message ?? "Image upload failed");
+            if (err instanceof Error) setError(err.message ?? "Image upload failed");
+            else setError(String(err) || "Image upload failed");
             return null;
         } finally {
             setIsUploading(false);

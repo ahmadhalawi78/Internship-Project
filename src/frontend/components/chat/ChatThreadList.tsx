@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { MessageSquare, User, Calendar } from "lucide-react";
 import Link from "next/link";
 import { getUserChatThreads } from "@/app/actions/chat";
@@ -37,11 +37,7 @@ export default function ChatThreadList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadThreads();
-  }, []);
-
-  const loadThreads = async () => {
+  const loadThreads = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -54,7 +50,12 @@ export default function ChatThreadList() {
     }
 
     setLoading(false);
-  };
+  }, []);
+
+  useEffect(() => {
+    const t = setTimeout(() => void loadThreads(), 0);
+    return () => clearTimeout(t);
+  }, [loadThreads]);
 
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
@@ -75,7 +76,7 @@ export default function ChatThreadList() {
     }
   };
 
-  const getOtherParticipant = (thread: ChatThread, currentUserId?: string) => {
+  const getOtherParticipant = (thread: ChatThread) => {
     return thread.user2;
   };
 

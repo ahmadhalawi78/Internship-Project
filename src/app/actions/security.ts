@@ -59,7 +59,7 @@ export async function validateApiKey() {
   }
 }
 
-export async function createApiToken(payload: Record<string, any>) {
+export async function createApiToken(payload: Record<string, unknown>) {
   try {
     const secret = process.env.INTERNAL_API_KEY;
     if (!secret) {
@@ -70,7 +70,7 @@ export async function createApiToken(payload: Record<string, any>) {
     const data = {
       ...payload,
       timestamp,
-      expires: timestamp + 15 * 60 * 1000, // 15 minutes expiry
+      expires: timestamp + 15 * 60 * 1000,
     };
 
     const signature = createHash("sha256")

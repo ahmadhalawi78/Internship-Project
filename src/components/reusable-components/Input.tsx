@@ -1,12 +1,12 @@
 "user client";
-import { ReactNode, ChangeEventHandler } from "react";
+import { ReactNode } from "react";
 
 interface InputProps {
   type?: string;
   placeholder?: string;
   icon?: ReactNode | null;
   onIconClick?: () => void;
-  onChange?:(value: string) => void;
+  onChange?: (value: string) => void;
   value?: string;
 }
 
@@ -16,7 +16,7 @@ export default function Input({
   icon = null,
   onChange,
   value,
-  onIconClick
+  onIconClick,
 }: InputProps) {
   return (
     <div className="flex items-center w-full max-w-md border border-gray-300 rounded-lg overflow-hidden bg-white">
@@ -29,13 +29,13 @@ export default function Input({
       />
 
       {icon && (
-         <button
-    type="button"
-    onClick={onIconClick}
-    className="px-4 py-2 bg-black text-white flex items-center justify-center hover:bg-gray-800 active:scale-95"
-  >
-    {icon}
-  </button>
+        <button
+          type="button"
+          onClick={onIconClick}
+          className="px-4 py-2 bg-black text-white flex items-center justify-center hover:bg-gray-800 active:scale-95"
+        >
+          {icon}
+        </button>
       )}
     </div>
   );

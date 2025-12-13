@@ -11,7 +11,6 @@ import {
   Phone,
   Apple,
   Facebook,
-  Twitter,
 } from "lucide-react";
 
 export default function AuthMobileFrame() {
@@ -32,11 +31,11 @@ export default function AuthMobileFrame() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-emerald-50 p-4 md:p-8 flex items-center justify-center">
+    <div className="min-h-screen bg-linear-to-br from-blue-50 to-emerald-50 p-4 md:p-8 flex items-center justify-center">
       <MobileFrame showHeader={false}>
         {/* Logo and Welcome */}
         <div className="pt-8 px-6 text-center">
-          <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-gradient-to-br from-blue-600 to-emerald-600 mb-4">
+          <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-linear-to-br from-blue-600 to-emerald-600 mb-4">
             <span className="text-2xl font-black text-white">L</span>
           </div>
           <h1 className="text-2xl font-bold text-slate-900">
@@ -163,15 +162,15 @@ export default function AuthMobileFrame() {
 
           <button
             type="submit"
-            className="w-full py-3 bg-gradient-to-r from-blue-600 to-emerald-600 text-white font-bold rounded-xl hover:opacity-90 transition-opacity"
+            className="w-full py-3 bg-linear-to-r from-blue-600 to-emerald-600 text-white font-bold rounded-xl hover:opacity-90 transition-opacity"
           >
             {isLogin ? "Sign In" : "Create Account"}
           </button>
 
           {isLogin && (
             <div className="text-center">
-              <p className="text-slate-600 text-sm">
-                Don't have an account?{" "}
+                <p className="text-slate-600 text-sm">
+                Do not have an account?{" "}
                 <button
                   type="button"
                   onClick={() => setIsLogin(false)}

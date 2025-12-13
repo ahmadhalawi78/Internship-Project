@@ -2,6 +2,7 @@
 
 import { supabaseServer } from "@/backend/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { createNotification } from "../actions/notificatons";
 
 export type ListingImageInput = {
@@ -10,7 +11,7 @@ export type ListingImageInput = {
   position: number;
 };
 
-const LISTING_IMAGES_BUCKET = "listing-images";
+const LISTING_IMAGES_BUCKET = "uploads";
 
 export type CreateListingInput = {
   title: string;
@@ -88,11 +89,23 @@ export async function createListing(listing: CreateListingInput) {
     });
 
     revalidatePath("/");
+
     return { success: true, data };
   } catch (error) {
     console.error("Server error creating listing:", error);
     return { error: "An unexpected error occurred" };
   }
+}
+
+// This function handles the redirect after successful creation
+export async function createListingAndRedirect(listing: CreateListingInput) {
+  const result = await createListing(listing);
+
+  if (result.success) {
+    redirect("/");
+  }
+
+  return result;
 }
 
 export type UpdateListingInput = Partial<CreateListingInput>;
