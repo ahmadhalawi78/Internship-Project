@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Search, Menu, X, User, Plus, Info, LogOut, Package, Utensils, MessageCircle } from "lucide-react";
 import { useState, useMemo } from "react";
 import { useAuth } from "@/frontend/hooks/useAuth";
+import { useRouter } from "next/navigation";
 
 interface SearchResult {
   id: number;
@@ -19,6 +20,7 @@ export const MobileNav = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [logoutHesitate, setLogoutHesitate] = useState(false);
   const { user, loading, signOut } = useAuth();
+  const router = useRouter();
 
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [showResults, setShowResults] = useState(false);
@@ -35,7 +37,7 @@ export const MobileNav = () => {
       { width: '8px', height: '9px', left: '55%', top: '15%', duration: '9.5s', delay: '7.2s' },
       { width: '7px', height: '8px', left: '35%', top: '65%', duration: '8s', delay: '8.4s' },
     ];
-    
+
     return positions.map((pos, i) => ({
       ...pos,
       background: i % 2 === 0 ? '#10b981' : '#1e40af',
@@ -47,7 +49,7 @@ export const MobileNav = () => {
     if (!searchValue.trim()) return;
     setIsSearching(true);
     setShowResults(false);
-    
+
     setTimeout(() => {
       const mockResults = [
         { id: 1, title: "Vintage Camera", category: "bartering", location: "Beirut", icon: Package },
@@ -55,11 +57,11 @@ export const MobileNav = () => {
         { id: 3, title: "Handmade Pottery", category: "bartering", location: "Jounieh", icon: Package },
         { id: 4, title: "Homemade Bread", category: "food", location: "Tripoli", icon: Utensils },
         { id: 5, title: "Old Books Collection", category: "bartering", location: "Zahle", icon: Package },
-      ].filter(item => 
+      ].filter(item =>
         item.title.toLowerCase().includes(searchValue.toLowerCase()) ||
         item.location.toLowerCase().includes(searchValue.toLowerCase())
       );
-      
+
       setSearchResults(mockResults.length > 0 ? mockResults : [
         { id: 99, title: `No results for "${searchValue}"`, category: "none", location: "Try different keywords", icon: Search }
       ]);
@@ -77,16 +79,6 @@ export const MobileNav = () => {
     signOut();
     setOpen(false);
     setLogoutHesitate(false);
-  };
-
-  const handlePostListing = () => {
-    alert("Navigating to Post Listing page...");
-    setOpen(false);
-  };
-
-  const handleAbout = () => {
-    alert("Navigating to About page...");
-    setOpen(false);
   };
 
   return (
@@ -136,21 +128,21 @@ export const MobileNav = () => {
               <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500 to-emerald-500 blur-md opacity-50 group-hover:opacity-75 transition-opacity" />
               <div className="relative h-10 w-10 rounded-xl bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform overflow-hidden">
                 <svg width="40" height="40" viewBox="0 0 120 120" className="absolute">
-                  <path 
-                    d="M 28 18 L 52 18 L 52 78 L 92 78 L 92 102 L 28 102 Z" 
+                  <path
+                    d="M 28 18 L 52 18 L 52 78 L 92 78 L 92 102 L 28 102 Z"
                     fill="white"
                     className="transition-all duration-500"
                   />
                   <g transform="translate(62, 28) scale(0.8)">
                     <rect x="6" y="42" width="6" height="20" fill="#78350f" />
-                    <path d="M 9 10 L 21 30 L 18 30 L 27 44 L 24 44 L 33 60 L -15 60 L -6 44 L -9 44 L 0 30 L -3 30 Z" 
-                          fill="#047857" />
-                    <path d="M 9 13 L 19 28 L 16 28 L 24 40 L 21 40 L 28 52 L -10 52 L -3 40 L -6 40 L 2 28 L -1 28 Z" 
-                          fill="#059669" 
-                          opacity="0.85" />
-                    <path d="M 9 17 L 17 24 L 14 24 L 20 34 L 17 34 L 23 46 L -5 46 L 1 34 L -2 34 L 4 24 L 1 24 Z" 
-                          fill="#10b981" 
-                          opacity="0.7" />
+                    <path d="M 9 10 L 21 30 L 18 30 L 27 44 L 24 44 L 33 60 L -15 60 L -6 44 L -9 44 L 0 30 L -3 30 Z"
+                      fill="#047857" />
+                    <path d="M 9 13 L 19 28 L 16 28 L 24 40 L 21 40 L 28 52 L -10 52 L -3 40 L -6 40 L 2 28 L -1 28 Z"
+                      fill="#059669"
+                      opacity="0.85" />
+                    <path d="M 9 17 L 17 24 L 14 24 L 20 34 L 17 34 L 23 46 L -5 46 L 1 34 L -2 34 L 4 24 L 1 24 Z"
+                      fill="#10b981"
+                      opacity="0.7" />
                   </g>
                 </svg>
               </div>
@@ -225,20 +217,18 @@ export const MobileNav = () => {
                     }}
                     className="w-full flex items-start gap-3 p-3 rounded-lg hover:bg-gradient-to-r hover:from-blue-50 hover:to-emerald-50 transition-all duration-150 text-left"
                   >
-                    <div className={`h-10 w-10 rounded-lg flex-shrink-0 flex items-center justify-center ${
-                      result.category === 'food' 
-                        ? 'bg-gradient-to-br from-orange-100 to-rose-100' 
-                        : result.category === 'bartering'
+                    <div className={`h-10 w-10 rounded-lg flex-shrink-0 flex items-center justify-center ${result.category === 'food'
+                      ? 'bg-gradient-to-br from-orange-100 to-rose-100'
+                      : result.category === 'bartering'
                         ? 'bg-gradient-to-br from-blue-100 to-emerald-100'
                         : 'bg-slate-100'
-                    }`}>
-                      <Icon className={`h-4 w-4 ${
-                        result.category === 'food' 
-                          ? 'text-orange-600' 
-                          : result.category === 'bartering'
+                      }`}>
+                      <Icon className={`h-4 w-4 ${result.category === 'food'
+                        ? 'text-orange-600'
+                        : result.category === 'bartering'
                           ? 'text-blue-600'
                           : 'text-slate-600'
-                      }`} />
+                        }`} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="font-bold text-slate-800 text-sm truncate">{result.title}</div>
@@ -262,11 +252,11 @@ export const MobileNav = () => {
         {/* User Menu */}
         {open && (
           <div className="fixed inset-0 z-50 flex items-start justify-end pt-20 pr-4">
-            <div 
+            <div
               className="absolute inset-0 bg-black/30 backdrop-blur-sm"
               onClick={() => setOpen(false)}
             />
-            
+
             <div className="relative w-80 animate-in fade-in slide-in-from-right-4 duration-300">
               <div className="rounded-2xl border-2 border-slate-200 bg-white shadow-2xl overflow-hidden">
                 {loading ? (
@@ -286,7 +276,7 @@ export const MobileNav = () => {
                           </div>
                         ))}
                       </div>
-                      
+
                       <div className="relative flex items-center gap-3">
                         <div className="h-12 w-12 rounded-xl bg-white shadow-xl flex items-center justify-center ring-2 ring-emerald-400/30">
                           <User className="h-6 w-6 text-blue-600" />
@@ -304,8 +294,25 @@ export const MobileNav = () => {
 
                     {/* Menu Items */}
                     <div className="p-3 space-y-2">
-                      <button 
-                        onClick={handlePostListing}
+                      <button
+                        onClick={() => {
+                          router.push("/profile");
+                          setOpen(false);
+                        }}
+                        className="group w-full flex items-center gap-3 rounded-xl p-3 transition-all duration-150 hover:bg-gradient-to-r hover:from-slate-50 hover:to-blue-50 hover:scale-105 active:scale-100"
+                      >
+                        <div className="h-12 w-12 rounded-lg bg-gradient-to-br from-slate-100 to-blue-100 flex items-center justify-center transition-all duration-150 group-hover:scale-110 group-hover:rotate-12 shadow-md">
+                          <User className="h-5 w-5 text-slate-700" />
+                        </div>
+                        <div className="flex-1 text-left">
+                          <div className="text-sm font-black text-slate-800">View Profile</div>
+                          <div className="text-xs font-medium text-slate-500">Manage your account</div>
+                        </div>
+                      </button>
+
+                      <Link
+                        href="/create-listing"
+                        onClick={() => setOpen(false)}
                         className="group w-full flex items-center gap-3 rounded-xl p-3 transition-all duration-150 hover:bg-gradient-to-r hover:from-blue-50 hover:to-emerald-50 hover:scale-105 active:scale-100"
                       >
                         <div className="h-12 w-12 rounded-lg bg-gradient-to-br from-blue-100 to-emerald-100 flex items-center justify-center transition-all duration-150 group-hover:scale-110 group-hover:rotate-12 shadow-md">
@@ -315,9 +322,9 @@ export const MobileNav = () => {
                           <div className="text-sm font-black text-slate-800">Post Listing</div>
                           <div className="text-xs font-medium text-slate-500">Share with community</div>
                         </div>
-                      </button>
+                      </Link>
 
-                      <Link 
+                      <Link
                         href="/messages"
                         onClick={() => setOpen(false)}
                         className="group w-full flex items-center gap-3 rounded-xl p-3 transition-all duration-150 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:scale-105 active:scale-100"
@@ -331,8 +338,9 @@ export const MobileNav = () => {
                         </div>
                       </Link>
 
-                      <button 
-                        onClick={handleAbout}
+                      <Link
+                        href="/about"
+                        onClick={() => setOpen(false)}
                         className="group w-full flex items-center gap-3 rounded-xl p-3 transition-all duration-150 hover:bg-slate-50 hover:scale-105 active:scale-100"
                       >
                         <div className="h-12 w-12 rounded-lg bg-slate-100 flex items-center justify-center transition-all duration-150 group-hover:scale-110 group-hover:rotate-12 shadow-md">
@@ -342,9 +350,9 @@ export const MobileNav = () => {
                           <div className="text-sm font-black text-slate-800">About</div>
                           <div className="text-xs font-medium text-slate-500">Learn our story</div>
                         </div>
-                      </button>
+                      </Link>
 
-                      <button 
+                      <button
                         onClick={handleLogout}
                         className={`group w-full flex items-center gap-3 rounded-xl p-3 transition-all duration-150 hover:bg-red-50 hover:scale-105 active:scale-100 ${logoutHesitate ? 'animate-shake bg-red-100 border-2 border-red-300' : ''}`}
                       >
