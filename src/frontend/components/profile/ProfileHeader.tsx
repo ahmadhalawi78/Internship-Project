@@ -36,13 +36,13 @@ export default function ProfileHeader({
 
   return (
     <div className="relative bg-white rounded-lg shadow-sm overflow-hidden">
-      {}
+      { }
       <div className="h-24 xs:h-32 sm:h-40 bg-linear-to-r from-blue-500 to-emerald-500" />
 
-      {}
+      { }
       <div className="px-4 xs:px-6 sm:px-8 pb-6">
         <div className="flex flex-col sm:flex-row sm:items-end sm:gap-6">
-          {}
+          { }
           <div
             className="relative -mt-12 xs:-mt-16 sm:-mt-20 mb-4 sm:mb-0"
             onMouseEnter={() => setIsHovering(true)}
@@ -55,6 +55,7 @@ export default function ProfileHeader({
                   alt={userName}
                   fill
                   className="object-cover"
+                  unoptimized
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-blue-400 to-emerald-400">
@@ -75,7 +76,7 @@ export default function ProfileHeader({
             )}
           </div>
 
-          {}
+          { }
           <div className="flex-1">
             <div className="flex items-start justify-between gap-4">
               <div>
@@ -98,7 +99,7 @@ export default function ProfileHeader({
               </button>
             </div>
 
-            {}
+            { }
             {stats && (
               <div className="grid grid-cols-3 gap-4 mt-4">
                 <div className="text-center">
@@ -126,7 +127,7 @@ export default function ProfileHeader({
           </div>
         </div>
 
-        {}
+        { }
         <div className="sm:hidden flex gap-2 mt-4">
           <button
             onClick={onEditClick}

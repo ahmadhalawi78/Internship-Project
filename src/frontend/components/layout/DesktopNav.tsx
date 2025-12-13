@@ -401,7 +401,27 @@ export default function DesktopNav() {
                         </div>
 
                         <div className="p-4 space-y-2">
-                          <button 
+                          <button
+                            onClick={() => {
+                              router.push("/profile");
+                              setMenuOpen(false);
+                            }}
+                            className="group w-full flex items-center gap-4 rounded-2xl p-4 transition-all duration-150 hover:bg-linear-to-r hover:from-blue-50 hover:to-emerald-50 hover:scale-105 hover:shadow-lg active:scale-100"
+                          >
+                            <div className="h-14 w-14 rounded-xl bg-linear-to-br from-blue-100 to-emerald-100 flex items-center justify-center transition-all duration-150 group-hover:scale-125 group-hover:rotate-12 shadow-lg group-hover:shadow-2xl">
+                              <User className="h-7 w-7 text-blue-600" />
+                            </div>
+                            <div className="flex-1 text-left">
+                              <div className="text-base font-black text-slate-800 transition-colors group-hover:text-blue-600">
+                                View Profile
+                              </div>
+                              <div className="text-xs font-medium text-slate-500">
+                                Manage your account
+                              </div>
+                            </div>
+                          </button>
+
+                          <button
                             onClick={handlePostListing}
                             className="group w-full flex items-center gap-4 rounded-2xl p-4 transition-all duration-150 hover:bg-gradient-to-r hover:from-blue-50 hover:to-emerald-50 hover:scale-105 hover:shadow-lg active:scale-100"
                           >
