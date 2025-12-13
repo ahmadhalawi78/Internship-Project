@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+<<<<<<< Updated upstream
 import {
   Search,
   Menu,
@@ -14,6 +15,10 @@ import {
 } from "lucide-react";
 import { useState, useEffect } from "react"; // Add useEffect
 import { useRouter } from "next/navigation";
+=======
+import { Search, Menu, X, User, Plus, Info, LogOut, Package, Utensils, MessageCircle } from "lucide-react";
+import { useState } from "react";
+>>>>>>> Stashed changes
 import { useAuth } from "@/frontend/hooks/useAuth";
 
 // Add interface for floating element styles
@@ -422,7 +427,25 @@ export const MobileNav = () => {
                         </div>
                       </button>
 
+<<<<<<< Updated upstream
                       <button
+=======
+                      <Link 
+                        href="/messages"
+                        onClick={() => setOpen(false)}
+                        className="group w-full flex items-center gap-3 rounded-xl p-3 transition-all duration-150 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:scale-105 active:scale-100"
+                      >
+                        <div className="h-12 w-12 rounded-lg bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center transition-all duration-150 group-hover:scale-110 group-hover:rotate-12 shadow-md">
+                          <MessageCircle className="h-5 w-5 text-purple-600" />
+                        </div>
+                        <div className="flex-1 text-left">
+                          <div className="text-sm font-black text-slate-800">Messages</div>
+                          <div className="text-xs font-medium text-slate-500">Chat with users</div>
+                        </div>
+                      </Link>
+
+                      <button 
+>>>>>>> Stashed changes
                         onClick={handleAbout}
                         className="group w-full flex items-center gap-3 rounded-xl p-3 transition-all duration-150 hover:bg-slate-50 hover:scale-105 active:scale-100"
                       >

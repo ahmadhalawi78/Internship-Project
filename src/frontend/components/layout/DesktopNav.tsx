@@ -1,5 +1,6 @@
 "use client";
 
+<<<<<<< Updated upstream
 import {
   Search,
   Menu,
@@ -14,6 +15,11 @@ import {
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+=======
+import { Search, Menu, User, Plus, Info, LogOut, X, Package, Utensils, MessageCircle } from "lucide-react";
+import { useState } from "react";
+import Link from "next/link";
+>>>>>>> Stashed changes
 
 import { useAuth } from "@/frontend/hooks/useAuth";
 
@@ -44,9 +50,21 @@ export default function DesktopNav() {
   const [isSearching, setIsSearching] = useState(false);
   const [logoHovered, setLogoHovered] = useState(false);
   const [logoutHesitate, setLogoutHesitate] = useState(false);
+<<<<<<< Updated upstream
   const [floatingElements, setFloatingElements] = useState<
     FloatingElementStyle[]
   >([]);
+=======
+  
+  interface SearchResult {
+    id: number;
+    title: string;
+    category: string;
+    location: string;
+    icon: React.ComponentType<{ className?: string }>;
+  }
+
+>>>>>>> Stashed changes
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [showResults, setShowResults] = useState(false);
 
@@ -156,6 +174,7 @@ export default function DesktopNav() {
   return (
     <div className="relative bg-linear-to-br from-slate-50 via-blue-50 to-emerald-50">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
+<<<<<<< Updated upstream
         {floatingElements.map((style, i) => (
           <div
             key={i}
@@ -163,6 +182,41 @@ export default function DesktopNav() {
             style={style}
           />
         ))}
+=======
+        {[...Array(12)].map((_, i) => {
+          const size = 4 + (i * 0.5);
+          const positions = [
+            { left: 4, top: 39 },
+            { left: 94, top: 66 },
+            { left: 12, top: 90 },
+            { left: 27, top: 95 },
+            { left: 85, top: 36 },
+            { left: 63, top: 10 },
+            { left: 39, top: 21 },
+            { left: 26, top: 53 },
+            { left: 99, top: 80 },
+            { left: 85, top: 28 },
+            { left: 99, top: 25 },
+            { left: 40, top: 16 }
+          ];
+          return (
+            <div
+              key={i}
+              className="absolute rounded-full blur-sm animate-float"
+              style={{
+                width: `${size}px`,
+                height: `${size}px`,
+                background: i % 2 === 0 ? '#10b981' : '#1e40af',
+                left: `${positions[i].left}%`,
+                top: `${positions[i].top}%`,
+                animationDelay: `${i * 1.2}s`,
+                animationDuration: `${6 + (i * 0.3)}s`,
+                opacity: 0.4
+              }}
+            />
+          );
+        })}
+>>>>>>> Stashed changes
       </div>
 
       <style>{`
@@ -193,8 +247,13 @@ export default function DesktopNav() {
 
       <div className="relative mx-auto max-w-7xl px-8 py-8">
         <div className="flex justify-center mb-8">
+<<<<<<< Updated upstream
           <Link
             href="/"
+=======
+          <Link 
+            href="/" 
+>>>>>>> Stashed changes
             className="group relative"
             onMouseEnter={() => setLogoHovered(true)}
             onMouseLeave={() => setLogoHovered(false)}
@@ -561,7 +620,25 @@ export default function DesktopNav() {
                             </div>
                           </button>
 
+<<<<<<< Updated upstream
                           <button
+=======
+                          <Link 
+                            href="/messages"
+                            onClick={() => setMenuOpen(false)}
+                            className="group w-full flex items-center gap-4 rounded-2xl p-4 transition-all duration-150 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:scale-105 hover:shadow-lg active:scale-100"
+                          >
+                            <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center transition-all duration-150 group-hover:scale-125 group-hover:rotate-12 shadow-lg group-hover:shadow-2xl">
+                              <MessageCircle className="h-7 w-7 text-purple-600" />
+                            </div>
+                            <div className="flex-1 text-left">
+                              <div className="text-base font-black text-slate-800 transition-colors group-hover:text-purple-600">Messages</div>
+                              <div className="text-xs font-medium text-slate-500">Chat with users</div>
+                            </div>
+                          </Link>
+
+                          <button 
+>>>>>>> Stashed changes
                             onClick={handleAbout}
                             className="group w-full flex items-center gap-4 rounded-2xl p-4 transition-all duration-150 hover:bg-slate-50 hover:scale-105 hover:shadow-lg active:scale-100"
                           >
