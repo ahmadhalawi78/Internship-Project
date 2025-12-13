@@ -1,6 +1,7 @@
 import UserProfile from "@/frontend/components/profile/UserProfile";
 import { supabaseServer } from "@/backend/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { getUserListings, getUserFavorites } from "@/app/actions/listings";
 
 export default async function ProfilePage() {
   const supabase = await supabaseServer();
@@ -12,10 +13,24 @@ export default async function ProfilePage() {
   if (!user) {
     redirect("/auth/login");
   }
+
+  const [listingsResult, favoritesResult] = await Promise.all([
+    getUserListings(),
+    getUserFavorites(),
+  ]);
+
+  const listings = listingsResult.success ? listingsResult.data : [];
+  const favorites = favoritesResult.success ? favoritesResult.data : [];
+
+  const joinedDate = new Date(user.created_at).toLocaleDateString("en-US", {
+    month: "long",
+    year: "numeric",
+  });
+
   const stats = {
-    listings: 8,
-    reviews: 5,
-    joined: "2 years",
+    listings: listings.length,
+    favorites: favorites.length,
+    joined: `Joined ${joinedDate}`,
   };
 
   return (
@@ -30,6 +45,8 @@ export default async function ProfilePage() {
       }}
       location="Beirut, Lebanon"
       stats={stats}
+      listings={listings}
+      favorites={favorites}
     />
   );
 }

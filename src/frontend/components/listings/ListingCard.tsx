@@ -1,8 +1,6 @@
-import { MapPin, Heart, Package, Utensils, Star } from "lucide-react";
-import { useState, useRef, useEffect } from "react";
+import { MapPin, Package, Utensils, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { MapPin, Package, Utensils } from "lucide-react";
 import FavoriteToggle from "@/components/reusable-components/FavoriteToggle";
 
 interface ListingCardProps {
@@ -11,7 +9,6 @@ interface ListingCardProps {
   imageUrl?: string | null;
   location: string;
   category: string;
-  price?: string | number;
   rating?: number; // 0-5
   href?: string;
   badges?: string[];
@@ -24,33 +21,22 @@ export default function ListingCard({
   imageUrl,
   location,
   category,
-  price,
   rating,
   href,
   badges = [],
-}: ListingCardProps) {
-  const [isLiked, setIsLiked] = useState(false);
-  const likeBtnRef = useRef<HTMLButtonElement | null>(null);
-
-  useEffect(() => {
-    if (likeBtnRef.current) {
-      likeBtnRef.current.setAttribute("aria-pressed", String(isLiked));
-    }
-  }, [isLiked]);
-
   isInitiallyFavorited = false,
 }: ListingCardProps) {
+
   const isFood = category === "Food";
 
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-2xl border-2 border-slate-200 bg-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:border-blue-400 focus-within:ring-2 focus-within:ring-blue-300 cursor-pointer">
       {/* Card Image */}
       <div
-        className={`relative h-48 w-full overflow-hidden transition-all duration-300 ${
-          isFood
-            ? "bg-gradient-to-br from-orange-100 via-rose-100 to-pink-100"
-            : "bg-gradient-to-br from-blue-100 via-emerald-100 to-teal-100"
-        }`}
+        className={`relative h-48 w-full overflow-hidden transition-all duration-300 ${isFood
+          ? "bg-gradient-to-br from-orange-100 via-rose-100 to-pink-100"
+          : "bg-gradient-to-br from-blue-100 via-emerald-100 to-teal-100"
+          }`}
       >
         {imageUrl ? (
           <Image
@@ -59,6 +45,7 @@ export default function ListingCard({
             fill
             sizes="(max-width: 640px) 100vw, 50vw"
             className="object-cover transition-transform duration-500 group-hover:scale-110"
+            unoptimized
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">
@@ -71,31 +58,23 @@ export default function ListingCard({
         )}
 
         {/* Like Button */}
-        <button
-          ref={likeBtnRef}
-          type="button"
-          onClick={() => setIsLiked(!isLiked)}
-          aria-label={isLiked ? "Remove from favorites" : "Add to favorites"}
-          className="absolute top-3 right-3 z-20 flex h-10 w-10 items-center justify-center rounded-xl bg-white/90 backdrop-blur-sm shadow-lg transition-all duration-200 hover:scale-110 active:scale-95"
-          className="absolute top-3 right-3 flex h-10 w-10 items-center justify-center rounded-xl bg-white/90 backdrop-blur-sm shadow-lg transition-all duration-200 hover:scale-110 active:scale-95"
-          onClick={(e) => e.stopPropagation()}
-        >
+        <div className="absolute top-3 right-3 z-20">
           <FavoriteToggle
             listingId={id}
             isInitiallyFavorited={isInitiallyFavorited}
             variant="icon"
             size={20}
+            className="h-10 w-10 rounded-xl bg-white/90 backdrop-blur-sm shadow-lg hover:scale-110 active:scale-95 !rounded-xl"
           />
-        </button>
+        </div>
 
         {/* Category Badge */}
         <div className="absolute top-3 left-3 z-20">
           <span
-            className={`rounded-xl px-3 py-1.5 text-xs font-black shadow-lg backdrop-blur-sm ${
-              isFood
-                ? "bg-orange-500/90 text-white"
-                : "bg-blue-500/90 text-white"
-            }`}
+            className={`rounded-xl px-3 py-1.5 text-xs font-black shadow-lg backdrop-blur-sm ${isFood
+              ? "bg-orange-500/90 text-white"
+              : "bg-blue-500/90 text-white"
+              }`}
             aria-label={`Category: ${category}`}
           >
             {category}
@@ -114,15 +93,6 @@ export default function ListingCard({
           </h3>
 
           <div className="flex flex-col items-end">
-            {price !== undefined && (
-              <span
-                className="text-sm font-extrabold text-emerald-600"
-                aria-label={`Price: ${price}`}
-              >
-                {price}
-              </span>
-            )}
-
             {rating !== undefined && (
               <div
                 className="mt-1 flex items-center gap-1 text-sm text-slate-500"

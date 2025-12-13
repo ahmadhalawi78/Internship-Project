@@ -117,14 +117,14 @@ export default function DesktopNav() {
         mockResults.length > 0
           ? mockResults
           : [
-              {
-                id: 99,
-                title: `No results for "${searchValue}"`,
-                category: "none",
-                location: "Try different keywords",
-                icon: Search,
-              },
-            ]
+            {
+              id: 99,
+              title: `No results for "${searchValue}"`,
+              category: "none",
+              location: "Try different keywords",
+              icon: Search,
+            },
+          ]
       );
       setIsSearching(false);
       setShowResults(true);
@@ -200,27 +200,24 @@ export default function DesktopNav() {
             onMouseLeave={() => setLogoHovered(false)}
           >
             <div
-              className={`absolute -inset-12 rounded-full bg-linear-to-r from-blue-400 via-emerald-400 to-blue-400 blur-3xl transition-all duration-700 ${
-                logoHovered ? "opacity-50" : "opacity-0"
-              }`}
+              className={`absolute -inset-12 rounded-full bg-linear-to-r from-blue-400 via-emerald-400 to-blue-400 blur-3xl transition-all duration-700 ${logoHovered ? "opacity-50" : "opacity-0"
+                }`}
             />
 
             <div className="relative flex flex-col items-center gap-4">
               <div className="relative">
                 <div
-                  className={`absolute inset-0 rounded-3xl transition-all duration-500 ${
-                    logoHovered
+                  className={`absolute inset-0 rounded-3xl transition-all duration-500 ${logoHovered
                       ? "bg-linear-to-br from-blue-500 to-emerald-500 blur-2xl opacity-70"
                       : "bg-linear-to-br from-slate-400 to-blue-400 blur-xl opacity-30"
-                  }`}
+                    }`}
                 />
 
                 <div
-                  className={`relative h-32 w-32 rounded-3xl shadow-2xl flex items-center justify-center transition-all duration-500 ${
-                    logoHovered
+                  className={`relative h-32 w-32 rounded-3xl shadow-2xl flex items-center justify-center transition-all duration-500 ${logoHovered
                       ? "bg-linear-to-br from-blue-600 via-slate-800 to-emerald-600 scale-110 rotate-3"
                       : "bg-linear-to-br from-slate-900 via-blue-900 to-slate-900"
-                  }`}
+                    }`}
                 >
                   <svg
                     width="110"
@@ -231,9 +228,8 @@ export default function DesktopNav() {
                     <path
                       d="M 28 18 L 52 18 L 52 78 L 92 78 L 92 102 L 28 102 Z"
                       fill="white"
-                      className={`transition-all duration-500 ${
-                        logoHovered ? "fill-blue-50" : "fill-white"
-                      }`}
+                      className={`transition-all duration-500 ${logoHovered ? "fill-blue-50" : "fill-white"
+                        }`}
                     />
 
                     <g transform="translate(62, 28)">
@@ -242,27 +238,24 @@ export default function DesktopNav() {
                       <path
                         d="M 9 10 L 21 30 L 18 30 L 27 44 L 24 44 L 33 60 L -15 60 L -6 44 L -9 44 L 0 30 L -3 30 Z"
                         fill="#047857"
-                        className={`transition-all duration-300 ${
-                          logoHovered ? "fill-emerald-600" : "fill-emerald-700"
-                        }`}
+                        className={`transition-all duration-300 ${logoHovered ? "fill-emerald-600" : "fill-emerald-700"
+                          }`}
                       />
 
                       <path
                         d="M 9 13 L 19 28 L 16 28 L 24 40 L 21 40 L 28 52 L -10 52 L -3 40 L -6 40 L 2 28 L -1 28 Z"
                         fill="#059669"
                         opacity="0.85"
-                        className={`transition-all duration-300 ${
-                          logoHovered ? "fill-emerald-500" : "fill-emerald-600"
-                        }`}
+                        className={`transition-all duration-300 ${logoHovered ? "fill-emerald-500" : "fill-emerald-600"
+                          }`}
                       />
 
                       <path
                         d="M 9 17 L 17 24 L 14 24 L 20 34 L 17 34 L 23 46 L -5 46 L 1 34 L -2 34 L 4 24 L 1 24 Z"
                         fill="#10b981"
                         opacity="0.7"
-                        className={`transition-all duration-300 ${
-                          logoHovered ? "fill-emerald-400" : "fill-emerald-500"
-                        }`}
+                        className={`transition-all duration-300 ${logoHovered ? "fill-emerald-400" : "fill-emerald-500"
+                          }`}
                       />
                     </g>
                   </svg>
@@ -365,9 +358,8 @@ export default function DesktopNav() {
         <div className="flex items-center gap-4">
           <div className="flex-1 relative">
             <div
-              className={`absolute inset-0 rounded-2xl bg-linear-to-r from-blue-400 to-emerald-400 blur-xl transition-all duration-300 ${
-                searchValue ? "opacity-30" : "opacity-0"
-              }`}
+              className={`absolute inset-0 rounded-2xl bg-linear-to-r from-blue-400 to-emerald-400 blur-xl transition-all duration-300 ${searchValue ? "opacity-30" : "opacity-0"
+                }`}
             />
             <input
               type="search"
@@ -418,22 +410,20 @@ export default function DesktopNav() {
                         className="w-full flex items-start gap-3 p-4 rounded-xl hover:bg-linear-to-r hover:from-blue-50 hover:to-emerald-50 transition-all duration-150 text-left group hover:scale-105 active:scale-100"
                       >
                         <div
-                          className={`h-12 w-12 rounded-lg shrink-0 flex items-center justify-center transition-all duration-150 group-hover:scale-110 group-hover:rotate-6 ${
-                            result.category === "food"
+                          className={`h-12 w-12 rounded-lg shrink-0 flex items-center justify-center transition-all duration-150 group-hover:scale-110 group-hover:rotate-6 ${result.category === "food"
                               ? "bg-linear-to-br from-orange-100 to-rose-100"
                               : result.category === "bartering"
-                              ? "bg-linear-to-br from-blue-100 to-emerald-100"
-                              : "bg-slate-100"
-                          }`}
+                                ? "bg-linear-to-br from-blue-100 to-emerald-100"
+                                : "bg-slate-100"
+                            }`}
                         >
                           <Icon
-                            className={`h-5 w-5 ${
-                              result.category === "food"
+                            className={`h-5 w-5 ${result.category === "food"
                                 ? "text-orange-600"
                                 : result.category === "bartering"
-                                ? "text-blue-600"
-                                : "text-slate-600"
-                            }`}
+                                  ? "text-blue-600"
+                                  : "text-slate-600"
+                              }`}
                           />
                         </div>
                         <div className="flex-1 min-w-0">
@@ -472,11 +462,10 @@ export default function DesktopNav() {
               className="group/btn relative flex h-16 w-16 items-center justify-center rounded-2xl border-2 border-slate-200 bg-white shadow-lg transition-all duration-300 hover:border-blue-400 hover:shadow-2xl hover:scale-110 active:scale-95"
             >
               <div
-                className={`absolute inset-0 rounded-2xl bg-linear-to-br transition-all duration-300 ${
-                  menuOpen
+                className={`absolute inset-0 rounded-2xl bg-linear-to-br transition-all duration-300 ${menuOpen
                     ? "from-blue-400/20 to-emerald-400/20"
                     : "from-blue-400/0 to-emerald-400/0 group-hover/btn:from-blue-400/10 group-hover/btn:to-emerald-400/10"
-                }`}
+                  }`}
               />
               <div className="relative">
                 {menuOpen ? (
@@ -545,6 +534,26 @@ export default function DesktopNav() {
 
                         <div className="p-4 space-y-2">
                           <button
+                            onClick={() => {
+                              router.push("/profile");
+                              setMenuOpen(false);
+                            }}
+                            className="group w-full flex items-center gap-4 rounded-2xl p-4 transition-all duration-150 hover:bg-linear-to-r hover:from-blue-50 hover:to-emerald-50 hover:scale-105 hover:shadow-lg active:scale-100"
+                          >
+                            <div className="h-14 w-14 rounded-xl bg-linear-to-br from-blue-100 to-emerald-100 flex items-center justify-center transition-all duration-150 group-hover:scale-125 group-hover:rotate-12 shadow-lg group-hover:shadow-2xl">
+                              <User className="h-7 w-7 text-blue-600" />
+                            </div>
+                            <div className="flex-1 text-left">
+                              <div className="text-base font-black text-slate-800 transition-colors group-hover:text-blue-600">
+                                View Profile
+                              </div>
+                              <div className="text-xs font-medium text-slate-500">
+                                Manage your account
+                              </div>
+                            </div>
+                          </button>
+
+                          <button
                             onClick={handlePostListing}
                             className="group w-full flex items-center gap-4 rounded-2xl p-4 transition-all duration-150 hover:bg-linear-to-r hover:from-blue-50 hover:to-emerald-50 hover:scale-105 hover:shadow-lg active:scale-100"
                           >
@@ -580,32 +589,28 @@ export default function DesktopNav() {
 
                           <button
                             onClick={handleLogout}
-                            className={`group w-full flex items-center gap-4 rounded-2xl p-4 transition-all duration-150 hover:bg-red-50 hover:scale-105 hover:shadow-lg active:scale-100 ${
-                              logoutHesitate
+                            className={`group w-full flex items-center gap-4 rounded-2xl p-4 transition-all duration-150 hover:bg-red-50 hover:scale-105 hover:shadow-lg active:scale-100 ${logoutHesitate
                                 ? "animate-shake bg-red-100 border-2 border-red-300"
                                 : ""
-                            }`}
+                              }`}
                           >
                             <div
-                              className={`h-14 w-14 rounded-xl flex items-center justify-center transition-all duration-150 group-hover:scale-125 group-hover:-rotate-12 shadow-lg group-hover:shadow-2xl ${
-                                logoutHesitate ? "bg-red-200" : "bg-red-100"
-                              }`}
+                              className={`h-14 w-14 rounded-xl flex items-center justify-center transition-all duration-150 group-hover:scale-125 group-hover:-rotate-12 shadow-lg group-hover:shadow-2xl ${logoutHesitate ? "bg-red-200" : "bg-red-100"
+                                }`}
                             >
                               <LogOut
-                                className={`h-7 w-7 transition-colors ${
-                                  logoutHesitate
+                                className={`h-7 w-7 transition-colors ${logoutHesitate
                                     ? "text-red-700"
                                     : "text-red-600"
-                                }`}
+                                  }`}
                               />
                             </div>
                             <div className="flex-1 text-left">
                               <div
-                                className={`text-base font-black transition-colors ${
-                                  logoutHesitate
+                                className={`text-base font-black transition-colors ${logoutHesitate
                                     ? "text-red-700"
                                     : "text-slate-800 group-hover:text-red-600"
-                                }`}
+                                  }`}
                               >
                                 {logoutHesitate
                                   ? "Click Again to Confirm"

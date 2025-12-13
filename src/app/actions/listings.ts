@@ -247,7 +247,7 @@ export async function getListingById(id: string) {
       .single();
 
     if (error) {
-      console.error("Error fetching listing:", error);
+      console.error("Error fetching listing:", JSON.stringify(error, null, 2));
       return { error: error.message };
     }
 
@@ -326,6 +326,50 @@ export async function toggleFavorite(listingId: string) {
     }
   } catch (error) {
     console.error("Error toggling favorite:", error);
+    return { error: "An unexpected error occurred" };
+  }
+}
+
+export async function getUserFavorites() {
+  try {
+    const supabase = await supabaseServer();
+    const { data: userData } = await supabase.auth.getUser();
+
+    if (!userData.user) {
+      return { error: "You must be logged in to view your favorites" };
+    }
+
+    const { data, error } = await supabase
+      .from("favorites")
+      .select(`
+        listing_id,
+        listings:listings (
+          id,
+          title,
+          category,
+          location,
+          owner_id,
+          created_at,
+          status,
+          type,
+          listing_images (
+            image_url
+          )
+        )
+      `)
+      .eq("user_id", userData.user.id);
+
+    if (error) {
+      console.error("Error fetching favorites:", JSON.stringify(error, null, 2));
+      return { error: error.message };
+    }
+
+    // Transform data to match listing structure
+    const favorites = data.map((item: any) => item.listings);
+
+    return { success: true, data: favorites };
+  } catch (error) {
+    console.error("Server error fetching favorites:", error);
     return { error: "An unexpected error occurred" };
   }
 }
