@@ -3,8 +3,9 @@
 import { Search, Menu, User, Plus, Info, LogOut, X, Package, Utensils, MessageCircle } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
-
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/frontend/hooks/useAuth";
+
 
 export default function DesktopNav() {
   const { user, loading, signOut } = useAuth();
@@ -13,6 +14,7 @@ export default function DesktopNav() {
   const [isSearching, setIsSearching] = useState(false);
   const [logoHovered, setLogoHovered] = useState(false);
   const [logoutHesitate, setLogoutHesitate] = useState(false);
+  const router = useRouter();
   
   interface SearchResult {
     id: number;
@@ -63,12 +65,17 @@ export default function DesktopNav() {
   };
 
   const handlePostListing = () => {
-    alert("Navigating to Post Listing page...");
+    router.push("/create-listing"); 
+    setMenuOpen(false);
+  };
+  
+  const handleAbout = () => {
+    router.push("/about"); 
     setMenuOpen(false);
   };
 
-  const handleAbout = () => {
-    alert("Navigating to About page...");
+  const handleSignIn = () => {
+    router.push("/auth/login");
     setMenuOpen(false);
   };
 
@@ -455,10 +462,7 @@ export default function DesktopNav() {
                     ) : (
                       <div className="p-6">
                         <button 
-                          onClick={() => {
-                            alert("Navigating to login page...");
-                            setMenuOpen(false);
-                          }}
+                          onClick={handleSignIn}
                           className="block w-full rounded-2xl bg-gradient-to-r from-blue-600 to-emerald-600 px-6 py-4 text-center text-base font-black text-white shadow-xl transition-all duration-300 hover:shadow-2xl hover:scale-105 active:scale-95"
                         >
                           Sign In
