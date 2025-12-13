@@ -46,8 +46,12 @@ export default function FavoriteToggle({
           setIsFavorited(result.favorited);
           onFavoriteChange?.(result.favorited);
         } else if (result.error) {
-          setError(result.error);
-          console.error("Failed to toggle favorite:", result.error);
+          if (result.error.includes("must be logged in")) {
+            window.alert("You must be logged in to favorite a listing.");
+          } else {
+            setError(result.error);
+            console.error("Failed to toggle favorite:", result.error);
+          }
         }
       } catch (err) {
         const errorMessage =
@@ -66,18 +70,16 @@ export default function FavoriteToggle({
       <button
         onClick={handleToggleFavorite}
         disabled={isLoading}
-        className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
-          isFavorited
-            ? "bg-red-100 text-red-700 hover:bg-red-200"
-            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-        } disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
+        className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${isFavorited
+          ? "bg-red-100 text-red-700 hover:bg-red-200"
+          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+          } disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
         aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
       >
         <Heart
           size={size}
-          className={`transition-all duration-200 ${
-            isFavorited ? "fill-current" : ""
-          }`}
+          className={`transition-all duration-200 ${isFavorited ? "fill-current" : ""
+            }`}
         />
         {showLabel && (
           <span>{isFavorited ? "Favorited" : "Add to Favorites"}</span>
@@ -90,19 +92,17 @@ export default function FavoriteToggle({
       <button
         onClick={handleToggleFavorite}
         disabled={isLoading}
-        className={`p-2 rounded-full shadow-sm backdrop-blur-sm transition-all duration-200 ${
-          isFavorited
-            ? "bg-red-500/90 text-white hover:bg-red-600"
-            : "bg-white/90 text-gray-600 hover:bg-white hover:text-red-500"
-        } disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-md ${className}`}
+        className={`p-2 rounded-full shadow-sm backdrop-blur-sm transition-all duration-200 ${isFavorited
+          ? "bg-red-500/90 text-white hover:bg-red-600"
+          : "bg-white/90 text-gray-600 hover:bg-white hover:text-red-500"
+          } disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-md ${className}`}
         aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
         title={isFavorited ? "Remove from favorites" : "Add to favorites"}
       >
         <Heart
           size={size}
-          className={`transition-all duration-200 ${
-            isFavorited ? "fill-current" : ""
-          }`}
+          className={`transition-all duration-200 ${isFavorited ? "fill-current" : ""
+            }`}
         />
       </button>
       {error && (
