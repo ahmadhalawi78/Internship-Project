@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Briefcase,
   Heart,
@@ -9,6 +9,8 @@ import {
   Trash2,
   Share2,
 } from "lucide-react";
+import FavoritesList from "@/frontend/components/favorites/FavoritesList";
+import { supabaseBrowser } from "@/frontend/lib/supabase/client";
 
 interface Tab {
   id: string;
@@ -23,11 +25,97 @@ interface ProfileSectionsProps {
   onTabChange?: (tabId: string) => void;
 }
 
+interface FavoriteItem {
+  id: string;
+  title: string;
+  location: string;
+  category: string;
+  imageUrl?: string;
+  isFavorited: boolean;
+}
+
+interface ListingRow {
+  id: string;
+  title: string;
+  location: string | null;
+  category: string | null;
+  images: Array<{ url: string }> | null;
+}
+
 export default function ProfileSections({
+  userId,
   activeTab: initialTab = "listings",
   onTabChange,
 }: ProfileSectionsProps) {
   const [activeTab, setActiveTab] = useState(initialTab);
+  const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
+  const [favoritesLoading, setFavoritesLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      if (activeTab !== "favorites") return;
+
+      setFavoritesLoading(true);
+      try {
+        const supabase = supabaseBrowser();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+
+        if (!user) {
+          setFavorites([]);
+          setFavoritesLoading(false);
+          return;
+        }
+
+        const { data: favoritesData, error: favoritesError } = await supabase
+          .from("favorites")
+          .select(
+            `
+            listing_id,
+            listings (
+              id,
+              title,
+              location,
+              category,
+              images
+            )
+          `
+          )
+          .eq("user_id", user.id);
+
+        if (favoritesError) {
+          console.error("Error fetching favorites:", favoritesError);
+          setFavorites([]);
+        } else {
+          const favoriteItems: FavoriteItem[] = (favoritesData || [])
+            .filter((fav) => fav.listings)
+            .map((fav) => {
+              const listing = fav.listings as unknown as ListingRow;
+              return {
+                id: listing.id,
+                title: listing.title,
+                location: listing.location || "Unknown location",
+                category: listing.category || "General",
+                imageUrl:
+                  listing.images && listing.images.length > 0
+                    ? listing.images[0].url
+                    : undefined,
+                isFavorited: true,
+              };
+            });
+          setFavorites(favoriteItems);
+        }
+      } catch (error) {
+        console.error("Error fetching favorites:", error);
+        setFavorites([]);
+      } finally {
+        setFavoritesLoading(false);
+      }
+    };
+
+    fetchFavorites();
+  }, [activeTab, userId]);
 
   const tabs: Tab[] = [
     {
@@ -40,7 +128,7 @@ export default function ProfileSections({
       id: "favorites",
       label: "Favorites",
       icon: <Heart size={18} />,
-      badge: 12,
+      badge: favorites.length > 0 ? favorites.length : undefined,
     },
     {
       id: "reviews",
@@ -63,7 +151,7 @@ export default function ProfileSections({
 
   return (
     <div className="bg-white rounded-lg shadow-sm">
-      {/* Tab Navigation */}
+      {}
       <div className="border-b border-gray-200">
         <div className="flex overflow-x-auto scrollbar-hide">
           {tabs.map((tab) => (
@@ -150,15 +238,13 @@ export default function ProfileSections({
         )}
 
         {activeTab === "favorites" && (
-          <div className="text-center py-12">
-            <Heart size={48} className="mx-auto text-gray-300 mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              No favorites yet
-            </h3>
-            <p className="text-gray-600">
-              Start exploring and save your favorite listings!
-            </p>
-          </div>
+          <FavoritesList
+            items={favorites}
+            isLoading={favoritesLoading}
+            onRemove={(itemId) => {
+              setFavorites((prev) => prev.filter((item) => item.id !== itemId));
+            }}
+          />
         )}
 
         {activeTab === "reviews" && (

@@ -116,7 +116,7 @@ export default function FavoritesList({
                     className="object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-100 to-slate-100">
+                  <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-blue-100 to-slate-100">
                     <span className="text-4xl">📦</span>
                   </div>
                 )}
@@ -165,7 +165,7 @@ export default function FavoritesList({
               className="flex gap-4 p-4 border border-gray-200 rounded-lg bg-white hover:shadow-md transition-shadow group"
             >
               {}
-              <div className="relative h-20 w-20 flex-shrink-0 rounded overflow-hidden bg-gray-100">
+              <div className="relative h-20 w-20 shrink-0 rounded overflow-hidden bg-gray-100">
                 {item.imageUrl ? (
                   <Image
                     src={item.imageUrl}
@@ -174,7 +174,7 @@ export default function FavoritesList({
                     className="object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-100 to-slate-100">
+                  <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-blue-100 to-slate-100">
                     <span className="text-lg">📦</span>
                   </div>
                 )}
