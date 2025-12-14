@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import {
   Heart,
   MessageSquare,
@@ -7,6 +8,8 @@ import {
   Trash2,
   Share2,
 } from "lucide-react";
+import FavoritesList from "@/frontend/components/favorites/FavoritesList";
+import { supabaseBrowser } from "@/frontend/lib/supabase/client";
 
 interface Listing {
   id: string;
@@ -27,19 +30,160 @@ interface ProfileSectionsProps {
   favorites?: Listing[];
 }
 
-export default function ProfileSections({
-  activeTab = "listings",
-  listings = [],
-  favorites = [],
-}: ProfileSectionsProps) {
+interface FavoriteItem {
+  id: string;
+  title: string;
+  location: string;
+  category: string;
+  imageUrl?: string;
+  isFavorited: boolean;
+}
 
-  const ListingGrid = ({ items, emptyMessage }: { items: Listing[], emptyMessage: string }) => {
-    if (items.length === 0) {
-      return (
-        <div className="text-center py-12">
-          <div className="text-4xl mb-4">📦</div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Nothing here yet</h3>
-          <p className="text-gray-600">{emptyMessage}</p>
+interface ListingRow {
+  id: string;
+  title: string;
+  location: string | null;
+  category: string | null;
+  images: Array<{ url: string }> | null;
+}
+
+export default function ProfileSections({
+  userId,
+  activeTab: initialTab = "listings",
+  onTabChange,
+}: ProfileSectionsProps) {
+  const [activeTab, setActiveTab] = useState(initialTab);
+  const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
+  const [favoritesLoading, setFavoritesLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      if (activeTab !== "favorites") return;
+
+      setFavoritesLoading(true);
+      try {
+        const supabase = supabaseBrowser();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+
+        if (!user) {
+          setFavorites([]);
+          setFavoritesLoading(false);
+          return;
+        }
+
+        const { data: favoritesData, error: favoritesError } = await supabase
+          .from("favorites")
+          .select(
+            `
+            listing_id,
+            listings (
+              id,
+              title,
+              location,
+              category,
+              images
+            )
+          `
+          )
+          .eq("user_id", user.id);
+
+        if (favoritesError) {
+          console.error("Error fetching favorites:", favoritesError);
+          setFavorites([]);
+        } else {
+          const favoriteItems: FavoriteItem[] = (favoritesData || [])
+            .filter((fav) => fav.listings)
+            .map((fav) => {
+              const listing = fav.listings as unknown as ListingRow;
+              return {
+                id: listing.id,
+                title: listing.title,
+                location: listing.location || "Unknown location",
+                category: listing.category || "General",
+                imageUrl:
+                  listing.images && listing.images.length > 0
+                    ? listing.images[0].url
+                    : undefined,
+                isFavorited: true,
+              };
+            });
+          setFavorites(favoriteItems);
+        }
+      } catch (error) {
+        console.error("Error fetching favorites:", error);
+        setFavorites([]);
+      } finally {
+        setFavoritesLoading(false);
+      }
+    };
+
+    fetchFavorites();
+  }, [activeTab, userId]);
+
+  const tabs: Tab[] = [
+    {
+      id: "listings",
+      label: "Listings",
+      icon: <Briefcase size={18} />,
+      badge: 8,
+    },
+    {
+      id: "favorites",
+      label: "Favorites",
+      icon: <Heart size={18} />,
+      badge: favorites.length > 0 ? favorites.length : undefined,
+    },
+    {
+      id: "reviews",
+      label: "Reviews",
+      icon: <Star size={18} />,
+      badge: 5,
+    },
+    {
+      id: "messages",
+      label: "Messages",
+      icon: <MessageSquare size={18} />,
+      badge: 3,
+    },
+  ];
+
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId);
+    onTabChange?.(tabId);
+  };
+
+  return (
+    <div className="bg-white rounded-lg shadow-sm">
+      {}
+      <div className="border-b border-gray-200">
+        <div className="flex overflow-x-auto scrollbar-hide">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => handleTabChange(tab.id)}
+              className={`shrink-0 flex items-center gap-2 px-4 xs:px-6 py-4 font-medium text-sm xs:text-base border-b-2 transition-colors whitespace-nowrap ${
+                activeTab === tab.id
+                  ? "border-blue-600 text-blue-600"
+                  : "border-transparent text-gray-600 hover:text-gray-900"
+              }`}
+            >
+              {tab.icon}
+              <span>{tab.label}</span>
+              {tab.badge && (
+                <span
+                  className={`ml-1 px-2 py-0.5 rounded-full text-xs font-bold ${
+                    activeTab === tab.id
+                      ? "bg-blue-100 text-blue-700"
+                      : "bg-gray-100 text-gray-700"
+                  }`}
+                >
+                  {tab.badge}
+                </span>
+              )}
+            </button>
+          ))}
         </div>
       )
     }
@@ -80,6 +224,15 @@ export default function ProfileSections({
     )
   }
 
+        {activeTab === "favorites" && (
+          <FavoritesList
+            items={favorites}
+            isLoading={favoritesLoading}
+            onRemove={(itemId) => {
+              setFavorites((prev) => prev.filter((item) => item.id !== itemId));
+            }}
+          />
+        )}
   return (
     <div className="bg-white rounded-lg shadow-sm border border-slate-100 p-4 xs:p-6 sm:p-8">
       {activeTab === "listings" && (
