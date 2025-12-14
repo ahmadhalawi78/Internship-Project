@@ -4,8 +4,8 @@ import { Search, Menu, User, Plus, Info, LogOut, X, Package, Utensils, MessageCi
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-
 import { useAuth } from "@/frontend/hooks/useAuth";
+
 
 export default function DesktopNav() {
   const { user, loading, signOut } = useAuth();
@@ -15,7 +15,6 @@ export default function DesktopNav() {
   const [isSearching, setIsSearching] = useState(false);
   const [logoHovered, setLogoHovered] = useState(false);
   const [logoutHesitate, setLogoutHesitate] = useState(false);
-
   interface SearchResult {
     id: number;
     title: string;
@@ -64,12 +63,6 @@ export default function DesktopNav() {
     alert("Logged out successfully!");
   };
 
-
-
-  const handleAbout = () => {
-    alert("Navigating to About page...");
-    setMenuOpen(false);
-  };
 
   return (
     <div className="relative bg-gradient-to-br from-slate-50 via-blue-50 to-emerald-50 overflow-hidden">
@@ -440,7 +433,7 @@ export default function DesktopNav() {
                           </Link>
 
                           <button
-                            onClick={handleAbout}
+                            onClick={() => router.push("/about")}
                             className="group w-full flex items-center gap-4 rounded-2xl p-4 transition-all duration-150 hover:bg-slate-50 hover:scale-105 hover:shadow-lg active:scale-100"
                           >
                             <div className="h-14 w-14 rounded-xl bg-slate-100 flex items-center justify-center transition-all duration-150 group-hover:scale-125 group-hover:rotate-12 shadow-lg group-hover:shadow-2xl">

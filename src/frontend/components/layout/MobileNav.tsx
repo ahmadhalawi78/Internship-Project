@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Search, Menu, X, User, Plus, Info, LogOut, Package, Utensils, MessageCircle } from "lucide-react";
 import { useState, useMemo } from "react";
 import { useAuth } from "@/frontend/hooks/useAuth";
+import { useRouter } from "next/navigation";
 
 interface SearchResult {
   id: number;
@@ -19,6 +20,7 @@ export const MobileNav = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [logoutHesitate, setLogoutHesitate] = useState(false);
   const { user, loading, signOut } = useAuth();
+  const router = useRouter();
 
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [showResults, setShowResults] = useState(false);
@@ -77,13 +79,6 @@ export const MobileNav = () => {
     signOut();
     setOpen(false);
     setLogoutHesitate(false);
-  };
-
-
-
-  const handleAbout = () => {
-    alert("Navigating to About page...");
-    setOpen(false);
   };
 
   return (
@@ -299,6 +294,22 @@ export const MobileNav = () => {
 
                     {/* Menu Items */}
                     <div className="p-3 space-y-2">
+                      <button
+                        onClick={() => {
+                          router.push("/profile");
+                          setOpen(false);
+                        }}
+                        className="group w-full flex items-center gap-3 rounded-xl p-3 transition-all duration-150 hover:bg-gradient-to-r hover:from-slate-50 hover:to-blue-50 hover:scale-105 active:scale-100"
+                      >
+                        <div className="h-12 w-12 rounded-lg bg-gradient-to-br from-slate-100 to-blue-100 flex items-center justify-center transition-all duration-150 group-hover:scale-110 group-hover:rotate-12 shadow-md">
+                          <User className="h-5 w-5 text-slate-700" />
+                        </div>
+                        <div className="flex-1 text-left">
+                          <div className="text-sm font-black text-slate-800">View Profile</div>
+                          <div className="text-xs font-medium text-slate-500">Manage your account</div>
+                        </div>
+                      </button>
+
                       <Link
                         href="/create-listing"
                         onClick={() => setOpen(false)}
@@ -327,8 +338,9 @@ export const MobileNav = () => {
                         </div>
                       </Link>
 
-                      <button
-                        onClick={handleAbout}
+                      <Link
+                        href="/about"
+                        onClick={() => setOpen(false)}
                         className="group w-full flex items-center gap-3 rounded-xl p-3 transition-all duration-150 hover:bg-slate-50 hover:scale-105 active:scale-100"
                       >
                         <div className="h-12 w-12 rounded-lg bg-slate-100 flex items-center justify-center transition-all duration-150 group-hover:scale-110 group-hover:rotate-12 shadow-md">
@@ -338,7 +350,7 @@ export const MobileNav = () => {
                           <div className="text-sm font-black text-slate-800">About</div>
                           <div className="text-xs font-medium text-slate-500">Learn our story</div>
                         </div>
-                      </button>
+                      </Link>
 
                       <button
                         onClick={handleLogout}
