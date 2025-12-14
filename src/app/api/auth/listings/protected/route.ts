@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
     const { data: listings, error } = await supabase
       .from("listings")
       .select("*")
-      .order(sortBy, { ascending }) 
+      .order(sortBy, { ascending })
       .limit(50);
 
     if (error) {

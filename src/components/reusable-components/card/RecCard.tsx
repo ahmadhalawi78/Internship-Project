@@ -28,9 +28,9 @@ const RecCard = ({
   }, [onFavorite]);
 
   return (
-   <div
-  onClick={onClickCard}
-  className="
+    <div
+      onClick={onClickCard}
+      className="
     w-full 
     flex max-[199px]:flex-col max-[199px]:items-start 
     items-center 
@@ -39,10 +39,10 @@ const RecCard = ({
     transition cursor-pointer
     min-h-[88px]
   "
->
-  {/* Image */}
-  <div
-    className="
+    >
+      {/* Image */}
+      <div
+        className="
       relative 
       h-16 w-24 
       xs:h-20 xs:w-28 
@@ -51,33 +51,35 @@ const RecCard = ({
       border rounded-lg overflow-hidden bg-gray-100
       max-[199px]:w-full max-[199px]:h-28
     "
-  >
-    {renderMedia && renderMedia()}
-  </div>
+      >
+        {renderMedia && renderMedia()}
+      </div>
 
-  {/* Content */}
-  <div className="
+      {/* Content */}
+      <div
+        className="
       flex flex-col flex-1 min-w-0 
       max-[199px]:w-full max-[199px]:mt-2
-  ">
-    <span
-      className={`
+  "
+      >
+        <span
+          className={`
         text-[11px] sm:text-xs px-2 py-1 rounded-full font-medium w-fit 
         bg-white text-black truncate
       `}
-    >
-      {category}
-    </span>
+        >
+          {category}
+        </span>
 
-    <h3 className="font-semibold text-sm sm:text-base mt-1 leading-tight line-clamp-2">
-      {title}
-    </h3>
+        <h3 className="font-semibold text-sm sm:text-base mt-1 leading-tight line-clamp-2">
+          {title}
+        </h3>
 
-    <div className="flex items-center text-gray-500 text-xs sm:text-sm mt-1">
-      <MapPin size={12} className="mr-1" />
-      <span className="truncate">{location}</span>
-    </div>
-  </div>
+        <div className="flex items-center text-gray-500 text-xs sm:text-sm mt-1">
+          <MapPin size={12} className="mr-1" />
+          <span className="truncate">{location}</span>
+        </div>
+      </div>
 
   {/* Favorite Button */}
   <div onClick={(e) => e.stopPropagation()} className="shrink-0 max-[199px]:self-end max-[199px]:mt-2">
@@ -91,6 +93,25 @@ const RecCard = ({
   </div>
 </div>
 
+      {/* Favorite Button */}
+      <button
+        onClick={handleFavorite}
+        disabled={isLoading}
+        className="
+      bg-white p-1.5 sm:p-2 rounded-full shadow 
+      hover:bg-gray-100 active:bg-gray-200 transition 
+      shrink-0 
+      max-[199px]:self-end max-[199px]:mt-2
+    "
+      >
+        <Heart
+          size={16}
+          className={`${
+            isFavorite ? "fill-red-500 text-red-500" : "text-gray-700"
+          }`}
+        />
+      </button>
+    </div>
   );
 };
 

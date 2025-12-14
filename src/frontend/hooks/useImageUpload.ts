@@ -3,8 +3,8 @@
 import { useState } from "react";
 
 type UploadImageResponse = {
-    url: string;
-    path: string;
+  url: string;
+  path: string;
 };
 
 export function useImageUpload() {

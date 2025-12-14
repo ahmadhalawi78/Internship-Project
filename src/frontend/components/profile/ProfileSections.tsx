@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import {
-  Briefcase,
   Heart,
   MessageSquare,
   Star,
@@ -12,17 +11,23 @@ import {
 import FavoritesList from "@/frontend/components/favorites/FavoritesList";
 import { supabaseBrowser } from "@/frontend/lib/supabase/client";
 
-interface Tab {
+interface Listing {
   id: string;
-  label: string;
-  icon: React.ReactNode;
-  badge?: number;
+  title: string;
+  category: string;
+  location: string;
+  rating?: number;
+  listing_images?: { image_url: string }[];
+  created_at: string;
+  status?: string;
 }
 
 interface ProfileSectionsProps {
   userId: string;
   activeTab?: string;
   onTabChange?: (tabId: string) => void;
+  listings?: Listing[];
+  favorites?: Listing[];
 }
 
 interface FavoriteItem {
@@ -180,62 +185,44 @@ export default function ProfileSections({
             </button>
           ))}
         </div>
-      </div>
-
-      {}
-      <div className="p-4 xs:p-6 sm:p-8">
-        {activeTab === "listings" && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900">
-                Your Listings
-              </h3>
-              <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
-                + New Listing
-              </button>
+      )
+    }
+    return (
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {items.map((item) => (
+          <div
+            key={item.id}
+            className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow group bg-white"
+          >
+            <div className="relative aspect-square bg-slate-100 flex items-center justify-center overflow-hidden">
+              {item.listing_images?.[0]?.image_url ? (
+                <img src={item.listing_images[0].image_url} alt={item.title} className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-4xl text-gray-400">📦</span>
+              )}
+              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                <button className="p-2 bg-white rounded-full shadow-md hover:bg-blue-50" aria-label="View">
+                  <Share2 size={14} />
+                </button>
+              </div>
             </div>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-                <div
-                  key={i}
-                  className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow group"
-                >
-                  <div className="relative aspect-square bg-linear-to-br from-blue-100 to-slate-100 flex items-center justify-center">
-                    <span className="text-4xl text-gray-400">📦</span>
-                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-                      <button
-                        className="p-2 bg-white rounded-full shadow-md hover:bg-blue-50"
-                        aria-label="Edit"
-                      >
-                        <Share2 size={14} />
-                      </button>
-                      <button
-                        className="p-2 bg-white rounded-full shadow-md hover:bg-red-50"
-                        aria-label="Delete"
-                      >
-                        <Trash2 size={14} className="text-red-600" />
-                      </button>
-                    </div>
-                  </div>
-                  <div className="p-3">
-                    <h4 className="font-semibold text-gray-900 line-clamp-2">
-                      Listing Item {i}
-                    </h4>
-                    <p className="text-sm text-slate-600 mt-1">
-                      Posted 2 days ago
-                    </p>
-                    <div className="flex items-center justify-between mt-2">
-                      <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded">
-                        Active
-                      </span>
-                      <span className="text-xs text-gray-600">5 views</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
+            <div className="p-3">
+              <h4 className="font-semibold text-gray-900 line-clamp-1">{item.title}</h4>
+              <p className="text-sm text-slate-500 mt-1 capitalize">{item.category} • {item.location}</p>
+              <div className="flex items-center justify-between mt-2">
+                <span className={`text-xs px-2 py-1 rounded font-medium ${item.status === 'available' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-700'}`}>
+                  {item.status || 'Active'}
+                </span>
+                <span className="text-xs text-slate-500">
+                  {new Date(item.created_at).toLocaleDateString()}
+                </span>
+              </div>
             </div>
           </div>
-        )}
+        ))}
+      </div>
+    )
+  }
 
         {activeTab === "favorites" && (
           <FavoritesList
@@ -246,81 +233,46 @@ export default function ProfileSections({
             }}
           />
         )}
-
-        {activeTab === "reviews" && (
-          <div className="space-y-4">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="border border-gray-200 rounded-lg p-4">
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
-                    <span className="text-sm font-bold text-blue-600">R</span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <p className="font-semibold text-gray-900">
-                          Reviewer Name {i}
-                        </p>
-                        <div className="flex gap-1 mt-1">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <Star
-                              key={star}
-                              size={14}
-                              className={
-                                star <= 4
-                                  ? "fill-yellow-400 text-yellow-400"
-                                  : "text-gray-300"
-                              }
-                            />
-                          ))}
-                        </div>
-                      </div>
-                      <span className="text-xs text-gray-600 shrink-0">
-                        1 week ago
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-700 mt-2">
-                      Great seller! Fast delivery and excellent communication.
-                      Would recommend to anyone.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
+  return (
+    <div className="bg-white rounded-lg shadow-sm border border-slate-100 p-4 xs:p-6 sm:p-8">
+      {activeTab === "listings" && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-gray-900">
+              Your Listings
+            </h3>
+            <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+              + New Listing
+            </button>
           </div>
-        )}
+          <ListingGrid items={listings} emptyMessage="You haven't posted any listings yet." />
+        </div>
+      )}
 
-        {activeTab === "messages" && (
-          <div className="space-y-3">
-            {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="border border-gray-200 rounded-lg p-4 hover:bg-slate-50 cursor-pointer transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
-                    <span className="text-sm font-bold text-emerald-600">
-                      {String.fromCharCode(64 + i)}
-                    </span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-900">
-                      User {i} Name
-                    </p>
-                    <p className="text-sm text-gray-600 truncate">
-                      Hi, are you still selling this item...
-                    </p>
-                  </div>
-                  <div className="shrink-0 text-right">
-                    <p className="text-xs text-gray-600">2 hours ago</p>
-                    <span className="inline-block w-2 h-2 bg-blue-600 rounded-full mt-1" />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+      {activeTab === "favorites" && (
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-gray-900">Favorites</h3>
+          <ListingGrid items={favorites} emptyMessage="Start exploring and save your favorite listings!" />
+        </div>
+      )}
+
+      {activeTab === "reviews" && (
+        // Placeholder for Reviews
+        <div className="text-center py-12">
+          <Star size={48} className="mx-auto text-gray-300 mb-4" />
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">No reviews yet</h3>
+          <p className="text-gray-600">Reviews from other users will appear here.</p>
+        </div>
+      )}
+
+      {activeTab === "messages" && (
+        // Placeholder for Messages
+        <div className="text-center py-12">
+          <MessageSquare size={48} className="mx-auto text-gray-300 mb-4" />
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">No messages</h3>
+          <p className="text-gray-600">Your conversations will appear here.</p>
+        </div>
+      )}
     </div>
   );
 }
