@@ -3,6 +3,7 @@ import Footer from "@/frontend/components/layout/Footer";
 import HomeShell from "@/frontend/components/home/HomeShell";
 import { FeedItem } from "@/frontend/components/feed/HomeFeed";
 import { supabaseServer } from "@/backend/lib/supabase/server";
+import Link from "next/link";
 
 type ListingRow = {
   id: string;
@@ -10,6 +11,8 @@ type ListingRow = {
   category: string | null;
   location: string | null;
   owner_id: string;
+  type: string;
+  listing_images: { image_url: string }[];
 };
 
 export default async function HomePage() {
@@ -22,7 +25,7 @@ export default async function HomePage() {
 
   const { data: listings, error } = await supabase
     .from("listings")
-    .select("id, title, category, location, owner_id")
+    .select("id, title, category, location, owner_id, type, listing_images(image_url)")
     .order("created_at", { ascending: false });
 
   let favoriteIds: string[] = [];
@@ -66,6 +69,8 @@ export default async function HomePage() {
         location: row.location ?? "Unknown",
         isFavorited: favoriteIds.includes(row.id),
         userId: row.owner_id,
+        imageUrl: row.listing_images?.[0]?.image_url ?? null,
+        type: row.type,
       };
     }) ?? [];
 

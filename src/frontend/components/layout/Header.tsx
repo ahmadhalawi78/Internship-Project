@@ -4,7 +4,7 @@ import { MobileNav } from "./MobileNav";
 
 export const Header = () => {
   return (
-    <header className="border-b border-slate-200 bg-white">
+    <header className="relative z-40 border-b border-slate-200 bg-white">
       <div className="hidden md:block">
         <DesktopNav />
       </div>

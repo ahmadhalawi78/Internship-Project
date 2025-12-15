@@ -4,6 +4,9 @@ import { MapPin, Package, Utensils } from "lucide-react";
 import Image from "next/image";
 import { useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { MapPin, Package, Utensils, Star } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 import FavoriteToggle from "@/components/reusable-components/FavoriteToggle";
 import MessageButton from "@/frontend/components/chat/MessageButton";
 
@@ -13,6 +16,9 @@ interface ListingCardProps {
   imageUrl?: string | null;
   location: string;
   category: string;
+  rating?: number; // 0-5
+  href?: string;
+  badges?: string[];
   isInitiallyFavorited?: boolean;
   onClickCard?: () => void;
   onFavorite?: () => void;
@@ -29,6 +35,9 @@ export default function ListingCard({
   imageUrl,
   location,
   category,
+  rating,
+  href,
+  badges = [],
   isInitiallyFavorited = false,
   onClickCard,
   onFavorite,
@@ -39,6 +48,7 @@ export default function ListingCard({
   status = "active",
 }: ListingCardProps) {
   const router = useRouter();
+
   const isFood = category === "Food";
 
   const handleCardClick = useCallback(() => {
@@ -92,11 +102,10 @@ export default function ListingCard({
       role="article"
     >
       <div
-        className={`relative h-48 w-full overflow-hidden transition-all duration-300 ${
-          isFood
-            ? "bg-linear-to-br from-orange-100 via-rose-100 to-pink-100"
-            : "bg-linear-to-br from-blue-100 via-emerald-100 to-teal-100"
-        }`}
+        className={`relative h-48 w-full overflow-hidden transition-all duration-300 ${isFood
+          ? "bg-gradient-to-br from-orange-100 via-rose-100 to-pink-100"
+          : "bg-gradient-to-br from-blue-100 via-emerald-100 to-teal-100"
+          }`}
       >
         {imageUrl ? (
           <Image
@@ -129,22 +138,25 @@ export default function ListingCard({
             onFavoriteChange={handleFavoriteChange}
             variant="icon"
             size={20}
+            className="h-10 w-10 rounded-xl bg-white/90 backdrop-blur-sm shadow-lg hover:scale-110 active:scale-95 !rounded-xl"
           />
-        </button>
+        </div>
 
-        <div className="absolute top-3 left-3">
+        {/* Category Badge */}
+        <div className="absolute top-3 left-3 z-20">
           <span
-            className={`rounded-xl px-3 py-1.5 text-xs font-black shadow-lg backdrop-blur-sm ${
-              isFood
-                ? "bg-orange-500/90 text-white"
-                : "bg-blue-500/90 text-white"
-            }`}
+            className={`rounded-xl px-3 py-1.5 text-xs font-black shadow-lg backdrop-blur-sm ${isFood
+              ? "bg-orange-500/90 text-white"
+              : "bg-blue-500/90 text-white"
+              }`}
+            aria-label={`Category: ${category}`}
           >
             {category}
           </span>
         </div>
       </div>
 
+      {/* Card Content */}
       <div className="flex flex-1 flex-col gap-3 p-5">
         <div className="flex items-start justify-between gap-2">
           <h3 className="text-lg font-black text-slate-800 leading-tight line-clamp-2 transition-colors group-hover:text-blue-600 flex-1">
@@ -181,7 +193,17 @@ export default function ListingCard({
         )}
       </div>
 
-      <div className="h-1 w-0 bg-linear-to-r from-blue-600 to-emerald-600 transition-all duration-300 group-hover:w-full" />
+      {/* Hover Gradient Bar */}
+      <div className="h-1 w-0 bg-gradient-to-r from-blue-600 to-emerald-600 transition-all duration-300 group-hover:w-full" />
+
+      {/* Full card link for screen readers */}
+      {href && (
+        <Link
+          href={href}
+          className="absolute inset-0 z-10"
+          aria-label={`Open ${title} listing`}
+        />
+      )}
     </div>
   );
 }

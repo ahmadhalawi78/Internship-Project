@@ -1,11 +1,11 @@
-import { NextResponse } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
+import { NextResponse } from "next/server";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 
 export async function GET() {
   return NextResponse.json({
-    status: 'ok',
-    service: 'Groq Chat API',
+    status: "ok",
+    service: "Groq Chat API",
     timestamp: new Date().toISOString(),
   });
 }
@@ -30,11 +30,13 @@ export async function POST(request: Request) {
       }
     );
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
     if (!user) {
       return NextResponse.json(
-        { error: 'Unauthorized - Please sign in' },
+        { error: "Unauthorized - Please sign in" },
         { status: 401 }
       );
     }
@@ -44,36 +46,39 @@ export async function POST(request: Request) {
 
     if (!messages || !Array.isArray(messages)) {
       return NextResponse.json(
-        { error: 'Messages array is required' },
+        { error: "Messages array is required" },
         { status: 400 }
       );
     }
 
     if (!process.env.GROQ_API_KEY) {
       return NextResponse.json(
-        { error: 'GROQ_API_KEY not configured' },
+        { error: "GROQ_API_KEY not configured" },
         { status: 500 }
       );
     }
 
-    const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
-        messages: messages,
-        temperature: 0.7,
-        max_tokens: 2048,
-      }),
-    });
+    const groqResponse = await fetch(
+      "https://api.groq.com/openai/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "llama-3.3-70b-versatile",
+          messages: messages,
+          temperature: 0.7,
+          max_tokens: 2048,
+        }),
+      }
+    );
 
     if (!groqResponse.ok) {
       const errorData = await groqResponse.json();
       return NextResponse.json(
-        { error: 'Failed to get response from Groq', details: errorData },
+        { error: "Failed to get response from Groq", details: errorData },
         { status: groqResponse.status }
       );
     }
@@ -85,10 +90,12 @@ export async function POST(request: Request) {
       usage: data.usage,
       model: data.model,
     });
-
   } catch (error) {
     return NextResponse.json(
-      { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: "Internal server error",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
       { status: 500 }
     );
   }
