@@ -1,11 +1,9 @@
 "use client";
 
-import { MapPin, Package, Utensils } from "lucide-react";
+import { MapPin, Package, Utensils, Star } from "lucide-react";
 import Image from "next/image";
 import { useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { MapPin, Package, Utensils, Star } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import FavoriteToggle from "@/components/reusable-components/FavoriteToggle";
 import MessageButton from "@/frontend/components/chat/MessageButton";
@@ -55,7 +53,7 @@ export default function ListingCard({
     if (onClickCard) {
       onClickCard();
     } else {
-      router.push(`/listing/${id}`);
+      router.push(`/listings/${id}`);
     }
   }, [onClickCard, router, id]);
 
@@ -67,9 +65,9 @@ export default function ListingCard({
 
   const shouldShowMessageButton = Boolean(
     showMessageButton &&
-      currentUserId &&
-      listingOwnerId &&
-      currentUserId !== listingOwnerId
+    currentUserId &&
+    listingOwnerId &&
+    currentUserId !== listingOwnerId
   );
 
   const getStatusColor = () => {
@@ -126,11 +124,9 @@ export default function ListingCard({
           </div>
         )}
 
-        <button
-          className="absolute top-3 right-3 flex h-10 w-10 items-center justify-center rounded-xl bg-white/90 backdrop-blur-sm shadow-lg transition-all duration-200 hover:scale-110 active:scale-95"
+        <div
+          className="absolute top-3 right-3 z-20"
           onClick={(e) => e.stopPropagation()}
-          aria-label={isInitiallyFavorited ? "Remove from favorites" : "Add to favorites"}
-          title={isInitiallyFavorited ? "Remove from favorites" : "Add to favorites"}
         >
           <FavoriteToggle
             listingId={id}
