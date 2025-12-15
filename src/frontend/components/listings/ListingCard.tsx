@@ -1,7 +1,14 @@
+"use client";
+
+import { MapPin, Package, Utensils } from "lucide-react";
+import Image from "next/image";
+import { useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { MapPin, Package, Utensils, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import FavoriteToggle from "@/components/reusable-components/FavoriteToggle";
+import MessageButton from "@/frontend/components/chat/MessageButton";
 
 interface ListingCardProps {
   id: string;
@@ -13,6 +20,13 @@ interface ListingCardProps {
   href?: string;
   badges?: string[];
   isInitiallyFavorited?: boolean;
+  onClickCard?: () => void;
+  onFavorite?: () => void;
+  listingOwnerId?: string;
+  currentUserId?: string;
+  showMessageButton?: boolean;
+  price?: string | null;
+  status?: "active" | "pending" | "sold" | "expired";
 }
 
 export default function ListingCard({
@@ -25,13 +39,68 @@ export default function ListingCard({
   href,
   badges = [],
   isInitiallyFavorited = false,
+  onClickCard,
+  onFavorite,
+  listingOwnerId,
+  currentUserId,
+  showMessageButton = true,
+  price,
+  status = "active",
 }: ListingCardProps) {
+  const router = useRouter();
 
   const isFood = category === "Food";
 
+  const handleCardClick = useCallback(() => {
+    if (onClickCard) {
+      onClickCard();
+    } else {
+      router.push(`/listing/${id}`);
+    }
+  }, [onClickCard, router, id]);
+
+  const handleFavoriteChange = useCallback(() => {
+    if (onFavorite) {
+      onFavorite();
+    }
+  }, [onFavorite]);
+
+  const shouldShowMessageButton = Boolean(
+    showMessageButton &&
+      currentUserId &&
+      listingOwnerId &&
+      currentUserId !== listingOwnerId
+  );
+
+  const getStatusColor = () => {
+    switch (status) {
+      case "active":
+        return "bg-emerald-100 text-emerald-700";
+      case "pending":
+        return "bg-yellow-100 text-yellow-700";
+      case "sold":
+        return "bg-blue-100 text-blue-700";
+      case "expired":
+        return "bg-gray-100 text-gray-700";
+      default:
+        return "bg-emerald-100 text-emerald-700";
+    }
+  };
+
   return (
-    <div className="group relative flex flex-col overflow-hidden rounded-2xl border-2 border-slate-200 bg-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:border-blue-400 focus-within:ring-2 focus-within:ring-blue-300 cursor-pointer">
-      {/* Card Image */}
+    <div
+      onClick={handleCardClick}
+      className="group relative flex flex-col overflow-hidden rounded-2xl border-2 border-slate-200 bg-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:border-blue-400 cursor-pointer"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          handleCardClick();
+        }
+      }}
+      aria-label={`View listing: ${title}`}
+      role="article"
+    >
       <div
         className={`relative h-48 w-full overflow-hidden transition-all duration-300 ${isFood
           ? "bg-gradient-to-br from-orange-100 via-rose-100 to-pink-100"
@@ -43,9 +112,9 @@ export default function ListingCard({
             src={imageUrl}
             alt={title}
             fill
-            sizes="(max-width: 640px) 100vw, 50vw"
             className="object-cover transition-transform duration-500 group-hover:scale-110"
-            unoptimized
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            loading="lazy"
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">
@@ -57,11 +126,16 @@ export default function ListingCard({
           </div>
         )}
 
-        {/* Like Button */}
-        <div className="absolute top-3 right-3 z-20">
+        <button
+          className="absolute top-3 right-3 flex h-10 w-10 items-center justify-center rounded-xl bg-white/90 backdrop-blur-sm shadow-lg transition-all duration-200 hover:scale-110 active:scale-95"
+          onClick={(e) => e.stopPropagation()}
+          aria-label={isInitiallyFavorited ? "Remove from favorites" : "Add to favorites"}
+          title={isInitiallyFavorited ? "Remove from favorites" : "Add to favorites"}
+        >
           <FavoriteToggle
             listingId={id}
             isInitiallyFavorited={isInitiallyFavorited}
+            onFavoriteChange={handleFavoriteChange}
             variant="icon"
             size={20}
             className="h-10 w-10 rounded-xl bg-white/90 backdrop-blur-sm shadow-lg hover:scale-110 active:scale-95 !rounded-xl"
@@ -84,73 +158,39 @@ export default function ListingCard({
 
       {/* Card Content */}
       <div className="flex flex-1 flex-col gap-3 p-5">
-        <div className="flex items-start justify-between gap-3">
-          <h3
-            className="text-lg font-black text-slate-800 leading-tight line-clamp-2 transition-colors group-hover:text-blue-600"
-            aria-label={`Listing title: ${title}`}
-          >
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="text-lg font-black text-slate-800 leading-tight line-clamp-2 transition-colors group-hover:text-blue-600 flex-1">
             {title}
           </h3>
-
-          <div className="flex flex-col items-end">
-            {rating !== undefined && (
-              <div
-                className="mt-1 flex items-center gap-1 text-sm text-slate-500"
-                aria-label={`Rating: ${rating.toFixed(1)} out of 5`}
-              >
-                <Star className="h-4 w-4 text-yellow-400" />
-                <span className="font-semibold">
-                  {Number(rating).toFixed(1)}
-                </span>
-              </div>
-            )}
-          </div>
+          {price && (
+            <span className="text-lg font-bold text-blue-600 whitespace-nowrap shrink-0">
+              {price}
+            </span>
+          )}
         </div>
 
-        {/* Badges */}
-        {badges.length > 0 && (
-          <div
-            className="flex flex-wrap gap-2"
-            aria-label={`Badges: ${badges.join(", ")}`}
-          >
-            {badges.map((b, idx) => (
-              <span
-                key={idx}
-                className="rounded-full bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700"
-              >
-                {b}
-              </span>
-            ))}
+        <div className="flex items-center gap-2 text-sm font-semibold text-slate-500">
+          <MapPin className="h-4 w-4 text-emerald-500 shrink-0" />
+          <span className="truncate">{location}</span>
+        </div>
+
+        {shouldShowMessageButton && listingOwnerId && (
+          <div className="mt-2 pt-3 border-t border-gray-100">
+            <div onClick={(e) => e.stopPropagation()}>
+              <MessageButton listingId={id} listingOwnerId={listingOwnerId} />
+            </div>
           </div>
         )}
 
-        {/* Location & Action */}
-        <div className="mt-auto flex items-center justify-between gap-2">
-          <div
-            className="flex items-center gap-2 text-sm font-semibold text-slate-500"
-            aria-label={`Location: ${location}`}
-          >
-            <MapPin className="h-4 w-4 text-emerald-500" />
-            <span>{location}</span>
+        {status && status !== "active" && (
+          <div className="mt-auto">
+            <span
+              className={`inline-block px-2 py-1 text-xs font-semibold rounded ${getStatusColor()}`}
+            >
+              {status.charAt(0).toUpperCase() + status.slice(1)}
+            </span>
           </div>
-
-          {href ? (
-            <Link
-              href={href}
-              className="z-20 rounded-lg bg-blue-600 px-3 py-1 text-sm font-bold text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
-              aria-label={`View ${title}`}
-            >
-              View
-            </Link>
-          ) : (
-            <button
-              type="button"
-              className="rounded-lg bg-blue-600 px-3 py-1 text-sm font-bold text-white transition-colors hover:bg-blue-700"
-            >
-              View
-            </button>
-          )}
-        </div>
+        )}
       </div>
 
       {/* Hover Gradient Bar */}
