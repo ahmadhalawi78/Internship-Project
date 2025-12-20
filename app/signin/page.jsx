@@ -1,73 +1,50 @@
 'use client'
 
-import { signIn } from '../actions/auth'
-import { useActionState } from 'react'
-import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { signin } from '../actions/auth'
 
-export default function SignInPage() {
-  const [state, formAction, isPending] = useActionState(signIn, null)
-  const searchParams = useSearchParams()
-  const message = searchParams.get('message')
+export default function SigninPage() {
+  const router = useRouter()
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+
+    const formData = new FormData(e.target)
+
+    const result = await signin(null, formData)
+
+    setLoading(false)
+
+    if (result?.error) {
+      setError(result.error)
+    } else {
+      // Redirect after successful login
+      router.push('/admin')
+    }
+  }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="max-w-md w-full p-8 bg-white rounded-lg shadow">
-        <h2 className="text-2xl font-bold text-center mb-6">Sign In</h2>
-        
-        {message && (
-          <div className="p-2 bg-green-100 text-green-600 text-sm rounded mb-4">
-            {message}
-          </div>
-        )}
-
-        <form action={formAction} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Email</label>
-            <input
-              name="email"
-              type="email"
-              required
-              className="w-full p-2 border rounded"
-              placeholder="your@email.com"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium mb-1">Password</label>
-            <input
-              name="password"
-              type="password"
-              required
-              className="w-full p-2 border rounded"
-              placeholder="••••••••"
-            />
-          </div>
-
-          {state?.error && (
-            <div className="p-2 bg-red-100 text-red-600 text-sm rounded">
-              {state.error}
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={isPending}
-            className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700 disabled:opacity-50"
-          >
-            {isPending ? 'Signing in...' : 'Sign In'}
-          </button>
-        </form>
-
-        <div className="mt-4 text-center space-y-2">
-          <Link href="/resetpassword" className="text-blue-600 text-sm block">
-            Forgot password?
-          </Link>
-          <Link href="/signup" className="text-blue-600 text-sm block">
-            Don't have an account? Sign Up
-          </Link>
+    <div style={{ padding: '24px' }}>
+      <h1>Sign In</h1>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label>Email:</label>
+          <input type="email" name="email" required />
         </div>
-      </div>
+        <div>
+          <label>Password:</label>
+          <input type="password" name="password" required />
+        </div>
+        <button type="submit" disabled={loading}>
+          {loading ? 'Signing in...' : 'Sign In'}
+        </button>
+      </form>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
     </div>
   )
 }

@@ -1,12 +1,44 @@
 'use server'
 
-import { redirect } from 'next/navigation'
 import { createClient } from '../../lib/supabase/server'
+import { redirect } from 'next/navigation'
 
-// SIGN UP
-export async function signUp(prevState, formData) {
-  console.log('signUp called - formData is FormData?', formData instanceof FormData)
-  
+// ======================= SIGN UP =======================
+export async function signup(prevState, formData) {
+  const email = formData.get('email')?.toString() || ''
+  const password = formData.get('password')?.toString() || ''
+  const role = formData.get('role')?.toString() || 'user'
+
+  if (!email || !password) {
+    return { error: 'Email and password are required' }
+  }
+
+  try {
+    const supabase = await createClient()
+
+    const { data, error } = await supabase.auth.signup({
+      email,
+      password,
+    })
+
+    if (error) return { error: error.message }
+
+    // create profile row
+    await supabase.from('profiles').insert({
+      id: data.user.id,
+      email,
+      role,
+    })
+
+    redirect('/signin?message=Account created successfully')
+  } catch (err) {
+    console.error('SignUp error:', err)
+    return { error: err.message }
+  }
+}
+
+// ======================= SIGN IN =======================
+export async function signin(prevState, formData) {
   const email = formData.get('email')?.toString() || ''
   const password = formData.get('password')?.toString() || ''
 
@@ -16,66 +48,41 @@ export async function signUp(prevState, formData) {
 
   try {
     const supabase = await createClient()
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-    })
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
-    if (error) {
-      return { error: error.message }
-    }
+    if (error) return { error: error.message }
 
-    // IMPORTANT: Don't return anything after redirect
-    redirect('/signin?message=Check your email to confirm your account')
-    
-  } catch (error) {
-    console.error('Sign up error:', error)
-    
-    // Check if it's a redirect error (NEXT_REDIRECT)
-    if (error.message?.includes('NEXT_REDIRECT')) {
-      // Let it bubble up - Next.js will handle the redirect
-      throw error
-    }
-    
-    return { error: 'Server error: ' + error.message }
+    return { success: true, user: data.user }
+  } catch (err) {
+    console.error('SignIn error:', err)
+    return { error: err.message }
   }
 }
-
-// SIGN IN
-export async function signIn(prevState, formData) {
-  const email = formData.get('email')?.toString() || ''
+// =======================
+// RESET PASSWORD (EMAIL)
+// =======================
+export async function updatePassword(prevState, formData) {
   const password = formData.get('password')?.toString() || ''
 
-  if (!email || !password) {
-    return { error: 'Email and password are required' }
+  if (!password || password.length < 6) {
+    return { error: 'Password must be at least 6 characters' }
   }
 
   try {
-    const supabase = await createClient()
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
+    const supabase = await createClient({ admin: true })
 
-    if (error) {
-      return { error: error.message }
-    }
+    const { error } = await supabase.auth.updateUser({ password })
 
-    // Redirect without returning
-    redirect('/home')
-    
+    if (error) return { error: error.message }
+
+    redirect('/signin?message=Password updated successfully')
   } catch (error) {
-    console.error('Sign in error:', error)
-    
-    if (error.message?.includes('NEXT_REDIRECT')) {
-      throw error
-    }
-    
-    return { error: 'Sign in failed' }
+    console.error('Update password error:', error)
+    if (error.message?.includes('NEXT_REDIRECT')) throw error
+    return { error: 'Failed to update password' }
   }
 }
 
-// RESET PASSWORD
 export async function resetPassword(prevState, formData) {
   const email = formData.get('email')?.toString() || ''
 
@@ -84,7 +91,9 @@ export async function resetPassword(prevState, formData) {
   }
 
   try {
-    const supabase = await createClient()
+    // IMPORTANT: admin client
+    const supabase = await createClient({ admin: true })
+
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/update-password`,
     })
@@ -93,43 +102,10 @@ export async function resetPassword(prevState, formData) {
       return { error: error.message }
     }
 
-    // Return success state (no redirect here)
     return { success: true }
-    
+
   } catch (error) {
     console.error('Reset password error:', error)
-    return { error: 'Failed to send reset email' }
-  }
-}
-
-// UPDATE PASSWORD
-export async function updatePassword(prevState, formData) {
-  const password = formData.get('password')?.toString() || ''
-
-  if (!password) {
-    return { error: 'Password is required' }
-  }
-
-  try {
-    const supabase = await createClient()
-    const { error } = await supabase.auth.updateUser({
-      password,
-    })
-
-    if (error) {
-      return { error: error.message }
-    }
-
-    // Redirect without returning
-    redirect('/signin?message=Password updated successfully')
-    
-  } catch (error) {
-    console.error('Update password error:', error)
-    
-    if (error.message?.includes('NEXT_REDIRECT')) {
-      throw error
-    }
-    
-    return { error: 'Failed to update password' }
+    return { error: error.message }
   }
 }
