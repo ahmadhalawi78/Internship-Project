@@ -50,12 +50,17 @@ export default function ListingCard({
   const isFood = category === "Food";
 
   const handleCardClick = useCallback(() => {
+    if (!currentUserId) {
+      router.push("/auth/login");
+      return;
+    }
+
     if (onClickCard) {
       onClickCard();
     } else {
       router.push(`/listings/${id}`);
     }
-  }, [onClickCard, router, id]);
+  }, [onClickCard, router, id, currentUserId]);
 
   const handleFavoriteChange = useCallback(() => {
     if (onFavorite) {
@@ -135,6 +140,7 @@ export default function ListingCard({
             variant="icon"
             size={20}
             className="h-10 w-10 rounded-xl bg-white/90 backdrop-blur-sm shadow-lg hover:scale-110 active:scale-95 !rounded-xl"
+            currentUserId={currentUserId}
           />
         </div>
 

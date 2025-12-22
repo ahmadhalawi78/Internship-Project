@@ -16,11 +16,17 @@ interface Listing {
 interface ListingGridProps {
     items?: Listing[];
     emptyMessage?: string;
+    currentUserId?: string;
+    isFavoritesGrid?: boolean;
+    favoriteIds?: string[];
 }
 
 export default function ListingGrid({
     items = [],
     emptyMessage = "No listings found.",
+    currentUserId,
+    isFavoritesGrid = false,
+    favoriteIds = [],
 }: ListingGridProps) {
     if (items.length === 0) {
         return (
@@ -47,6 +53,9 @@ export default function ListingGrid({
                     }
                     rating={item.rating}
                     href={`/listings/${item.id}`}
+                    currentUserId={currentUserId}
+                    isInitiallyFavorited={isFavoritesGrid || favoriteIds.includes(item.id)}
+                    listingOwnerId={(item as any).owner_id}
                 />
             ))}
         </div>

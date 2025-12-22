@@ -106,6 +106,12 @@ export default function HomeFeed({
     });
   };
 
+  React.useEffect(() => {
+    if (!currentUserId) {
+      setLikedItems(new Set());
+    }
+  }, [currentUserId]);
+
   if (!items || items.length === 0) {
     return (
       <div className="flex min-h-[400px] items-center justify-center rounded-lg border border-slate-200 bg-slate-50/50">
@@ -153,6 +159,7 @@ export default function HomeFeed({
                 badges={badge ? [badge] : []}
                 isInitiallyFavorited={isLiked}
                 href={`/listings/${item.id}`}
+                currentUserId={currentUserId}
               />
             </div>
           );

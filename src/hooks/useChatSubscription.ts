@@ -23,7 +23,7 @@ export function useChatSubscription(threadId?: string) {
 
     const baseOptions = {
       schema: "public",
-      table: "chat_messages",
+      table: "messages",
       ...(threadId ? { filter: `thread_id=eq.${threadId}` } : {}),
     } as const;
 

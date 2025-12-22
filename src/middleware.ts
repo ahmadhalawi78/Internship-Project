@@ -45,11 +45,54 @@ export async function middleware(request: NextRequest) {
         );
     }
 
+    // Protect Admin routes
+    const isAdminRoute = request.nextUrl.pathname.startsWith("/admin") ||
+        request.nextUrl.pathname.startsWith("/api/admin");
+
+    if (isAdminRoute) {
+        if (!user) {
+            if (request.nextUrl.pathname.startsWith("/api/admin")) {
+                return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            } else {
+                return NextResponse.redirect(new URL("/auth/login", request.url));
+            }
+        }
+
+        // Check Env Var Allowlist
+        const adminEmails = (process.env.ADMIN_EMAILS || "").split(",").map(e => e.trim());
+        const isEnvAdmin = user.email && adminEmails.includes(user.email);
+
+        // Check DB Role (if exists)
+        let isDbAdmin = false;
+        try {
+            const { data: profile } = await supabase
+                .from("profiles")
+                .select("role")
+                .eq("id", user.id)
+                .single();
+
+            if (profile?.role === "admin") {
+                isDbAdmin = true;
+            }
+        } catch (err) {
+            // Ignore error if table/row doesn't exist
+            console.error("Error checking admin role:", err);
+        }
+
+        if (!isEnvAdmin && !isDbAdmin) {
+            if (request.nextUrl.pathname.startsWith("/api/admin")) {
+                return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+            } else {
+                return NextResponse.redirect(new URL("/", request.url));
+            }
+        }
+    }
+
     return supabaseResponse;
 }
 
 export const config = {
-  matcher: ["/api/:path*", "/((?!_next/static|_next/image|favicon.ico).*)"],
+    matcher: ["/api/:path*", "/((?!_next/static|_next/image|favicon.ico).*)"],
 };
 
 

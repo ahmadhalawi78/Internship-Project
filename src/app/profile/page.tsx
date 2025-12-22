@@ -21,6 +21,7 @@ export default async function ProfilePage() {
 
   const listings = listingsResult.success ? listingsResult.data : [];
   const favorites = favoritesResult.success ? favoritesResult.data : [];
+  const favoriteIds = favorites.map((f: any) => f.id);
 
   const joinedDate = new Date(user.created_at).toLocaleDateString("en-US", {
     month: "long",
@@ -47,6 +48,7 @@ export default async function ProfilePage() {
       stats={stats}
       listings={listings}
       favorites={favorites}
+      favoriteIds={favoriteIds}
     />
   );
 }

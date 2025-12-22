@@ -1,8 +1,9 @@
 "use client";
-
 import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Send, Search, MoreVertical, ArrowLeft, Loader2 } from "lucide-react";
+import { createOrGetChatThread, getUserChatThreads, markMessagesAsRead, sendMessage } from "@/app/actions/chat";
 import type { Message, ChatThread } from "@/types/realtime-chat";
 import type { User } from "@supabase/supabase-js";
 
@@ -16,6 +17,8 @@ export default function MessagesPage() {
   const [sending, setSending] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const supabase = createClient();
+  const searchParams = useSearchParams();
+  const router = useRouter();
 
   // Get current user
   useEffect(() => {
@@ -28,40 +31,68 @@ export default function MessagesPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Load threads
+  // Handle URL params for direct messaging
+  useEffect(() => {
+    if (loading || !currentUser) return;
+
+    const listingId = searchParams.get("listingId");
+    const ownerId = searchParams.get("ownerId");
+
+    if (listingId && ownerId && ownerId !== currentUser.id) {
+      const initChat = async () => {
+        // Clear params immediately to prevent loop
+        router.replace("/messages");
+
+        const result = await createOrGetChatThread(listingId, ownerId);
+
+        if (result.success && result.data) {
+          const thread = result.data as ChatThread;
+          setThreads(prev => {
+            if (prev.find(t => t.id === thread.id)) return prev;
+            return [thread, ...prev];
+          });
+          setSelectedThread(thread.id);
+        } else {
+          console.error("Failed to init chat:", result.error);
+        }
+      };
+
+      initChat();
+    }
+  }, [currentUser, loading, searchParams, router]);
+
+  // Load threads using server action
   useEffect(() => {
     if (!currentUser) return;
 
     const loadThreads = async () => {
-      const { data } = await supabase
-        .from('chat_participants')
-        .select(`
-          thread_id,
-          chat_threads (
-            id,
-            thread_type,
-            listing_id,
-            created_by,
-            created_at,
-            updated_at,
-            last_message_at
-          )
-        `)
-        .eq('user_id', currentUser.id)
-        .order('last_read_at', { ascending: false });
-
-      if (data) {
-        const threadsList = data
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          .map((p: any) => p.chat_threads)
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          .filter((t: any) => t !== null) as unknown as ChatThread[];
-        setThreads(threadsList);
+      const result = await getUserChatThreads();
+      if (result.success && result.data) {
+        setThreads(result.data as ChatThread[]);
       }
     };
 
     loadThreads();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    // Subscribe to thread updates (e.g. last_message_at)
+    const channel = supabase
+      .channel('chat_threads_updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'chat_threads',
+        },
+        () => {
+          loadThreads();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [currentUser]);
 
   // Load messages for selected thread
@@ -78,6 +109,10 @@ export default function MessagesPage() {
       if (data) {
         setMessages(data);
       }
+
+      // Mark as read when opening
+      await markMessagesAsRead(selectedThread);
+      setThreads(prev => prev.map(t => t.id === selectedThread ? { ...t, hasUnread: false, unreadCount: 0 } : t));
     };
 
     loadMessages();
@@ -114,17 +149,19 @@ export default function MessagesPage() {
     if (!newMessage.trim() || !selectedThread || !currentUser || sending) return;
 
     setSending(true);
-    await supabase
-      .from('messages')
-      .insert({
-        thread_id: selectedThread,
-        sender_id: currentUser.id,
-        content: newMessage.trim(),
-        status: 'sent',
-      });
-
-    setNewMessage("");
-    setSending(false);
+    try {
+      const result = await sendMessage(selectedThread, newMessage.trim());
+      if (result.success) {
+        setNewMessage("");
+      } else {
+        console.error("Failed to send message:", result.error);
+        alert("Failed to send: " + result.error);
+      }
+    } catch (err) {
+      console.error("Error sending message:", err);
+    } finally {
+      setSending(false);
+    }
   };
 
   if (loading) {
@@ -170,29 +207,33 @@ export default function MessagesPage() {
               <p className="text-sm text-slate-600">No conversations yet</p>
             </div>
           ) : (
-            threads.map((thread) => (
+            threads.map((thread: any) => (
               <button
                 key={thread.id}
                 onClick={() => setSelectedThread(thread.id)}
-                className={`w-full p-4 border-b border-slate-100 hover:bg-slate-50 transition-colors text-left ${
-                  selectedThread === thread.id ? 'bg-blue-50' : ''
-                }`}
+                className={`w-full p-4 border-b border-slate-100 hover:bg-slate-50 transition-colors text-left ${selectedThread === thread.id ? 'bg-blue-50' : ''
+                  }`}
               >
                 <div className="flex items-start gap-3">
-                  <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold">
-                    U
+                  <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold flex-shrink-0">
+                    {(thread.otherUser?.full_name?.[0] || thread.otherUser?.email?.[0] || 'U').toUpperCase()}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-1">
-                      <h3 className="font-semibold text-slate-900 truncate">
-                        {thread.thread_type === 'listing' ? 'Listing Chat' : 'Direct Message'}
+                      <h3 className={`font-semibold truncate ${thread.hasUnread ? 'text-blue-600' : 'text-slate-900'}`}>
+                        {thread.otherUser?.full_name || thread.otherUser?.email?.split('@')[0] || 'User'}
                       </h3>
-                      <span className="text-xs text-slate-500">
-                        {new Date(thread.last_message_at || thread.created_at).toLocaleDateString()}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        {thread.hasUnread && (
+                          <div className="h-2 w-2 rounded-full bg-blue-600 animate-pulse" />
+                        )}
+                        <span className="text-xs text-slate-500">
+                          {new Date(thread.last_message_at || thread.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
                     </div>
-                    <p className="text-sm text-slate-600 truncate">
-                      Click to view messages
+                    <p className={`text-sm truncate ${thread.hasUnread ? 'text-slate-900 font-bold' : 'text-slate-600'}`}>
+                      {thread.hasUnread ? 'New messages' : 'Click to view messages'}
                     </p>
                   </div>
                 </div>
@@ -215,10 +256,12 @@ export default function MessagesPage() {
                 <ArrowLeft className="h-5 w-5" />
               </button>
               <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold">
-                U
+                {((threads.find(t => t.id === selectedThread) as any)?.otherUser?.full_name?.[0] || (threads.find(t => t.id === selectedThread) as any)?.otherUser?.email?.[0] || 'U').toUpperCase()}
               </div>
               <div className="flex-1">
-                <h2 className="font-semibold text-slate-900">Conversation</h2>
+                <h2 className="font-semibold text-slate-900">
+                  {(threads.find(t => t.id === selectedThread) as any)?.otherUser?.full_name || (threads.find(t => t.id === selectedThread) as any)?.otherUser?.email || "Conversation"}
+                </h2>
                 <p className="text-sm text-slate-600">Online</p>
               </div>
               <button className="p-2 hover:bg-slate-100 rounded-lg">
@@ -236,11 +279,10 @@ export default function MessagesPage() {
                     className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}
                   >
                     <div
-                      className={`max-w-[70%] rounded-2xl px-4 py-2 ${
-                        isOwn
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-white text-slate-900 border border-slate-200'
-                      }`}
+                      className={`max-w-[70%] rounded-2xl px-4 py-2 ${isOwn
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-white text-slate-900 border border-slate-200'
+                        }`}
                     >
                       <p className="text-sm whitespace-pre-wrap break-words">{msg.content}</p>
                       <span className={`text-xs mt-1 block ${isOwn ? 'text-blue-100' : 'text-slate-500'}`}>

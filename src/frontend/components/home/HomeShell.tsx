@@ -180,7 +180,7 @@ export default function HomeShell({ items, currentUserId }: HomeShellProps) {
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   // Process items with default values for optional properties
-  const displayItems = (items && items.length > 0 ? items : mockItems).map(
+  const displayItems = (items || []).map(
     (item) => ({
       ...item,
       isFavorited: item.isFavorited ?? false,
@@ -311,9 +311,8 @@ export default function HomeShell({ items, currentUserId }: HomeShellProps) {
       const errorMessage: ChatMessage = {
         id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         role: "assistant",
-        content: `Error: ${
-          error instanceof Error ? error.message : "Unknown error"
-        }`,
+        content: `Error: ${error instanceof Error ? error.message : "Unknown error"
+          }`,
         timestamp: new Date(),
       };
       setChatMessages((prev) => [...prev, errorMessage]);
@@ -414,15 +413,15 @@ export default function HomeShell({ items, currentUserId }: HomeShellProps) {
                             ? "translateY(-4px) scale(1.2)"
                             : hoveredLetter !== null &&
                               Math.abs(hoveredLetter - index) <= 1
-                            ? "translateY(-2px) scale(1.1)"
-                            : "translateY(0) scale(1)",
+                              ? "translateY(-2px) scale(1.1)"
+                              : "translateY(0) scale(1)",
                         color:
                           hoveredLetter === index
                             ? "#1e40af"
                             : hoveredLetter !== null &&
                               Math.abs(hoveredLetter - index) <= 1
-                            ? "#3b82f6"
-                            : "#0f172a",
+                              ? "#3b82f6"
+                              : "#0f172a",
                         transitionDelay: `${index * 20}ms`,
                       }}
                       onMouseEnter={() => setHoveredLetter(index)}
@@ -433,9 +432,8 @@ export default function HomeShell({ items, currentUserId }: HomeShellProps) {
                 )}
                 <span className="ml-2">Listings</span>
                 <ChevronDown
-                  className={`inline-block h-5 w-5 ml-2 text-slate-600 transition-all duration-300 ${
-                    showCategoryDropdown ? "rotate-180" : ""
-                  }`}
+                  className={`inline-block h-5 w-5 ml-2 text-slate-600 transition-all duration-300 ${showCategoryDropdown ? "rotate-180" : ""
+                    }`}
                 />
               </h1>
             </div>
@@ -493,16 +491,14 @@ export default function HomeShell({ items, currentUserId }: HomeShellProps) {
             {chatMessages.map((msg) => (
               <div
                 key={msg.id}
-                className={`flex ${
-                  msg.role === "user" ? "justify-end" : "justify-start"
-                }`}
+                className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"
+                  }`}
               >
                 <div
-                  className={`max-w-[80%] rounded-lg px-4 py-2 ${
-                    msg.role === "user"
+                  className={`max-w-[80%] rounded-lg px-4 py-2 ${msg.role === "user"
                       ? "bg-blue-600 text-white"
                       : "bg-slate-100 text-slate-900"
-                  }`}
+                    }`}
                 >
                   <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
                   <span className="text-xs opacity-60 mt-1 block">
