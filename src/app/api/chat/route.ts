@@ -36,7 +36,7 @@ export async function POST(request: Request) {
 
     if (!user) {
       return NextResponse.json(
-        { error: "Unauthorized - Please sign in" },
+        { error: "Please Sign In" },
         { status: 401 }
       );
     }

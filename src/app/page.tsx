@@ -15,18 +15,35 @@ type ListingRow = {
   listing_images: { image_url: string }[];
 };
 
-export default async function HomePage() {
+interface PageProps {
+  searchParams: Promise<{ query?: string; category?: string }>;
+}
+
+export default async function HomePage({ searchParams }: PageProps) {
   const supabase = await supabaseServer();
+  const { query, category } = await searchParams;
 
   // Get current user
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const { data: listings, error } = await supabase
+  let dbQuery = supabase
     .from("listings")
     .select("id, title, category, location, owner_id, type, listing_images(image_url)")
+    .eq("status", "active")
     .order("created_at", { ascending: false });
+
+  if (query) {
+    // Simple ILIKE search on title or location
+    dbQuery = dbQuery.or(`title.ilike.%${query}%,location.ilike.%${query}%`);
+  }
+
+  if (category && category !== "all") {
+    dbQuery = dbQuery.eq("category", category);
+  }
+
+  const { data: listings, error } = await dbQuery;
 
   let favoriteIds: string[] = [];
   if (user) {

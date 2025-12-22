@@ -3,14 +3,17 @@ import { Header } from "@/frontend/components/layout/Header";
 import Footer from "@/frontend/components/layout/Footer";
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import { MapPin, Calendar, User, Tag } from "lucide-react";
+import { MapPin, Calendar, User, Tag, Phone } from "lucide-react";
 import FavoriteToggle from "@/components/reusable-components/FavoriteToggle";
 import { supabaseServer } from "@/backend/lib/supabase/server";
+import ContactOwnerButton from "@/frontend/components/listings/ContactOwnerButton";
+import ListingReviews from "@/frontend/components/listings/ListingReviews";
 
 interface PageProps {
     params: Promise<{ id: string }>;
 }
 
+// Listing Page
 export default async function ListingPage({ params }: PageProps) {
     const { id } = await params;
     const result = await getListingById(id);
@@ -34,12 +37,20 @@ export default async function ListingPage({ params }: PageProps) {
             .select("id")
             .eq("user_id", user.id)
             .eq("listing_id", listing.id)
-            .single();
+            .maybeSingle();
 
         isFavorited = !!fav;
     }
 
+
     const mainImage = listing.listing_images?.[0]?.image_url || null;
+
+    // Fetch owner email and details
+    const { data: owner } = await supabase
+        .from("profiles")
+        .select("full_name, phone")
+        .eq("id", listing.owner_id)
+        .single();
 
     return (
         <div className="flex min-h-screen flex-col bg-slate-50">
@@ -69,7 +80,8 @@ export default async function ListingPage({ params }: PageProps) {
                                 <FavoriteToggle
                                     listingId={listing.id}
                                     isInitiallyFavorited={isFavorited}
-                                    className="bg-white/90 backdrop-blur-sm shadow-md p-2 rounded-full hover:scale-110 active:scale-95 transition-all"
+                                    className="bg-white/90 backdrop-blur-sm shadow-md p-2 rounded-xl hover:scale-110 active:scale-95 transition-all"
+                                    currentUserId={user?.id}
                                 />
                             </div>
                         </div>
@@ -145,7 +157,7 @@ export default async function ListingPage({ params }: PageProps) {
                             </div>
                         </div>
 
-                        {/* Owner / Contact Action - Placeholder for now */}
+                        {/* Owner / Contact Action */}
                         <div className="mt-auto pt-4">
                             <div className="flex items-center justify-between bg-blue-50 p-4 rounded-xl border border-blue-100">
                                 <div className="flex items-center gap-3">
@@ -153,14 +165,28 @@ export default async function ListingPage({ params }: PageProps) {
                                         <User className="h-5 w-5" />
                                     </div>
                                     <div>
-                                        <p className="text-sm font-bold text-slate-900">Listed by Owner</p>
-                                        <p className="text-xs text-slate-500">Member since 2024</p>
+                                        <p className="text-sm font-bold text-slate-900">{owner?.full_name || "Community Member"}</p>
+                                        <div className="flex flex-col gap-0.5">
+                                            <p className="text-xs text-slate-500">Member since 2024</p>
+                                            {owner?.phone && (
+                                                <div className="flex items-center gap-1 mt-1">
+                                                    <Phone className="h-3 w-3 text-emerald-600" />
+                                                    <span className="text-xs font-bold text-emerald-700">{owner.phone}</span>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
-                                <button className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors shadow-sm shadow-blue-200">
-                                    Contact Owner
-                                </button>
+                                <ContactOwnerButton
+                                    ownerEmail={null}
+                                    listingTitle={listing.title}
+                                    ownerId={listing.owner_id}
+                                    listingId={listing.id}
+                                />
                             </div>
+
+                            {/* Review Section */}
+                            <ListingReviews listingId={listing.id} currentUserId={user?.id} />
                         </div>
                     </div>
                 </div>
@@ -170,3 +196,4 @@ export default async function ListingPage({ params }: PageProps) {
         </div>
     );
 }
+

@@ -20,6 +20,7 @@ interface ProfileSectionsProps {
   activeTab?: string;
   listings?: Listing[];
   favorites?: Listing[];
+  favoriteIds?: string[];
 }
 
 export default function ProfileSections({
@@ -27,6 +28,7 @@ export default function ProfileSections({
   activeTab = "listings",
   listings = [],
   favorites = [],
+  favoriteIds = [],
 }: ProfileSectionsProps) {
   return (
     <div className="bg-white rounded-lg shadow-sm border border-slate-100 p-4 xs:p-6 sm:p-8">
@@ -47,6 +49,8 @@ export default function ProfileSections({
           <ListingGrid
             items={listings}
             emptyMessage="You haven't posted any listings yet."
+            currentUserId={userId}
+            favoriteIds={favoriteIds}
           />
         </div>
       )}
@@ -57,6 +61,9 @@ export default function ProfileSections({
           <ListingGrid
             items={favorites}
             emptyMessage="Start exploring and save your favorite listings!"
+            currentUserId={userId}
+            favoriteIds={favoriteIds}
+            isFavoritesGrid={true}
           />
         </div>
       )}

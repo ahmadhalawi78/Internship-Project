@@ -49,8 +49,8 @@ export async function POST(request: Request) {
       file.type === "image/png"
         ? "png"
         : file.type === "image/webp"
-        ? "webp"
-        : "jpg";
+          ? "webp"
+          : "jpg";
 
     // crypto.randomUUID() works in the Next.js runtime
     const fileName = `${crypto.randomUUID()}.${fileExtension}`;

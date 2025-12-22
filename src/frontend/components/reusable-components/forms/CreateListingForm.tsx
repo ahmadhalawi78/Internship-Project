@@ -16,7 +16,6 @@ export default function CreateListingForm() {
     city: "",
     area: "",
     location: "",
-    contact_info: "",
     is_urgent: false,
   });
 
@@ -151,10 +150,6 @@ export default function CreateListingForm() {
         setError("Please provide a city.");
         return;
       }
-      if (!formData.contact_info.trim()) {
-        setError("Please provide contact info.");
-        return;
-      }
     }
 
     setError(null);
@@ -180,20 +175,18 @@ export default function CreateListingForm() {
             {["Details", "Location", "Images"].map((label, idx) => (
               <div key={label} className="flex items-center gap-2">
                 <div
-                  className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium ${
-                    idx === step
-                      ? "bg-linear-to-r from-blue-600 to-emerald-600 text-white"
-                      : "bg-slate-100 text-slate-700"
-                  }`}
+                  className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium ${idx === step
+                    ? "bg-linear-to-r from-blue-600 to-emerald-600 text-white"
+                    : "bg-slate-100 text-slate-700"
+                    }`}
                 >
                   {idx + 1}
                 </div>
                 <div
-                  className={`hidden sm:block ${
-                    idx === step
-                      ? "text-slate-900 font-semibold"
-                      : "text-slate-500"
-                  }`}
+                  className={`hidden sm:block ${idx === step
+                    ? "text-slate-900 font-semibold"
+                    : "text-slate-500"
+                    }`}
                 >
                   {label}
                 </div>
@@ -219,9 +212,9 @@ export default function CreateListingForm() {
             step === totalSteps - 1
               ? handleSubmit
               : (e) => {
-                  e.preventDefault();
-                  next();
-                }
+                e.preventDefault();
+                next();
+              }
           }
           className="space-y-6"
         >
@@ -340,17 +333,6 @@ export default function CreateListingForm() {
                 />
               </div>
 
-              <div>
-                <label className="font-medium block mb-1">Contact Info</label>
-                <input
-                  type="text"
-                  name="contact_info"
-                  className="w-full p-3 border rounded-lg border-slate-200 shadow-sm focus:ring-2 focus:ring-emerald-200"
-                  value={formData.contact_info}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
             </div>
           )}
 
@@ -381,9 +363,8 @@ export default function CreateListingForm() {
                 </button>
                 <div className="text-sm text-slate-500 mt-2">
                   {images.length > 0
-                    ? `${images.length} image${
-                        images.length !== 1 ? "s" : ""
-                      } selected (max 6)`
+                    ? `${images.length} image${images.length !== 1 ? "s" : ""
+                    } selected (max 6)`
                     : "You can add up to 6 images."}
                 </div>
               </div>

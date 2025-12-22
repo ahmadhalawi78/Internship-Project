@@ -25,6 +25,7 @@ interface UserProfileProps {
   };
   listings?: any[];
   favorites?: any[];
+  favoriteIds?: string[];
 }
 
 export default function UserProfile({
@@ -33,6 +34,7 @@ export default function UserProfile({
   stats,
   listings = [],
   favorites = [],
+  favoriteIds = [],
 }: UserProfileProps) {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("listings");
@@ -77,6 +79,7 @@ export default function UserProfile({
               activeTab={activeSection}
               listings={listings}
               favorites={favorites}
+              favoriteIds={favoriteIds}
             />
           </div>
         </div>
