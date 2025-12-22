@@ -1,5 +1,8 @@
 import { Package, Utensils, MapPin } from "lucide-react";
 import Card from "../../../components/reusable-components/card/Card";
+import EmptyState, {
+  HomeIllustration,
+} from "@/components/reusable-components/EmptyState";
 
 export type FeedItem = {
   id: string;
@@ -26,15 +29,12 @@ type HomeFeedProps = {
 export default function HomeFeed({ items }: HomeFeedProps) {
   if (!items || items.length === 0) {
     return (
-      <div className="flex min-h-[300px] items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 bg-linear-to-br from-slate-50 to-blue-50">
-        <div className="text-center">
-          <div className="text-7xl mb-4 animate-bounce">🌱</div>
-          <p className="text-xl font-black text-slate-700">No listings yet</p>
-          <p className="text-sm font-semibold text-slate-500 mt-2">
-            Start sharing with your community!
-          </p>
-        </div>
-      </div>
+      <EmptyState
+        title="No listings yet"
+        description="Start sharing with your community! Post a listing to get started."
+        icon={<HomeIllustration />}
+        className="min-h-[300px] flex items-center justify-center"
+      />
     );
   }
 

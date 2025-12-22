@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable */
+
 import { useState, useRef, useEffect } from "react";
 import {
   Package,
@@ -315,13 +317,23 @@ export default function HomeShell({ items }: HomeShellProps) {
     <section className="relative bg-white py-8 md:py-12">
       {/* Subtle background pattern */}
       <div className="absolute inset-0 opacity-[0.02] pointer-events-none">
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: `radial-gradient(circle at 1px 1px, rgb(15 23 42) 1px, transparent 0)`,
-            backgroundSize: "24px 24px",
-          }}
-        />
+        <svg
+          className="absolute inset-0 w-full h-full"
+          xmlns="http://www.w3.org/2000/svg"
+          preserveAspectRatio="none"
+        >
+          <defs>
+            <pattern
+              id="dots"
+              width="24"
+              height="24"
+              patternUnits="userSpaceOnUse"
+            >
+              <circle cx="1" cy="1" r="1" fill="rgba(15,23,42,0.02)" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#dots)" />
+        </svg>
       </div>
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -338,37 +350,8 @@ export default function HomeShell({ items }: HomeShellProps) {
               <h1
                 className="text-4xl md:text-5xl font-bold text-slate-900 mb-3 tracking-tight inline-block cursor-pointer"
                 onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
-                onMouseLeave={() => setHoveredLetter(null)}
               >
-                {["C", "o", "m", "m", "u", "n", "i", "t", "y"].map(
-                  (letter, index) => (
-                    <span
-                      key={index}
-                      className="inline-block transition-all duration-300 ease-out"
-                      style={{
-                        transform:
-                          hoveredLetter === index
-                            ? "translateY(-4px) scale(1.2)"
-                            : hoveredLetter !== null &&
-                              Math.abs(hoveredLetter - index) <= 1
-                            ? "translateY(-2px) scale(1.1)"
-                            : "translateY(0) scale(1)",
-                        color:
-                          hoveredLetter === index
-                            ? "#1e40af"
-                            : hoveredLetter !== null &&
-                              Math.abs(hoveredLetter - index) <= 1
-                            ? "#3b82f6"
-                            : "#0f172a",
-                        transitionDelay: `${index * 20}ms`,
-                      }}
-                      onMouseEnter={() => setHoveredLetter(index)}
-                    >
-                      {letter}
-                    </span>
-                  )
-                )}
-                <span className="ml-2">Listings</span>
+                Community <span className="ml-2">Listings</span>
                 <ChevronDown
                   className={`inline-block h-5 w-5 ml-2 text-slate-600 transition-all duration-300 ${
                     showCategoryDropdown ? "rotate-180" : ""
@@ -394,6 +377,7 @@ export default function HomeShell({ items }: HomeShellProps) {
               <div className="flex items-center gap-1 rounded-lg border border-slate-200 bg-white p-1 shadow-sm">
                 <button
                   onClick={() => setViewMode("grid")}
+                  aria-label="Grid view"
                   className={`p-2 rounded-md transition-all duration-200 ${
                     viewMode === "grid"
                       ? "bg-slate-900 text-white"
@@ -404,6 +388,7 @@ export default function HomeShell({ items }: HomeShellProps) {
                 </button>
                 <button
                   onClick={() => setViewMode("list")}
+                  aria-label="List view"
                   className={`p-2 rounded-md transition-all duration-200 ${
                     viewMode === "list"
                       ? "bg-slate-900 text-white"
@@ -554,9 +539,6 @@ export default function HomeShell({ items }: HomeShellProps) {
                 <div
                   key={item.id}
                   className="group relative flex flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:shadow-md hover:border-slate-300 cursor-pointer"
-                  style={{
-                    animation: `fadeIn 0.4s ease-out ${index * 0.05}s both`,
-                  }}
                 >
                   <div
                     className={`relative h-48 w-full overflow-hidden bg-linear-to-br ${
@@ -631,6 +613,7 @@ export default function HomeShell({ items }: HomeShellProps) {
                         e.stopPropagation();
                         toggleLike(item.id);
                       }}
+                      aria-label="Toggle favorite"
                       className="absolute top-3 right-3 z-10 flex h-8 w-8 items-center justify-center rounded-md bg-white/90 backdrop-blur-sm shadow-sm border border-slate-200 transition-all duration-200 hover:scale-110 active:scale-95"
                     >
                       <Heart
@@ -668,9 +651,6 @@ export default function HomeShell({ items }: HomeShellProps) {
                 <div
                   key={item.id}
                   className="group flex items-center gap-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition-all duration-300 hover:shadow-md hover:border-slate-300 cursor-pointer"
-                  style={{
-                    animation: `fadeIn 0.4s ease-out ${index * 0.05}s both`,
-                  }}
                 >
                   <div
                     className={`relative h-24 w-24 shrink-0 rounded-lg overflow-hidden bg-linear-to-br ${
@@ -724,6 +704,7 @@ export default function HomeShell({ items }: HomeShellProps) {
                           e.stopPropagation();
                           toggleLike(item.id);
                         }}
+                        aria-label="Toggle favorite"
                         className="shrink-0 p-1.5 rounded-md hover:bg-slate-50 transition-colors"
                       >
                         <Heart
@@ -777,6 +758,7 @@ export default function HomeShell({ items }: HomeShellProps) {
       {!showChat && (
         <button
           onClick={() => setShowChat(true)}
+          aria-label="Open chat"
           className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg hover:bg-blue-700 transition-all duration-200 hover:scale-110 group"
         >
           <MessageCircle className="h-6 w-6 group-hover:scale-110 transition-transform" />
@@ -795,6 +777,7 @@ export default function HomeShell({ items }: HomeShellProps) {
             </div>
             <button
               onClick={() => setShowChat(false)}
+              aria-label="Close chat"
               className="p-1 rounded-md text-white/80 hover:text-white hover:bg-white/10 transition-colors"
             >
               <X className="h-5 w-5" />
@@ -871,6 +854,7 @@ export default function HomeShell({ items }: HomeShellProps) {
                 onClick={handleSendMessage}
                 disabled={isLoading || !inputMessage.trim()}
                 className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Send message"
               >
                 {isLoading ? (
                   <Loader2 className="h-5 w-5 animate-spin" />

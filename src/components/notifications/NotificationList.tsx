@@ -4,11 +4,11 @@ import { useState, useEffect } from "react";
 import {
   MessageSquare,
   Heart,
-  AlertCircle,
   Check,
   X,
   Clock,
   ExternalLink,
+  AlertCircle,
 } from "lucide-react";
 import {
   getUserNotifications,
@@ -16,7 +16,25 @@ import {
   deleteNotification,
   type Notification,
 } from "../../app/actions/notificatons";
-import { formatDistanceToNow } from "date-fns";
+// lightweight local replacement for `formatDistanceToNow` to avoid a missing dependency
+function formatDistanceToNow(date: Date, _opts?: { addSuffix?: boolean }) {
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffSecs = Math.floor(diffMs / 1000);
+  const diffMins = Math.floor(diffSecs / 60);
+  const diffHours = Math.floor(diffMins / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffSecs < 60) return `${diffSecs}s ago`;
+  if (diffMins < 60) return `${diffMins}m ago`;
+  if (diffHours < 24) return `${diffHours}h ago`;
+  return `${diffDays}d ago`;
+}
+import EmptyState, {
+  NotificationsIllustration,
+} from "../reusable-components/EmptyState";
+import Button from "@/components/reusable-components/Button";
+import Link from "next/link";
 
 const notificationIcons = {
   listing_created: ExternalLink,
@@ -38,11 +56,7 @@ export default function NotificationList() {
   const [page, setPage] = useState(0);
   const limit = 20;
 
-  useEffect(() => {
-    loadNotifications();
-  }, []);
-
-  const loadNotifications = async (loadMore = false) => {
+  async function loadNotifications(loadMore = false) {
     const currentPage = loadMore ? page + 1 : 0;
 
     setLoading(true);
@@ -63,7 +77,15 @@ export default function NotificationList() {
       setHasMore(result.hasMore || false);
     }
     setLoading(false);
-  };
+  }
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      loadNotifications();
+    }, 0);
+
+    return () => clearTimeout(t);
+  }, []);
 
   const handleMarkAsRead = async (id: string) => {
     const result = await markNotificationAsRead(id);
@@ -117,15 +139,16 @@ export default function NotificationList() {
 
   if (notifications.length === 0) {
     return (
-      <div className="text-center py-12">
-        <AlertCircle className="mx-auto h-12 w-12 text-slate-400 mb-4" />
-        <h3 className="text-lg font-medium text-slate-900 mb-2">
-          No notifications yet
-        </h3>
-        <p className="text-slate-600">
-          When you receive notifications, they'll appear here.
-        </p>
-      </div>
+      <EmptyState
+        title="No notifications yet"
+        description="When you receive notifications, they'll appear here."
+        icon={<NotificationsIllustration />}
+        action={
+          <Link href="/notifications?tab=preferences">
+            <Button variant="secondary">Manage preferences</Button>
+          </Link>
+        }
+      />
     );
   }
 

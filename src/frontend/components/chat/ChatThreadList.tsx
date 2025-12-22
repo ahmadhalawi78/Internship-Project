@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { MessageSquare, User, Calendar } from "lucide-react";
+import EmptyState, {
+  ChatIllustration,
+} from "@/components/reusable-components/EmptyState";
 import Link from "next/link";
 import { getUserChatThreads } from "@/app/actions/chat";
 
@@ -105,16 +108,11 @@ export default function ChatThreadList() {
 
   if (threads.length === 0) {
     return (
-      <div className="text-center py-12">
-        <MessageSquare className="mx-auto h-12 w-12 text-slate-400 mb-4" />
-        <h3 className="text-lg font-medium text-slate-900 mb-2">
-          No conversations yet
-        </h3>
-        <p className="text-slate-600 max-w-md mx-auto">
-          When you message someone about a listing, your conversations will
-          appear here.
-        </p>
-      </div>
+      <EmptyState
+        title="No conversations yet"
+        description="When you message someone about a listing, your conversations will appear here."
+        icon={<ChatIllustration />}
+      />
     );
   }
 
