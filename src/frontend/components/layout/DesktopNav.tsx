@@ -65,7 +65,7 @@ export default function DesktopNav() {
 
 
   return (
-    <div className="relative bg-gradient-to-br from-slate-50 via-blue-50 to-emerald-50 overflow-hidden">
+    <div className="relative bg-gradient-to-br from-slate-50 via-blue-50 to-emerald-50 overflow-visible">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {[...Array(12)].map((_, i) => {
           const size = 4 + (i * 0.5);
@@ -240,7 +240,7 @@ export default function DesktopNav() {
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="flex-1 relative">
+          <div className="flex-1 relative z-50">
             <div className={`absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-400 to-emerald-400 blur-xl transition-all duration-300 ${searchValue ? 'opacity-30' : 'opacity-0'}`} />
             <input
               type="search"
@@ -286,9 +286,9 @@ export default function DesktopNav() {
                           }
                           setShowResults(false);
                         }}
-                        className="w-full flex items-start gap-3 p-4 rounded-xl hover:bg-gradient-to-r hover:from-blue-50 hover:to-emerald-50 transition-all duration-150 text-left group hover:scale-105 active:scale-100"
+                        className="w-full flex items-start gap-3 p-4 rounded-xl hover:bg-gradient-to-r hover:from-blue-50 hover:to-emerald-50 transition-colors duration-150 text-left"
                       >
-                        <div className={`h-12 w-12 rounded-lg flex-shrink-0 flex items-center justify-center transition-all duration-150 group-hover:scale-110 group-hover:rotate-6 ${result.category === 'food'
+                        <div className={`h-12 w-12 rounded-lg flex-shrink-0 flex items-center justify-center transition-all duration-150 ${result.category === 'food'
                           ? 'bg-gradient-to-br from-orange-100 to-rose-100'
                           : result.category === 'bartering'
                             ? 'bg-gradient-to-br from-blue-100 to-emerald-100'

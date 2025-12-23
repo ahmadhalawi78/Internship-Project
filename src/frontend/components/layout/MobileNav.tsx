@@ -82,7 +82,7 @@ export const MobileNav = () => {
   };
 
   return (
-    <div className="relative bg-gradient-to-br from-slate-50 via-blue-50 to-emerald-50 overflow-hidden">
+    <div className="relative bg-gradient-to-br from-slate-50 via-blue-50 to-emerald-50 overflow-visible">
       {/* Animated background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {floatingElements.map((style, i) => (
@@ -169,7 +169,7 @@ export const MobileNav = () => {
         </div>
 
         {/* Search */}
-        <div className="relative mb-3">
+        <div className="relative mb-3 z-50">
           <div className={`absolute inset-0 rounded-xl bg-gradient-to-r from-blue-400 to-emerald-400 blur-lg transition-all duration-300 ${searchValue ? 'opacity-20' : 'opacity-0'}`} />
           <div className="relative flex items-center gap-2 rounded-xl border-2 border-slate-200 bg-white px-3 py-2.5 shadow-lg">
             <Search className="h-4 w-4 text-slate-400" />
