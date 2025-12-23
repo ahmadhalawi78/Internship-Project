@@ -23,22 +23,24 @@ export async function createOrGetChatThread(
 
     // 1. Find if there's ALREADY a thread where BOTH users are participants
     const { data: myThreads } = await supabase
-      .from('chat_participants')
-      .select('thread_id')
-      .eq('user_id', currentUserId);
+      .from("chat_participants")
+      .select("thread_id")
+      .eq("user_id", currentUserId);
 
     if (myThreads && myThreads.length > 0) {
-      const threadIds = myThreads.map(t => t.thread_id);
+      const threadIds = myThreads.map((t) => t.thread_id);
 
       const { data: existing } = await supabase
-        .from('chat_participants')
-        .select(`
+        .from("chat_participants")
+        .select(
+          `
           thread_id,
           chat_threads (*)
-        `)
-        .in('thread_id', threadIds)
-        .eq('user_id', otherUserId)
-        .order('thread_id', { ascending: false })
+        `
+        )
+        .in("thread_id", threadIds)
+        .eq("user_id", otherUserId)
+        .order("thread_id", { ascending: false })
         .limit(1)
         .maybeSingle();
 
@@ -52,7 +54,7 @@ export async function createOrGetChatThread(
       .from("chat_threads")
       .insert({
         listing_id: listingId, // Tag with listing that started it
-        thread_type: 'direct', // Direct message between two users
+        thread_type: "direct", // Direct message between two users
         created_by: currentUserId, // User who initiated the chat
       })
       .select("*")
@@ -68,7 +70,7 @@ export async function createOrGetChatThread(
       .from("chat_participants")
       .insert([
         { thread_id: newThread.id, user_id: currentUserId },
-        { thread_id: newThread.id, user_id: otherUserId }
+        { thread_id: newThread.id, user_id: otherUserId },
       ]);
 
     if (partError) {
@@ -117,7 +119,7 @@ export async function sendMessage(threadId: string, content: string) {
         thread_id: threadId,
         sender_id: currentUserId,
         content,
-        status: 'sent'
+        status: "sent",
       })
       .select("*")
       .single();
@@ -159,13 +161,19 @@ export async function getUserChatThreads() {
     // Fetch my participations
     const { data: participations, error } = await supabase
       .from("chat_participants")
-      .select(`
+      .select(
+        `
         thread_id,
         chat_threads (*)
-      `)
+      `
+      )
       .eq("user_id", currentUserId);
 
-    console.log(`[ChatDebug] Found ${participations?.length || 0} participations for user ${currentUserId}`);
+    console.log(
+      `[ChatDebug] Found ${
+        participations?.length || 0
+      } participations for user ${currentUserId}`
+    );
 
     if (error) {
       console.error("Error fetching chat threads:", error);
@@ -181,18 +189,28 @@ export async function getUserChatThreads() {
       participations.map(async (p: any, index: number) => {
         const { data: other, error: otherError } = await supabase
           .from("chat_participants")
-          .select(`
+          .select(
+            `
                     user_id,
                     profiles:user_id (id, full_name, avatar_url)
-                `)
+                `
+          )
           .eq("thread_id", p.thread_id)
           .neq("user_id", currentUserId)
           .maybeSingle();
 
-        console.log(`[ChatDebug] Thread ${index} (${p.thread_id}): other user found? ${!!other}. Error? ${otherError?.message || 'none'}`);
+        console.log(
+          `[ChatDebug] Thread ${index} (${
+            p.thread_id
+          }): other user found? ${!!other}. Error? ${
+            otherError?.message || "none"
+          }`
+        );
 
         if (!other) {
-          console.log(`[ChatDebug] Thread ${p.thread_id}: Other participant not found via join. Trying message fallback...`);
+          console.log(
+            `[ChatDebug] Thread ${p.thread_id}: Other participant not found via join. Trying message fallback...`
+          );
           // Fallback 1: Try to find another user from the messages
           const { data: recentMsg } = await supabase
             .from("messages")
@@ -203,20 +221,31 @@ export async function getUserChatThreads() {
             .maybeSingle();
 
           if (recentMsg) {
-            console.log(`[ChatDebug] Thread ${p.thread_id}: Found other user via messages: ${recentMsg.sender_id}`);
-            const otherUser = (recentMsg as any).profiles || { id: recentMsg.sender_id, full_name: "User" };
-            const unread = await getUnreadForThread(supabase, p.thread_id, currentUserId);
+            console.log(
+              `[ChatDebug] Thread ${p.thread_id}: Found other user via messages: ${recentMsg.sender_id}`
+            );
+            const otherUser = (recentMsg as any).profiles || {
+              id: recentMsg.sender_id,
+              full_name: "User",
+            };
+            const unread = await getUnreadForThread(
+              supabase,
+              p.thread_id,
+              currentUserId
+            );
             return {
               ...p.chat_threads,
               otherUser,
               otherUserId: recentMsg.sender_id,
-              ...unread
+              ...unread,
             };
           }
 
           // Fallback 2: Try listing owner if it's a listing-based thread
           if (p.chat_threads?.listing_id) {
-            console.log(`[ChatDebug] Thread ${p.thread_id}: Trying listing owner fallback...`);
+            console.log(
+              `[ChatDebug] Thread ${p.thread_id}: Trying listing owner fallback...`
+            );
             const { data: listing } = await supabase
               .from("listings")
               .select("owner_id, profiles:owner_id(id, full_name, avatar_url)")
@@ -224,49 +253,68 @@ export async function getUserChatThreads() {
               .single();
 
             if (listing && listing.owner_id !== currentUserId) {
-              const otherUser = (listing as any).profiles || { id: listing.owner_id, full_name: "Owner" };
-              const unread = await getUnreadForThread(supabase, p.thread_id, currentUserId);
+              const otherUser = (listing as any).profiles || {
+                id: listing.owner_id,
+                full_name: "Owner",
+              };
+              const unread = await getUnreadForThread(
+                supabase,
+                p.thread_id,
+                currentUserId
+              );
               return {
                 ...p.chat_threads,
                 otherUser,
                 otherUserId: listing.owner_id,
-                ...unread
+                ...unread,
               };
             }
           }
 
-          console.log(`[ChatDebug] Thread ${p.thread_id}: All fallbacks failed. Skipping.`);
+          console.log(
+            `[ChatDebug] Thread ${p.thread_id}: All fallbacks failed. Skipping.`
+          );
           return null;
         }
 
         // Check unread messages
-        const unread = await getUnreadForThread(supabase, p.thread_id, currentUserId);
+        const unread = await getUnreadForThread(
+          supabase,
+          p.thread_id,
+          currentUserId
+        );
 
         return {
           ...p.chat_threads,
           otherUser: other.profiles || { id: other.user_id, full_name: "User" },
           otherUserId: other.user_id,
-          ...unread
+          ...unread,
         };
       })
     );
 
-    async function getUnreadForThread(supabase: any, threadId: string, userId: string) {
+    async function getUnreadForThread(
+      supabase: any,
+      threadId: string,
+      userId: string
+    ) {
       const { count: unreadCount } = await supabase
         .from("messages")
-        .select("*", { count: 'exact', head: true })
+        .select("*", { count: "exact", head: true })
         .eq("thread_id", threadId)
         .neq("sender_id", userId)
-        .neq("status", 'read');
+        .neq("status", "read");
 
       return {
         hasUnread: (unreadCount ?? 0) > 0,
-        unreadCount: unreadCount ?? 0
+        unreadCount: unreadCount ?? 0,
       };
     }
 
     const validThreads = threadsWithProfiles.filter(Boolean);
-    console.log(`[ChatDebug] Valid threads after profile check: ${validThreads.length}`);
+    console.log(
+      `[ChatDebug] Valid threads after profile check: ${validThreads.length}`
+    );
 
     // Consolidate: Only take the MOST RECENT thread for each other user
     const uniqueThreadsMap = new Map();
@@ -275,17 +323,20 @@ export async function getUserChatThreads() {
       const existing = uniqueThreadsMap.get(t.otherUserId);
       const currentTime = new Date(t.last_message_at || t.created_at).getTime();
 
-      if (!existing || currentTime > new Date(existing.last_message_at || existing.created_at).getTime()) {
+      if (
+        !existing ||
+        currentTime >
+          new Date(existing.last_message_at || existing.created_at).getTime()
+      ) {
         uniqueThreadsMap.set(t.otherUserId, t);
       }
     });
 
-    const sortedThreads = Array.from(uniqueThreadsMap.values())
-      .sort((a, b) => {
-        const dateA = new Date(a.last_message_at || a.created_at).getTime();
-        const dateB = new Date(b.last_message_at || b.created_at).getTime();
-        return dateB - dateA;
-      });
+    const sortedThreads = Array.from(uniqueThreadsMap.values()).sort((a, b) => {
+      const dateA = new Date(a.last_message_at || a.created_at).getTime();
+      const dateB = new Date(b.last_message_at || b.created_at).getTime();
+      return dateB - dateA;
+    });
 
     return { success: true, data: sortedThreads };
   } catch (error) {
@@ -320,10 +371,12 @@ export async function getThreadMessages(threadId: string) {
 
     const { data: messages, error } = await supabase
       .from("messages")
-      .select(`
+      .select(
+        `
         *,
         profiles:sender_id (id, full_name, avatar_url)
-      `)
+      `
+      )
       .eq("thread_id", threadId)
       .order("created_at", { ascending: true });
 
@@ -353,10 +406,10 @@ export async function markMessagesAsRead(threadId: string) {
 
     const { data: updated, error } = await supabase
       .from("messages")
-      .update({ status: 'read' })
+      .update({ status: "read" })
       .eq("thread_id", threadId)
       .neq("sender_id", userData.user.id)
-      .neq("status", 'read')
+      .neq("status", "read")
       .select();
 
     if (error) {
@@ -383,14 +436,25 @@ export async function getUnreadMessageCount() {
 
     if (!userData.user) return { success: true, count: 0 };
 
+    // First, get all thread IDs where the current user is a participant
+    const { data: participations } = await supabase
+      .from("chat_participants")
+      .select("thread_id")
+      .eq("user_id", userData.user.id);
+
+    if (!participations || participations.length === 0) {
+      return { success: true, count: 0 };
+    }
+
+    const threadIds = participations.map((p) => p.thread_id);
+
+    // Count unread messages in those threads (excluding messages sent by the current user)
     const { count, error } = await supabase
       .from("messages")
-      .select("*", { count: 'exact', head: true })
+      .select("*", { count: "exact", head: true })
+      .in("thread_id", threadIds)
       .neq("sender_id", userData.user.id)
-      .neq("status", 'read')
-      // Only count messages in threads I'm a participant of
-      // In a real app, we'd join with chat_participants, but status='sent/delivered' + not sender is usually enough if threads are private
-      ;
+      .neq("status", "read");
 
     if (error) {
       console.error("Error fetching unread count:", error);
