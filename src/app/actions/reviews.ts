@@ -76,3 +76,34 @@ export async function getListingReviews(listingId: string) {
         return { error: "An unexpected error occurred" };
     }
 }
+
+export async function getUserReceivedReviews() {
+    try {
+        const supabase = await supabaseServer();
+        const { data: userData } = await supabase.auth.getUser();
+
+        if (!userData.user) {
+            return { error: "Unauthorized" };
+        }
+
+        const { data, error } = await supabase
+            .from("reviews")
+            .select(`
+                *,
+                reviewer:reviewer_id(id, full_name, avatar_url),
+                listing:listing_id(id, title)
+            `)
+            .eq("reviewed_user_id", userData.user.id)
+            .order("created_at", { ascending: false });
+
+        if (error) {
+            console.error("Error fetching received reviews:", error);
+            return { error: error.message };
+        }
+
+        return { success: true, data };
+    } catch (error) {
+        console.error("Server error fetching received reviews:", error);
+        return { error: "An unexpected error occurred" };
+    }
+}

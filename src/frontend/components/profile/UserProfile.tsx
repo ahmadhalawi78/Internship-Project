@@ -1,10 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ProfileHeader from "./ProfileHeader";
 import ProfileSections from "./ProfileSections";
 import ProfileSidebar from "./ProfileSidebar";
 import EditProfileModal from "./EditProfileModal";
+import { getUserReceivedReviews } from "@/app/actions/reviews";
+import Link from "next/link";
+import { Home } from "lucide-react";
 
 interface ProfileUser {
   id: string;
@@ -23,8 +26,24 @@ interface UserProfileProps {
     favorites: number;
     joined: string;
   };
-  listings?: any[];
-  favorites?: any[];
+  listings?: {
+    id: string;
+    title: string;
+    category: string;
+    location: string;
+    status?: string;
+    listing_images?: { image_url: string }[];
+    created_at: string;
+  }[];
+  favorites?: {
+    id: string;
+    title: string;
+    category: string;
+    location: string;
+    status?: string;
+    listing_images?: { image_url: string }[];
+    created_at: string;
+  }[];
   favoriteIds?: string[];
 }
 
@@ -38,17 +57,37 @@ export default function UserProfile({
 }: UserProfileProps) {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("listings");
+  const [reviewsCount, setReviewsCount] = useState(0);
+
+  useEffect(() => {
+    getUserReceivedReviews().then(res => {
+      if (res.success) {
+        setReviewsCount(res.data?.length || 0);
+      }
+    });
+  }, []);
 
   return (
     <div className="min-h-screen bg-slate-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Home Navigation */}
+        <div className="mb-4">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 px-4 py-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+          >
+            <Home size={20} />
+            <span className="font-semibold">Home</span>
+          </Link>
+        </div>
+
         {/* Header */}
         <div className="mb-8">
           <ProfileHeader
             user={user}
             stats={{
               listings: listings.length,
-              reviews: 0, // Placeholder
+              reviews: reviewsCount,
               joined: stats?.joined || 'Recently'
             }}
             location={location}
@@ -64,10 +103,9 @@ export default function UserProfile({
               activeTab={activeSection}
               onTabChange={setActiveSection}
               stats={{
-                listings: stats?.listings || 0,
-                favorites: stats?.favorites || 0,
-                reviews: 0,
-                messages: 0
+                listings: listings.length,
+                favorites: favorites.length,
+                reviews: reviewsCount
               }}
             />
           </div>

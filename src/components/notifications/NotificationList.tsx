@@ -9,7 +9,9 @@ import {
   X,
   Clock,
   ExternalLink,
+  Bell,
 } from "lucide-react";
+import EmptyState from "@/components/reusable-components/EmptyState";
 import {
   getUserNotifications,
   markNotificationAsRead,
@@ -121,15 +123,12 @@ export default function NotificationList() {
 
   if (notifications.length === 0) {
     return (
-      <div className="text-center py-12">
-        <AlertCircle className="mx-auto h-12 w-12 text-slate-400 mb-4" />
-        <h3 className="text-lg font-medium text-slate-900 mb-2">
-          No notifications yet
-        </h3>
-        <p className="text-slate-600">
-          When you receive notifications, they will appear here.
-        </p>
-      </div>
+      <EmptyState
+        icon={Bell}
+        title="No notifications yet"
+        description="When you receive notifications about your listings or messages, they will appear here."
+        className="border-none shadow-none bg-transparent py-12"
+      />
     );
   }
 
@@ -138,11 +137,10 @@ export default function NotificationList() {
       {notifications.map((notification) => (
         <div
           key={notification.id}
-          className={`rounded-lg border p-4 transition-colors ${
-            notification.is_read
+          className={`rounded-lg border p-4 transition-colors ${notification.is_read
               ? "bg-white border-slate-200"
               : "bg-blue-50 border-blue-200"
-          }`}
+            }`}
         >
           <div className="flex items-start justify-between">
             <div className="flex items-start gap-3 flex-1">
