@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Search, Menu, X, User, Plus, Info, LogOut, Package, Utensils, MessageCircle } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useAuth } from "@/frontend/hooks/useAuth";
 import { useRouter } from "next/navigation";
 
@@ -19,8 +19,72 @@ export const MobileNav = () => {
   const [searchValue, setSearchValue] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [logoutHesitate, setLogoutHesitate] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
   const { user, loading, signOut } = useAuth();
   const router = useRouter();
+
+  const [hasCheckedUnread, setHasCheckedUnread] = useState(false);
+
+  const fetchUnreadCount = async () => {
+    const { getUnreadMessageCount } = await import("@/app/actions/chat");
+    const res = await getUnreadMessageCount();
+    if (res.success && typeof res.count === 'number') {
+      setUnreadCount(res.count);
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      import("@/app/actions/auth").then(({ checkIsAdmin }) => {
+        checkIsAdmin().then(setIsAdmin);
+      });
+
+      fetchUnreadCount();
+
+      // Refresh count when window gains focus
+      const handleFocus = () => {
+        fetchUnreadCount();
+      };
+      window.addEventListener('focus', handleFocus);
+
+      // Listen for custom event from messages page
+      const handleUnreadCountChanged = (event: any) => {
+        if (event.detail && typeof event.detail.count === 'number') {
+          setUnreadCount(event.detail.count);
+        }
+      };
+      window.addEventListener('unreadCountChanged', handleUnreadCountChanged);
+
+      // Real-time subscription for unread count
+      const { createClient } = require("@/lib/supabase/client");
+      const supabase = createClient();
+      const channel = supabase
+        .channel('unread_count_watcher_mobile')
+        .on(
+          'postgres_changes',
+          { event: 'INSERT', schema: 'public', table: 'messages' },
+          () => {
+            fetchUnreadCount();
+          }
+        )
+        .on(
+          'postgres_changes',
+          { event: 'UPDATE', schema: 'public', table: 'messages' },
+          () => {
+            fetchUnreadCount();
+          }
+        )
+        .subscribe();
+
+      return () => {
+        window.removeEventListener('focus', handleFocus);
+        window.removeEventListener('unreadCountChanged', handleUnreadCountChanged);
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [user]);
 
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [showResults, setShowResults] = useState(false);
@@ -47,27 +111,7 @@ export const MobileNav = () => {
 
   const handleSearch = () => {
     if (!searchValue.trim()) return;
-    setIsSearching(true);
-    setShowResults(false);
-
-    setTimeout(() => {
-      const mockResults = [
-        { id: 1, title: "Vintage Camera", category: "bartering", location: "Beirut", icon: Package },
-        { id: 2, title: "Fresh Vegetables", category: "food", location: "Baabda", icon: Utensils },
-        { id: 3, title: "Handmade Pottery", category: "bartering", location: "Jounieh", icon: Package },
-        { id: 4, title: "Homemade Bread", category: "food", location: "Tripoli", icon: Utensils },
-        { id: 5, title: "Old Books Collection", category: "bartering", location: "Zahle", icon: Package },
-      ].filter(item =>
-        item.title.toLowerCase().includes(searchValue.toLowerCase()) ||
-        item.location.toLowerCase().includes(searchValue.toLowerCase())
-      );
-
-      setSearchResults(mockResults.length > 0 ? mockResults : [
-        { id: 99, title: `No results for "${searchValue}"`, category: "none", location: "Try different keywords", icon: Search }
-      ]);
-      setIsSearching(false);
-      setShowResults(true);
-    }, 1200);
+    router.push(`/?query=${encodeURIComponent(searchValue.trim())}`);
   };
 
   const handleLogout = () => {
@@ -119,51 +163,35 @@ export const MobileNav = () => {
         .animate-shake { animation: shake 0.6s ease-in-out; }
       `}</style>
 
-      <div className="relative mx-auto max-w-6xl px-4 py-4">
+      <div className="relative mx-auto max-w-6xl px-4 py-3">
         {/* Top Bar */}
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="relative">
-              <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500 to-emerald-500 blur-md opacity-50 group-hover:opacity-75 transition-opacity" />
-              <div className="relative h-10 w-10 rounded-xl bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform overflow-hidden">
-                <svg width="40" height="40" viewBox="0 0 120 120" className="absolute">
-                  <path
-                    d="M 28 18 L 52 18 L 52 78 L 92 78 L 92 102 L 28 102 Z"
-                    fill="white"
-                    className="transition-all duration-500"
-                  />
-                  <g transform="translate(62, 28) scale(0.8)">
-                    <rect x="6" y="42" width="6" height="20" fill="#78350f" />
-                    <path d="M 9 10 L 21 30 L 18 30 L 27 44 L 24 44 L 33 60 L -15 60 L -6 44 L -9 44 L 0 30 L -3 30 Z"
-                      fill="#047857" />
-                    <path d="M 9 13 L 19 28 L 16 28 L 24 40 L 21 40 L 28 52 L -10 52 L -3 40 L -6 40 L 2 28 L -1 28 Z"
-                      fill="#059669"
-                      opacity="0.85" />
-                    <path d="M 9 17 L 17 24 L 14 24 L 20 34 L 17 34 L 23 46 L -5 46 L 1 34 L -2 34 L 4 24 L 1 24 Z"
-                      fill="#10b981"
-                      opacity="0.7" />
-                  </g>
-                </svg>
-              </div>
+            <div className="relative h-9 w-9 flex-shrink-0 rounded-xl bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center shadow-md">
+              <svg width="24" height="24" viewBox="0 0 120 120">
+                <path d="M 28 18 L 52 18 L 52 78 L 92 78 L 92 102 L 28 102 Z" fill="white" />
+                <g transform="translate(62, 28) scale(0.8)">
+                  <rect x="6" y="42" width="6" height="20" fill="#78350f" />
+                  <path d="M 9 10 L 21 30 L 18 30 L 27 44 L 24 44 L 33 60 L -15 60 L -6 44 L -9 44 L 0 30 L -3 30 Z" fill="#047857" />
+                  <path d="M 9 13 L 19 28 L 16 28 L 24 40 L 21 40 L 28 52 L -10 52 L -3 40 L -6 40 L 2 28 L -1 28 Z" fill="#059669" opacity="0.85" />
+                  <path d="M 9 17 L 17 24 L 14 24 L 20 34 L 17 34 L 23 46 L -5 46 L 1 34 L -2 34 L 4 24 L 1 24 Z" fill="#10b981" opacity="0.7" />
+                </g>
+              </svg>
             </div>
-            <div>
-              <div className="text-sm font-black text-slate-900">LoopLebanon</div>
-              <div className="text-xs font-semibold text-emerald-600">Community</div>
-            </div>
+            <span className="text-lg font-black text-slate-900">Loop<span className="text-blue-600">Lebanon</span></span>
           </Link>
 
           {/* Menu Button */}
           <button
             type="button"
             onClick={() => setOpen(!open)}
-            className="relative flex h-12 w-12 items-center justify-center rounded-xl border-2 border-slate-200 bg-white shadow-lg transition-all duration-300 hover:border-blue-400 hover:shadow-xl hover:scale-110 active:scale-95"
+            className="h-10 w-10 flex items-center justify-center rounded-xl bg-white border border-slate-200 shadow-sm transition-all active:scale-95"
           >
-            <div className={`absolute inset-0 rounded-xl bg-gradient-to-br transition-all duration-300 ${open ? 'from-blue-400/20 to-emerald-400/20' : 'from-transparent to-transparent'}`} />
             {open ? (
-              <X className="h-5 w-5 text-blue-600 relative z-10 transition-transform duration-300 rotate-90" />
+              <X className="h-5 w-5 text-slate-600" />
             ) : (
-              <Menu className="h-5 w-5 text-slate-700 relative z-10 transition-transform duration-300" />
+              <Menu className="h-5 w-5 text-slate-700" />
             )}
           </button>
         </div>
@@ -181,7 +209,6 @@ export const MobileNav = () => {
                 if (!e.target.value) setShowResults(false);
               }}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-              onFocus={() => searchResults.length > 0 && setShowResults(true)}
               placeholder="Search listings..."
               className="flex-1 bg-transparent text-sm font-semibold text-slate-800 outline-none placeholder:text-slate-400"
             />
@@ -201,52 +228,7 @@ export const MobileNav = () => {
             </button>
           </div>
 
-          {/* Search Results */}
-          {showResults && searchResults.length > 0 && (
-            <div className="absolute top-full left-0 right-0 mt-2 rounded-xl border-2 border-slate-200 bg-white shadow-2xl overflow-hidden z-50 max-h-64 overflow-y-auto">
-              {searchResults.map((result) => {
-                const Icon = result.icon;
-                return (
-                  <button
-                    key={result.id}
-                    onClick={() => {
-                      if (result.category !== 'none') {
-                        alert(`Selected: ${result.title} in ${result.location}`);
-                      }
-                      setShowResults(false);
-                    }}
-                    className="w-full flex items-start gap-3 p-3 rounded-lg hover:bg-gradient-to-r hover:from-blue-50 hover:to-emerald-50 transition-all duration-150 text-left"
-                  >
-                    <div className={`h-10 w-10 rounded-lg flex-shrink-0 flex items-center justify-center ${result.category === 'food'
-                      ? 'bg-gradient-to-br from-orange-100 to-rose-100'
-                      : result.category === 'bartering'
-                        ? 'bg-gradient-to-br from-blue-100 to-emerald-100'
-                        : 'bg-slate-100'
-                      }`}>
-                      <Icon className={`h-4 w-4 ${result.category === 'food'
-                        ? 'text-orange-600'
-                        : result.category === 'bartering'
-                          ? 'text-blue-600'
-                          : 'text-slate-600'
-                        }`} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="font-bold text-slate-800 text-sm truncate">{result.title}</div>
-                      <div className="text-xs text-slate-500 flex items-center gap-1">
-                        <span>{result.location}</span>
-                        {result.category !== 'none' && (
-                          <>
-                            <span>•</span>
-                            <span className="capitalize">{result.category}</span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          )}
+
         </div>
 
         {/* User Menu */}
@@ -283,7 +265,7 @@ export const MobileNav = () => {
                         </div>
                         <div>
                           <div className="text-base font-black text-white">
-                            {user.email?.split("@")[0] || "User"}
+                            {user.user_metadata?.full_name || user.email?.split("@")[0] || "User"}
                           </div>
                           <div className="text-xs font-bold text-emerald-300 truncate max-w-[200px]">
                             {user.email}
@@ -333,10 +315,33 @@ export const MobileNav = () => {
                           <MessageCircle className="h-5 w-5 text-purple-600" />
                         </div>
                         <div className="flex-1 text-left">
-                          <div className="text-sm font-black text-slate-800">Messages</div>
+                          <div className="flex items-center gap-2">
+                            <div className="text-sm font-black text-slate-800">Messages</div>
+                            {unreadCount > 0 && (
+                              <span className="bg-blue-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                                {unreadCount}
+                              </span>
+                            )}
+                          </div>
                           <div className="text-xs font-medium text-slate-500">Chat with users</div>
                         </div>
                       </Link>
+
+                      {isAdmin && (
+                        <Link
+                          href="/admin"
+                          onClick={() => setOpen(false)}
+                          className="group w-full flex items-center gap-3 rounded-xl p-3 transition-all duration-150 hover:bg-gradient-to-r hover:from-slate-800 hover:to-slate-900 hover:scale-105 active:scale-100"
+                        >
+                          <div className="h-12 w-12 rounded-lg bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center transition-all duration-150 group-hover:scale-110 group-hover:rotate-12 shadow-md">
+                            <Search className="h-5 w-5 text-white" />
+                          </div>
+                          <div className="flex-1 text-left">
+                            <div className="text-sm font-black text-slate-800">Admin Panel</div>
+                            <div className="text-xs font-medium text-slate-500">Manage Platform</div>
+                          </div>
+                        </Link>
+                      )}
 
                       <Link
                         href="/about"

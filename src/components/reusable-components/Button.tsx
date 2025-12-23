@@ -3,7 +3,7 @@ import React from "react";
 interface ButtonProps {
   children: React.ReactNode;
   onClick?: () => void;
-  variant?: "primary" | "secondary";
+  variant?: "primary" | "secondary" | "outline";
   size?: "sm" | "md" | "lg";
   className?: string;
   disabled?: boolean;
@@ -17,9 +17,11 @@ const sizes = {
 
 const variants = {
   primary:
-    "bg-gradient-to-r from-[#6692C4] to-[#345B5D] text-white hover:from-[#8AB1D6] hover:to-[#4F7F82] active:from-[#5579A7] active:to-[#2A4A4C] transition-all duration-200",
+    "bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800 transition-all duration-200 shadow-sm hover:shadow-md",
   secondary:
-    "bg-black text-white hover:bg-gray-800 active:bg-gray-900 disabled:bg-gray-400",
+    "bg-slate-900 text-white hover:bg-slate-800 active:bg-slate-950 disabled:bg-slate-400 transition-all duration-200",
+  outline:
+    "border border-slate-200 bg-transparent text-slate-600 hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50/30 active:bg-blue-50 transition-all duration-200",
 };
 
 export default function Button({

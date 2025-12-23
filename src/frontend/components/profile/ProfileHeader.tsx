@@ -37,7 +37,7 @@ export default function ProfileHeader({
   return (
     <div className="relative bg-white rounded-lg shadow-sm overflow-hidden">
       { }
-      <div className="h-24 xs:h-32 sm:h-40 bg-linear-to-r from-blue-500 to-emerald-500" />
+      <div className="h-24 xs:h-32 sm:h-40 bg-slate-900" />
 
       { }
       <div className="px-4 xs:px-6 sm:px-8 pb-6">
@@ -48,7 +48,7 @@ export default function ProfileHeader({
             onMouseEnter={() => setIsHovering(true)}
             onMouseLeave={() => setIsHovering(false)}
           >
-            <div className="relative h-24 w-24 xs:h-32 xs:w-32 sm:h-40 sm:w-40 rounded-full border-4 border-white shadow-lg overflow-hidden bg-slate-100">
+            <div className="relative h-24 w-24 xs:h-32 xs:w-32 sm:h-40 sm:w-40 rounded-full border-4 border-white shadow-md overflow-hidden bg-slate-100">
               {avatarUrl ? (
                 <Image
                   src={avatarUrl}
@@ -58,7 +58,7 @@ export default function ProfileHeader({
                   unoptimized
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-blue-400 to-emerald-400">
+                <div className="w-full h-full flex items-center justify-center bg-blue-600">
                   <span className="text-2xl xs:text-3xl sm:text-4xl font-bold text-white">
                     {userName.charAt(0).toUpperCase()}
                   </span>

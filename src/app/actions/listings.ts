@@ -3,15 +3,14 @@
 import { supabaseServer } from "@/backend/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createNotification } from "../actions/notificatons";
+import { createNotification } from "./notificatons";
+import { checkIsAdmin } from "./auth";
 
 export type ListingImageInput = {
   image_url: string;
   path: string;
   position: number;
 };
-
-const LISTING_IMAGES_BUCKET = "uploads";
 
 export type CreateListingInput = {
   title: string;
@@ -20,21 +19,72 @@ export type CreateListingInput = {
   type: string;
   status?: string;
   quantity?: number;
-
   city?: string;
   area?: string;
   latitude?: number;
   longitude?: number;
-
   is_urgent?: boolean;
   expires_at?: string | null;
-
   location?: string;
   contact_info?: string;
-
   images?: ListingImageInput[];
 };
 
+export type UpdateListingInput = Partial<CreateListingInput>;
+
+const LISTING_IMAGES_BUCKET = "uploads";
+
+/**
+ * Toggles the favorite status of a listing for the current user.
+ */
+export async function toggleFavorite(listingId: string) {
+  try {
+    const supabase = await supabaseServer();
+    const { data: userData } = await supabase.auth.getUser();
+
+    if (!userData.user) {
+      return { error: "You must be logged in to favorite a listing" };
+    }
+
+    const { data: existing } = await supabase
+      .from("favorites")
+      .select("*")
+      .eq("user_id", userData.user.id)
+      .eq("listing_id", listingId)
+      .maybeSingle();
+
+    if (existing) {
+      const { error } = await supabase
+        .from("favorites")
+        .delete()
+        .eq("user_id", userData.user.id)
+        .eq("listing_id", listingId);
+
+      if (error) throw error;
+
+      revalidatePath("/");
+      revalidatePath(`/listings/${listingId}`);
+      return { success: true, favorited: false };
+    } else {
+      const { error } = await supabase.from("favorites").insert({
+        user_id: userData.user.id,
+        listing_id: listingId,
+      });
+
+      if (error) throw error;
+      revalidatePath("/");
+      revalidatePath(`/listings/${listingId}`);
+      return { success: true, favorited: true };
+    }
+  } catch (error) {
+    console.error("Error toggling favorite:", error);
+    return { error: "An unexpected error occurred" };
+  }
+}
+
+/**
+ * Creates a new listing.
+ */
 export async function createListing(listing: CreateListingInput) {
   try {
     const supabase = await supabaseServer();
@@ -51,7 +101,7 @@ export async function createListing(listing: CreateListingInput) {
       .insert({
         ...listingData,
         owner_id: userData.user.id,
-        status: listingData.status || "available",
+        status: "pending",
         created_at: new Date().toISOString(),
       })
       .select("*")
@@ -79,17 +129,20 @@ export async function createListing(listing: CreateListingInput) {
       }
     }
 
-    await createNotification({
-      userId: userData.user.id,
-      type: "listing_created",
-      title: "Listing Created",
-      message: `Your listing "${listing.title}" has been created successfully.`,
-      data: { listingId: data.id, listingTitle: listing.title },
-      actionUrl: `/listings/${data.id}`,
-    });
+    try {
+      await createNotification({
+        userId: userData.user.id,
+        type: "listing_created",
+        title: "Listing Created",
+        message: `Your listing "${listing.title}" has been created successfully.`,
+        data: { listingId: data.id, listingTitle: listing.title },
+        actionUrl: `/listings/${data.id}`,
+      });
+    } catch (notiError) {
+      console.error("Notification failed but listing was created:", notiError);
+    }
 
     revalidatePath("/");
-
     return { success: true, data };
   } catch (error) {
     console.error("Server error creating listing:", error);
@@ -97,18 +150,13 @@ export async function createListing(listing: CreateListingInput) {
   }
 }
 
-// This function handles the redirect after successful creation
 export async function createListingAndRedirect(listing: CreateListingInput) {
   const result = await createListing(listing);
-
   if (result.success) {
     redirect("/");
   }
-
   return result;
 }
-
-export type UpdateListingInput = Partial<CreateListingInput>;
 
 export async function updateListing(id: string, updates: UpdateListingInput) {
   try {
@@ -125,9 +173,7 @@ export async function updateListing(id: string, updates: UpdateListingInput) {
       .eq("id", id)
       .single();
 
-    if (!listing) {
-      return { error: "Listing not found" };
-    }
+    if (!listing) return { error: "Listing not found" };
 
     if (listing.owner_id !== userData.user.id) {
       return { error: "You can only update your own listings" };
@@ -150,7 +196,6 @@ export async function updateListing(id: string, updates: UpdateListingInput) {
 
     revalidatePath("/");
     revalidatePath(`/listings/${id}`);
-
     return { success: true, data };
   } catch (error) {
     console.error("Server error updating listing:", error);
@@ -173,51 +218,27 @@ export async function deleteListing(id: string) {
       .eq("id", id)
       .single();
 
-    if (!listing) {
-      return { error: "Listing not found" };
-    }
+    if (!listing) return { error: "Listing not found" };
 
     if (listing.owner_id !== userData.user.id) {
       return { error: "You can only delete your own listings" };
     }
 
-    const { data: images, error: imagesError } = await supabase
+    const { data: images } = await supabase
       .from("listing_images")
       .select("path")
       .eq("listing_id", id);
 
-    if (imagesError) {
-      console.error(
-        "Error fetching listing images before delete:",
-        imagesError
-      );
-    }
-
     if (images && images.length > 0) {
       const paths = images.map((img) => img.path);
-
-      const { error: storageError } = await supabase.storage
-        .from(LISTING_IMAGES_BUCKET)
-        .remove(paths);
-
-      if (storageError) {
-        console.error(
-          "Error deleting listing images from storage:",
-          storageError
-        );
-      }
+      await supabase.storage.from(LISTING_IMAGES_BUCKET).remove(paths);
     }
 
     const { error } = await supabase.from("listings").delete().eq("id", id);
-
-    if (error) {
-      console.error("Error deleting listing:", error);
-      return { error: error.message };
-    }
+    if (error) throw error;
 
     revalidatePath("/");
     revalidatePath(`/listings/${id}`);
-
     return { success: true };
   } catch (error) {
     console.error("Server error deleting listing:", error);
@@ -228,29 +249,13 @@ export async function deleteListing(id: string) {
 export async function getListingById(id: string) {
   try {
     const supabase = await supabaseServer();
-
     const { data, error } = await supabase
       .from("listings")
-      .select(
-        `
-        *,
-        listing_images (
-          id,
-          image_url,
-          path,
-          position,
-          created_at
-        )
-      `
-      )
+      .select("*, listing_images (id, image_url, path, position, created_at)")
       .eq("id", id)
       .single();
 
-    if (error) {
-      console.error("Error fetching listing:", JSON.stringify(error, null, 2));
-      return { error: error.message };
-    }
-
+    if (error) return { error: error.message };
     return { success: true, data };
   } catch (error) {
     console.error("Server error fetching listing:", error);
@@ -263,69 +268,18 @@ export async function getUserListings() {
     const supabase = await supabaseServer();
     const { data: userData } = await supabase.auth.getUser();
 
-    if (!userData.user) {
-      return { error: "You must be logged in to view your listings" };
-    }
+    if (!userData.user) return { error: "Unauthorized" };
 
     const { data, error } = await supabase
       .from("listings")
-      .select("*")
+      .select("*, listing_images(image_url)")
       .eq("owner_id", userData.user.id)
       .order("created_at", { ascending: false });
 
-    if (error) {
-      console.error("Error fetching listings:", error);
-      return { error: error.message };
-    }
-
+    if (error) return { error: error.message };
     return { success: true, data };
   } catch (error) {
     console.error("Server error fetching listings:", error);
-    return { error: "An unexpected error occurred" };
-  }
-}
-
-export async function toggleFavorite(listingId: string) {
-  try {
-    const supabase = await supabaseServer();
-    const { data: userData } = await supabase.auth.getUser();
-
-    if (!userData.user) {
-      return { error: "You must be logged in to favorite a listing" };
-    }
-
-    const { data: existing } = await supabase
-      .from("favorites")
-      .select("*")
-      .eq("user_id", userData.user.id)
-      .eq("listing_id", listingId)
-      .single();
-
-    if (existing) {
-      // Remove from favorites
-      const { error } = await supabase
-        .from("favorites")
-        .delete()
-        .eq("user_id", userData.user.id)
-        .eq("listing_id", listingId);
-
-      if (error) throw error;
-
-      revalidatePath("/");
-
-      return { success: true, favorited: false };
-    } else {
-      const { error } = await supabase.from("favorites").insert({
-        user_id: userData.user.id,
-        listing_id: listingId,
-      });
-
-      if (error) throw error;
-      revalidatePath("/");
-      return { success: true, favorited: true };
-    }
-  } catch (error) {
-    console.error("Error toggling favorite:", error);
     return { error: "An unexpected error occurred" };
   }
 }
@@ -335,41 +289,120 @@ export async function getUserFavorites() {
     const supabase = await supabaseServer();
     const { data: userData } = await supabase.auth.getUser();
 
-    if (!userData.user) {
-      return { error: "You must be logged in to view your favorites" };
-    }
+    if (!userData.user) return { error: "Unauthorized" };
 
     const { data, error } = await supabase
       .from("favorites")
       .select(`
         listing_id,
         listings:listings (
-          id,
-          title,
-          category,
-          location,
-          owner_id,
-          created_at,
-          status,
-          type,
-          listing_images (
-            image_url
-          )
+          id, title, category, location, owner_id, created_at, status, type,
+          listing_images (image_url)
         )
       `)
       .eq("user_id", userData.user.id);
 
-    if (error) {
-      console.error("Error fetching favorites:", JSON.stringify(error, null, 2));
-      return { error: error.message };
-    }
-
-    // Transform data to match listing structure
+    if (error) return { error: error.message };
     const favorites = data.map((item: any) => item.listings);
-
     return { success: true, data: favorites };
   } catch (error) {
     console.error("Server error fetching favorites:", error);
+    return { error: "An unexpected error occurred" };
+  }
+}
+
+export async function getPendingListings() {
+  try {
+    const isAdmin = await checkIsAdmin();
+    if (!isAdmin) return { error: "Unauthorized" };
+
+    const supabase = await supabaseServer();
+    const { data, error } = await supabase
+      .from("listings")
+      .select("*, listing_images(image_url)")
+      .eq("status", "pending")
+      .order("created_at", { ascending: false });
+
+    if (error) return { error: error.message };
+    return { success: true, data };
+  } catch (error) {
+    console.error("Server error fetching pending listings:", error);
+    return { error: "An unexpected error occurred" };
+  }
+}
+
+
+export async function updateListingStatus(id: string, status: string) {
+  try {
+    const isAdmin = await checkIsAdmin();
+    if (!isAdmin) return { error: "Unauthorized" };
+
+    const supabase = await supabaseServer();
+    console.log(`Updating listing ${id} to status ${status}`);
+    const { data, error } = await supabase
+      .from("listings")
+      .update({ status, updated_at: new Date().toISOString() })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error updating listing status in Supabase:", error);
+      return { error: error.message };
+    }
+
+    revalidatePath("/");
+    revalidatePath("/admin");
+    revalidatePath(`/listings/${id}`);
+    return { success: true, data };
+  } catch (error) {
+    console.error("Server error updating listing status:", error);
+    return { error: "An unexpected error occurred" };
+  }
+}
+
+export async function markListingAsTraded(id: string) {
+  try {
+    const supabase = await supabaseServer();
+    const { data: userData } = await supabase.auth.getUser();
+
+    if (!userData.user) {
+      return { error: "You must be logged in to update a listing" };
+    }
+
+    const { data: listing } = await supabase
+      .from("listings")
+      .select("owner_id")
+      .eq("id", id)
+      .single();
+
+    if (!listing) return { error: "Listing not found" };
+
+    if (listing.owner_id !== userData.user.id) {
+      return { error: "You can only update your own listings" };
+    }
+
+    const { data, error } = await supabase
+      .from("listings")
+      .update({
+        status: "traded",
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error marking listing as traded:", error);
+      return { error: error.message };
+    }
+
+    revalidatePath("/");
+    revalidatePath("/profile");
+    revalidatePath(`/listings/${id}`);
+    return { success: true, data };
+  } catch (error) {
+    console.error("Server error marking listing as traded:", error);
     return { error: "An unexpected error occurred" };
   }
 }

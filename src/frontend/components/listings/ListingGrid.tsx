@@ -1,5 +1,6 @@
 import ListingCard from "./ListingCard";
-import { Package } from "lucide-react";
+import { Package, Heart } from "lucide-react";
+import EmptyState from "@/components/reusable-components/EmptyState";
 
 interface Listing {
     id: string;
@@ -16,18 +17,30 @@ interface Listing {
 interface ListingGridProps {
     items?: Listing[];
     emptyMessage?: string;
+    currentUserId?: string;
+    isFavoritesGrid?: boolean;
+    favoriteIds?: string[];
 }
 
 export default function ListingGrid({
     items = [],
     emptyMessage = "No listings found.",
+    currentUserId,
+    isFavoritesGrid = false,
+    favoriteIds = [],
 }: ListingGridProps) {
     if (items.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center py-12 px-4 text-center bg-slate-50 rounded-lg border border-slate-100">
-                <Package size={48} className="text-slate-300 mb-4" />
-                <p className="text-slate-600 font-medium">{emptyMessage}</p>
-            </div>
+            <EmptyState
+                icon={isFavoritesGrid ? Heart : Package}
+                title={isFavoritesGrid ? "No favorites yet" : "No listings found"}
+                description={emptyMessage}
+                action={isFavoritesGrid ? {
+                    label: "Explore Listings",
+                    href: "/",
+                } : undefined}
+                className="py-12 border-none shadow-none bg-transparent"
+            />
         );
     }
 
@@ -47,6 +60,10 @@ export default function ListingGrid({
                     }
                     rating={item.rating}
                     href={`/listings/${item.id}`}
+                    currentUserId={currentUserId}
+                    isInitiallyFavorited={isFavoritesGrid || favoriteIds.includes(item.id)}
+                    listingOwnerId={(item as any).owner_id}
+                    status={item.status as any}
                 />
             ))}
         </div>

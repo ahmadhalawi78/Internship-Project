@@ -1,4 +1,5 @@
-import { Heart, Github, Twitter, Mail } from "lucide-react";
+import { Heart, Info } from "lucide-react";
+import Link from "next/link";
 
 export default function Footer() {
   return (
@@ -35,30 +36,13 @@ export default function Footer() {
           </div>
 
           <div className="flex items-center gap-6">
-            <a
-              href="#"
-              className="group flex items-center gap-2 transition-all duration-200 hover:scale-110"
+            <Link
+              href="/about"
+              className="group flex items-center gap-3 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-xl text-white font-bold hover:bg-white/20 transition-all hover:scale-105 active:scale-95"
             >
-              <div className="h-10 w-10 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center transition-all duration-200 group-hover:bg-white/20 group-hover:rotate-12">
-                <Github className="h-5 w-5 text-white" />
-              </div>
-            </a>
-            <a
-              href="#"
-              className="group flex items-center gap-2 transition-all duration-200 hover:scale-110"
-            >
-              <div className="h-10 w-10 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center transition-all duration-200 group-hover:bg-white/20 group-hover:rotate-12">
-                <Twitter className="h-5 w-5 text-white" />
-              </div>
-            </a>
-            <a
-              href="#"
-              className="group flex items-center gap-2 transition-all duration-200 hover:scale-110"
-            >
-              <div className="h-10 w-10 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center transition-all duration-200 group-hover:bg-white/20 group-hover:rotate-12">
-                <Mail className="h-5 w-5 text-white" />
-              </div>
-            </a>
+              <Info className="h-5 w-5" />
+              <span>About Us</span>
+            </Link>
           </div>
         </div>
 

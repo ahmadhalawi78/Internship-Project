@@ -24,7 +24,7 @@ interface ListingCardProps {
   currentUserId?: string;
   showMessageButton?: boolean;
   price?: string | null;
-  status?: "active" | "pending" | "sold" | "expired";
+  status?: "active" | "pending" | "traded" | "rejected" | "expired";
 }
 
 export default function ListingCard({
@@ -50,12 +50,17 @@ export default function ListingCard({
   const isFood = category === "Food";
 
   const handleCardClick = useCallback(() => {
+    if (!currentUserId) {
+      router.push("/auth/login");
+      return;
+    }
+
     if (onClickCard) {
       onClickCard();
     } else {
       router.push(`/listings/${id}`);
     }
-  }, [onClickCard, router, id]);
+  }, [onClickCard, router, id, currentUserId]);
 
   const handleFavoriteChange = useCallback(() => {
     if (onFavorite) {
@@ -76,8 +81,10 @@ export default function ListingCard({
         return "bg-emerald-100 text-emerald-700";
       case "pending":
         return "bg-yellow-100 text-yellow-700";
-      case "sold":
-        return "bg-blue-100 text-blue-700";
+      case "traded":
+        return "bg-slate-100 text-slate-700";
+      case "rejected":
+        return "bg-red-100 text-red-700";
       case "expired":
         return "bg-gray-100 text-gray-700";
       default:
@@ -88,7 +95,7 @@ export default function ListingCard({
   return (
     <div
       onClick={handleCardClick}
-      className="group relative flex flex-col overflow-hidden rounded-2xl border-2 border-slate-200 bg-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:border-blue-400 cursor-pointer"
+      className="group relative flex flex-col overflow-hidden rounded-2xl border-2 border-slate-200 bg-white shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:border-blue-400 cursor-pointer"
       tabIndex={0}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
@@ -135,6 +142,7 @@ export default function ListingCard({
             variant="icon"
             size={20}
             className="h-10 w-10 rounded-xl bg-white/90 backdrop-blur-sm shadow-lg hover:scale-110 active:scale-95 !rounded-xl"
+            currentUserId={currentUserId}
           />
         </div>
 

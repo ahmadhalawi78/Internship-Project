@@ -6,6 +6,9 @@ import Link from "next/link";
 
 export default function SignupPage() {
   const [email, setEmail] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -35,6 +38,10 @@ export default function SignupPage() {
       password,
       options: {
         emailRedirectTo: `${window.location.origin}/api/auth/callback`,
+        data: {
+          full_name: `${firstName} ${lastName}`.trim(),
+          phone: phone,
+        }
       },
     });
 
@@ -108,76 +115,123 @@ export default function SignupPage() {
           </p>
         </div>
 
-        <form className="mt-8 space-y-6" onSubmit={handleSignup}>
+        <form className="mt-8 space-y-4" onSubmit={handleSignup}>
           {error && (
             <div className="rounded-md bg-red-50 p-3 text-sm text-red-800">
               {error}
             </div>
           )}
 
-          <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
             <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-slate-700"
-              >
-                Email address
+              <label htmlFor="firstName" className="block text-sm font-medium text-slate-700">
+                First Name
               </label>
               <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
+                id="firstName"
+                name="firstName"
+                type="text"
                 required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
                 className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm placeholder-slate-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-                placeholder="you@example.com"
+                placeholder="John"
               />
             </div>
+            <div>
+              <label htmlFor="lastName" className="block text-sm font-medium text-slate-700">
+                Last Name
+              </label>
+              <input
+                id="lastName"
+                name="lastName"
+                type="text"
+                required
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm placeholder-slate-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                placeholder="Doe"
+              />
+            </div>
+          </div>
 
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-slate-700"
-              >
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm placeholder-slate-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-                placeholder="••••••••"
-              />
-              <p className="mt-1 text-xs text-slate-500">
-                Must be at least 6 characters
-              </p>
-            </div>
+          <div>
+            <label htmlFor="phone" className="block text-sm font-medium text-slate-700">
+              Phone Number
+            </label>
+            <input
+              id="phone"
+              name="phone"
+              type="tel"
+              required
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm placeholder-slate-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+              placeholder="+961 70 123 456"
+            />
+          </div>
 
-            <div>
-              <label
-                htmlFor="confirmPassword"
-                className="block text-sm font-medium text-slate-700"
-              >
-                Confirm Password
-              </label>
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                autoComplete="new-password"
-                required
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm placeholder-slate-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-                placeholder="••••••••"
-              />
-            </div>
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-slate-700"
+            >
+              Email address
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm placeholder-slate-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+              placeholder="you@example.com"
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-slate-700"
+            >
+              Password
+            </label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autoComplete="new-password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm placeholder-slate-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+              placeholder="••••••••"
+            />
+            <p className="mt-1 text-xs text-slate-500">
+              Must be at least 6 characters
+            </p>
+          </div>
+
+          <div>
+            <label
+              htmlFor="confirmPassword"
+              className="block text-sm font-medium text-slate-700"
+            >
+              Confirm Password
+            </label>
+            <input
+              id="confirmPassword"
+              name="confirmPassword"
+              type="password"
+              autoComplete="new-password"
+              required
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm placeholder-slate-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+              placeholder="••••••••"
+            />
           </div>
 
           <div>
@@ -220,7 +274,7 @@ export default function SignupPage() {
             GitHub
           </button>
         </div>
-      </div>
-    </div>
+      </div >
+    </div >
   );
 }
