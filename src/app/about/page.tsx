@@ -10,8 +10,8 @@ export default function AboutPage() {
 
             <main className="flex-1">
                 {/* Hero Section */}
-                <div className="relative bg-gradient-to-br from-slate-900 via-blue-900 to-emerald-900 overflow-hidden text-white py-24 px-6 text-center">
-                    <div className="absolute inset-0 opacity-10 bg-[url('/grid.svg')]"></div>
+                <div className="relative bg-slate-900 overflow-hidden text-white py-24 px-6 text-center">
+                    <div className="absolute inset-0 opacity-10 bg-linear-to-b from-blue-500/20 to-transparent"></div>
                     <div className="relative z-10 max-w-4xl mx-auto">
                         <h1 className="text-5xl font-black mb-6 tracking-tight">LoopLebanon</h1>
                         <p className="text-xl md:text-2xl text-slate-300 max-w-2xl mx-auto leading-relaxed">
@@ -33,28 +33,28 @@ export default function AboutPage() {
                     </div>
 
                     <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-                        <div className="bg-white p-8 rounded-2xl shadow-lg border border-slate-100 flex flex-col items-center hover:scale-105 transition-transform">
+                        <div className="bg-white p-8 rounded-2xl shadow-md border border-slate-100 flex flex-col items-center hover:scale-[1.02] transition-transform">
                             <div className="h-16 w-16 bg-blue-50 rounded-full flex items-center justify-center mb-6">
                                 <Users className="h-8 w-8 text-blue-600" />
                             </div>
                             <h3 className="font-bold text-slate-900 text-lg mb-2">Community First</h3>
                             <p className="text-slate-500">Built by locals, for locals.</p>
                         </div>
-                        <div className="bg-white p-8 rounded-2xl shadow-lg border border-slate-100 flex flex-col items-center hover:scale-105 transition-transform">
+                        <div className="bg-white p-8 rounded-2xl shadow-md border border-slate-100 flex flex-col items-center hover:scale-[1.02] transition-transform">
                             <div className="h-16 w-16 bg-rose-50 rounded-full flex items-center justify-center mb-6">
                                 <Heart className="h-8 w-8 text-rose-500" />
                             </div>
                             <h3 className="font-bold text-slate-900 text-lg mb-2">Trusted Network</h3>
                             <p className="text-slate-500">Verified users & real connections.</p>
                         </div>
-                        <div className="bg-white p-8 rounded-2xl shadow-lg border border-slate-100 flex flex-col items-center hover:scale-105 transition-transform">
+                        <div className="bg-white p-8 rounded-2xl shadow-md border border-slate-100 flex flex-col items-center hover:scale-[1.02] transition-transform">
                             <div className="h-16 w-16 bg-emerald-50 rounded-full flex items-center justify-center mb-6">
                                 <Shield className="h-8 w-8 text-emerald-600" />
                             </div>
                             <h3 className="font-bold text-slate-900 text-lg mb-2">Safe Trading</h3>
                             <p className="text-slate-500">Secure messaging & profiles.</p>
                         </div>
-                        <div className="bg-white p-8 rounded-2xl shadow-lg border border-slate-100 flex flex-col items-center hover:scale-105 transition-transform">
+                        <div className="bg-white p-8 rounded-2xl shadow-md border border-slate-100 flex flex-col items-center hover:scale-[1.02] transition-transform">
                             <div className="h-16 w-16 bg-indigo-50 rounded-full flex items-center justify-center mb-6">
                                 <Globe className="h-8 w-8 text-indigo-500" />
                             </div>

@@ -52,6 +52,8 @@ export async function createOrGetChatThread(
       .from("chat_threads")
       .insert({
         listing_id: listingId, // Tag with listing that started it
+        thread_type: 'direct', // Direct message between two users
+        created_by: currentUserId, // User who initiated the chat
       })
       .select("*")
       .single();
@@ -345,22 +347,28 @@ export async function markMessagesAsRead(threadId: string) {
     const supabase = await supabaseServer();
     const { data: userData } = await supabase.auth.getUser();
 
-    if (!userData.user) return { error: "Unauthorized" };
+    if (!userData.user) {
+      return { error: "Unauthorized" };
+    }
 
-    const { error } = await supabase
+    const { data: updated, error } = await supabase
       .from("messages")
       .update({ status: 'read' })
       .eq("thread_id", threadId)
       .neq("sender_id", userData.user.id)
-      .neq("status", 'read');
+      .neq("status", 'read')
+      .select();
 
     if (error) {
-      console.error("Error marking as read:", error);
+      console.error("Error marking messages as read:", error);
       return { error: error.message };
     }
 
-    return { success: true };
+    revalidatePath("/messages");
+    revalidatePath("/");
+    return { success: true, updated: updated?.length || 0 };
   } catch (error) {
+    console.error("Unexpected error in markMessagesAsRead:", error);
     return { error: "An unexpected error occurred" };
   }
 }

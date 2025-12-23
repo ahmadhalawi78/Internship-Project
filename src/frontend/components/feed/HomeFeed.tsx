@@ -12,6 +12,7 @@ import {
   BookOpen,
 } from "lucide-react";
 import ListingCard from "@/frontend/components/listings/ListingCard";
+import EmptyState from "@/components/reusable-components/EmptyState";
 
 export type FeedItem = {
   id: string;
@@ -87,7 +88,27 @@ export default function HomeFeed({
   currentUserId,
   viewMode = "grid",
 }: HomeFeedProps) {
-  const [likedItems, setLikedItems] = React.useState<Set<string>>(new Set());
+  // Initialize from server-provided favorites
+  const [likedItems, setLikedItems] = React.useState<Set<string>>(() => {
+    const initialFavorites = new Set<string>();
+    items.forEach(item => {
+      if (item.isFavorited) {
+        initialFavorites.add(item.id);
+      }
+    });
+    return initialFavorites;
+  });
+
+  // Update likedItems when items change (e.g., after refetch)
+  React.useEffect(() => {
+    const newFavorites = new Set<string>();
+    items.forEach(item => {
+      if (item.isFavorited) {
+        newFavorites.add(item.id);
+      }
+    });
+    setLikedItems(newFavorites);
+  }, [items]);
 
   const toggleLike = (id: string) => {
     if (!currentUserId) {
@@ -106,27 +127,13 @@ export default function HomeFeed({
     });
   };
 
-  React.useEffect(() => {
-    if (!currentUserId) {
-      setLikedItems(new Set());
-    }
-  }, [currentUserId]);
-
   if (!items || items.length === 0) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center rounded-lg border border-slate-200 bg-slate-50/50">
-        <div className="text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 mb-4">
-            <Package className="h-8 w-8 text-slate-400" />
-          </div>
-          <p className="text-lg font-semibold text-slate-900 mb-1">
-            No listings found
-          </p>
-          <p className="text-sm text-slate-600">
-            Try adjusting your filters or check back later
-          </p>
-        </div>
-      </div>
+      <EmptyState
+        icon={Package}
+        title="No listings found"
+        description="Try adjusting your filters or check back later to see what's new in your community."
+      />
     );
   }
 
@@ -134,13 +141,7 @@ export default function HomeFeed({
     return (
       <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
         {items.map((item, index) => {
-          const isFavoritedFromServer = item.isFavorited ?? false;
-          const isLikedLocally = likedItems.has(item.id);
-          const isLiked = currentUserId
-            ? item.userId === currentUserId
-              ? isFavoritedFromServer
-              : isLikedLocally
-            : false;
+          const isLiked = currentUserId ? likedItems.has(item.id) : false;
           const badge = item.type === "offer" ? "Offer" : item.type === "request" ? "Request" : undefined;
 
           return (

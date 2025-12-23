@@ -44,12 +44,6 @@ export default function ProfileSidebar({
             icon: <Star size={18} />,
             badge: stats.reviews || 0,
         },
-        {
-            id: "messages",
-            label: "Messages",
-            icon: <MessageSquare size={18} />,
-            badge: stats.messages || 0,
-        },
     ];
 
     return (

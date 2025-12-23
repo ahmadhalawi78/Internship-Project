@@ -2,8 +2,10 @@
 import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Send, Search, MoreVertical, ArrowLeft, Loader2 } from "lucide-react";
-import { createOrGetChatThread, getUserChatThreads, markMessagesAsRead, sendMessage } from "@/app/actions/chat";
+import Link from "next/link";
+import { Send, Search, MoreVertical, ArrowLeft, Loader2, MessageSquare, Home } from "lucide-react";
+import { createOrGetChatThread, getUserChatThreads, markMessagesAsRead, sendMessage, getUnreadMessageCount } from "@/app/actions/chat";
+import EmptyState from "@/components/reusable-components/EmptyState";
 import type { Message, ChatThread } from "@/types/realtime-chat";
 import type { User } from "@supabase/supabase-js";
 
@@ -113,6 +115,14 @@ export default function MessagesPage() {
       // Mark as read when opening
       await markMessagesAsRead(selectedThread);
       setThreads(prev => prev.map(t => t.id === selectedThread ? { ...t, hasUnread: false, unreadCount: 0 } : t));
+
+      // Trigger a manual refresh of the unread count
+      const unreadResult = await getUnreadMessageCount();
+      if (unreadResult.success && typeof unreadResult.count === 'number') {
+        window.dispatchEvent(new CustomEvent('unreadCountChanged', { detail: { count: unreadResult.count } }));
+      }
+
+      router.refresh();
     };
 
     loadMessages();
@@ -189,7 +199,16 @@ export default function MessagesPage() {
       <div className={`${selectedThread ? 'hidden md:flex' : 'flex'} w-full md:w-96 flex-col bg-white border-r border-slate-200`}>
         {/* Header */}
         <div className="p-4 border-b border-slate-200">
-          <h1 className="text-2xl font-bold text-slate-900 mb-3">Messages</h1>
+          <div className="flex items-center gap-3 mb-4">
+            <Link
+              href="/"
+              className="p-2 -ml-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+              title="Go to Home"
+            >
+              <Home size={20} />
+            </Link>
+            <h1 className="text-2xl font-bold text-slate-900">Messages</h1>
+          </div>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <input
@@ -203,8 +222,13 @@ export default function MessagesPage() {
         {/* Threads List */}
         <div className="flex-1 overflow-y-auto">
           {threads.length === 0 ? (
-            <div className="p-8 text-center">
-              <p className="text-sm text-slate-600">No conversations yet</p>
+            <div className="p-4">
+              <EmptyState
+                icon={MessageSquare}
+                title="No conversations"
+                description="Your conversations will appear here."
+                className="min-h-0 py-12 border-none shadow-none bg-transparent"
+              />
             </div>
           ) : (
             threads.map((thread: any) => (
@@ -325,14 +349,13 @@ export default function MessagesPage() {
             </div>
           </>
         ) : (
-          <div className="flex-1 flex items-center justify-center text-center p-8">
-            <div>
-              <div className="h-16 w-16 mx-auto mb-4 rounded-full bg-slate-100 flex items-center justify-center">
-                <Send className="h-8 w-8 text-slate-400" />
-              </div>
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">Select a conversation</h3>
-              <p className="text-sm text-slate-600">Choose a conversation from the list to start messaging</p>
-            </div>
+          <div className="flex-1 flex items-center justify-center p-8">
+            <EmptyState
+              icon={Send}
+              title="Select a conversation"
+              description="Choose a conversation from the list to start messaging or find a listing to start a new chat."
+              className="border-none shadow-none bg-transparent"
+            />
           </div>
         )}
       </div>

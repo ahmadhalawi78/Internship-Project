@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Package, Clock, Users, AlertTriangle, Check, X, RefreshCw } from "lucide-react";
+import { Package, Clock, Users, AlertTriangle, Check, X, RefreshCw, Home } from "lucide-react";
 import Link from "next/link";
 import {
     AreaChart,
@@ -98,9 +98,18 @@ export default function AdminDashboard() {
         <div className="space-y-8 pb-12">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h2 className="text-3xl font-bold tracking-tight text-slate-900">
-                        Admin Dashboard
-                    </h2>
+                    <div className="flex items-center gap-3 mb-2">
+                        <Link
+                            href="/"
+                            className="p-2 -ml-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-transparent hover:border-blue-100"
+                            title="Go to Home"
+                        >
+                            <Home size={20} />
+                        </Link>
+                        <h2 className="text-3xl font-bold tracking-tight text-slate-900">
+                            Admin Dashboard
+                        </h2>
+                    </div>
                     <p className="mt-2 text-slate-600">
                         Overview of platform activity and moderation tasks.
                     </p>

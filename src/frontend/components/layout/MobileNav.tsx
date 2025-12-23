@@ -43,6 +43,20 @@ export const MobileNav = () => {
 
       fetchUnreadCount();
 
+      // Refresh count when window gains focus
+      const handleFocus = () => {
+        fetchUnreadCount();
+      };
+      window.addEventListener('focus', handleFocus);
+
+      // Listen for custom event from messages page
+      const handleUnreadCountChanged = (event: any) => {
+        if (event.detail && typeof event.detail.count === 'number') {
+          setUnreadCount(event.detail.count);
+        }
+      };
+      window.addEventListener('unreadCountChanged', handleUnreadCountChanged);
+
       // Real-time subscription for unread count
       const { createClient } = require("@/lib/supabase/client");
       const supabase = createClient();
@@ -55,9 +69,18 @@ export const MobileNav = () => {
             fetchUnreadCount();
           }
         )
+        .on(
+          'postgres_changes',
+          { event: 'UPDATE', schema: 'public', table: 'messages' },
+          () => {
+            fetchUnreadCount();
+          }
+        )
         .subscribe();
 
       return () => {
+        window.removeEventListener('focus', handleFocus);
+        window.removeEventListener('unreadCountChanged', handleUnreadCountChanged);
         supabase.removeChannel(channel);
       };
     }

@@ -35,6 +35,20 @@ export default function DesktopNav() {
 
       fetchUnreadCount();
 
+      // Refresh count when window gains focus
+      const handleFocus = () => {
+        fetchUnreadCount();
+      };
+      window.addEventListener('focus', handleFocus);
+
+      // Listen for custom event from messages page
+      const handleUnreadCountChanged = (event: any) => {
+        if (event.detail && typeof event.detail.count === 'number') {
+          setUnreadCount(event.detail.count);
+        }
+      };
+      window.addEventListener('unreadCountChanged', handleUnreadCountChanged);
+
       // Real-time subscription for unread count
       const { createClient } = require("@/lib/supabase/client");
       const supabase = createClient();
@@ -47,9 +61,18 @@ export default function DesktopNav() {
             fetchUnreadCount();
           }
         )
+        .on(
+          'postgres_changes',
+          { event: 'UPDATE', schema: 'public', table: 'messages' },
+          () => {
+            fetchUnreadCount();
+          }
+        )
         .subscribe();
 
       return () => {
+        window.removeEventListener('focus', handleFocus);
+        window.removeEventListener('unreadCountChanged', handleUnreadCountChanged);
         supabase.removeChannel(channel);
       };
     }
@@ -75,7 +98,7 @@ export default function DesktopNav() {
           {/* Logo (Left) */}
           <div className="flex flex-shrink-0 items-center">
             <Link href="/" className="flex items-center gap-2 group">
-              <div className="relative h-10 w-10 flex-shrink-0 rounded-xl bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center shadow-md transition-all group-hover:scale-105">
+              <div className="relative h-10 w-10 flex-shrink-0 rounded-xl bg-slate-900 flex items-center justify-center shadow-sm transition-all group-hover:scale-105">
                 <svg width="28" height="28" viewBox="0 0 120 120">
                   <path
                     d="M 28 18 L 52 18 L 52 78 L 92 78 L 92 102 L 28 102 Z"
@@ -130,7 +153,7 @@ export default function DesktopNav() {
                     >
                       <MessageCircle className="h-6 w-6" />
                       {unreadCount > 0 && (
-                        <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white animate-pulse">
+                        <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
                           {unreadCount}
                         </span>
                       )}

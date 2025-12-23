@@ -331,6 +331,7 @@ export async function getPendingListings() {
   }
 }
 
+
 export async function updateListingStatus(id: string, status: string) {
   try {
     const isAdmin = await checkIsAdmin();
@@ -356,6 +357,52 @@ export async function updateListingStatus(id: string, status: string) {
     return { success: true, data };
   } catch (error) {
     console.error("Server error updating listing status:", error);
+    return { error: "An unexpected error occurred" };
+  }
+}
+
+export async function markListingAsTraded(id: string) {
+  try {
+    const supabase = await supabaseServer();
+    const { data: userData } = await supabase.auth.getUser();
+
+    if (!userData.user) {
+      return { error: "You must be logged in to update a listing" };
+    }
+
+    const { data: listing } = await supabase
+      .from("listings")
+      .select("owner_id")
+      .eq("id", id)
+      .single();
+
+    if (!listing) return { error: "Listing not found" };
+
+    if (listing.owner_id !== userData.user.id) {
+      return { error: "You can only update your own listings" };
+    }
+
+    const { data, error } = await supabase
+      .from("listings")
+      .update({
+        status: "traded",
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error marking listing as traded:", error);
+      return { error: error.message };
+    }
+
+    revalidatePath("/");
+    revalidatePath("/profile");
+    revalidatePath(`/listings/${id}`);
+    return { success: true, data };
+  } catch (error) {
+    console.error("Server error marking listing as traded:", error);
     return { error: "An unexpected error occurred" };
   }
 }
