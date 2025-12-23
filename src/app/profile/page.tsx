@@ -14,6 +14,13 @@ export default async function ProfilePage() {
     redirect("/auth/login");
   }
 
+  // Fetch the actual profile data including full name
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("full_name")
+    .eq("id", user.id)
+    .single();
+
   const [listingsResult, favoritesResult] = await Promise.all([
     getUserListings(),
     getUserFavorites(),
@@ -34,14 +41,21 @@ export default async function ProfilePage() {
     joined: `Joined ${joinedDate}`,
   };
 
+  // Use actual full name from profile, fallback to email name
+  const actualName =
+    profile?.full_name ||
+    user.user_metadata?.name ||
+    user.email?.split("@")[0] ||
+    "User";
+
   return (
     <UserProfile
       user={{
         id: user.id,
         email: user.email,
-        user_metadata: user.user_metadata as {
-          name?: string;
-          avatar_url?: string;
+        user_metadata: {
+          name: actualName,
+          avatar_url: user.user_metadata?.avatar_url,
         },
       }}
       location="Beirut, Lebanon"
