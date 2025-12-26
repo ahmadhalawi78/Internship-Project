@@ -147,6 +147,18 @@ export default async function ListingPage({ params }: PageProps) {
               </p>
             </div>
 
+            {listing.trade_requirements && (
+              <div className="bg-amber-50 rounded-2xl p-6 shadow-sm border border-amber-200">
+                <h2 className="text-xl font-bold text-amber-900 mb-4 flex items-center gap-2">
+                  <Tag className="h-5 w-5" />
+                  What they're looking for
+                </h2>
+                <p className="text-amber-800 leading-relaxed whitespace-pre-wrap">
+                  {listing.trade_requirements}
+                </p>
+              </div>
+            )}
+
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
               <h2 className="text-xl font-bold text-slate-900 mb-4">Details</h2>
               <div className="grid grid-cols-2 gap-4">

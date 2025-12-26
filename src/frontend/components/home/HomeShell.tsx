@@ -24,6 +24,9 @@ import {
   Send,
   X,
   Loader2,
+  Clock,
+  ArrowUpDown,
+  Search,
 } from "lucide-react";
 import { ChatService } from "@/lib/api/chatService";
 import { ChatEvents } from "@/lib/events/chatEvents";
@@ -171,6 +174,11 @@ export default function HomeShell({ items, currentUserId }: HomeShellProps) {
   const [hoveredLetter, setHoveredLetter] = useState<number | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  // New filtering and sorting state
+  const [sortBy, setSortBy] = useState<"newest" | "oldest">("newest");
+  const [locationFilter, setLocationFilter] = useState<string>("");
+  const [showFilters, setShowFilters] = useState(false);
+
   // Chat state
   const [showChat, setShowChat] = useState(false);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
@@ -180,18 +188,48 @@ export default function HomeShell({ items, currentUserId }: HomeShellProps) {
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   // Process items with default values for optional properties
-  const displayItems = (items || []).map(
-    (item) => ({
-      ...item,
-      isFavorited: item.isFavorited ?? false,
-      userId: item.userId ?? "unknown",
-    })
-  );
+  const displayItems = (items || []).map((item) => ({
+    ...item,
+    isFavorited: item.isFavorited ?? false,
+    userId: item.userId ?? "unknown",
+  }));
 
-  const filteredItems =
-    activeTab === "all"
-      ? displayItems
-      : displayItems.filter((item) => item.category === activeTab);
+  // Apply all filters and sorting
+  const filteredItems = displayItems
+    .filter((item) => {
+      // Category filter
+      if (activeTab !== "all" && item.category !== activeTab) return false;
+
+      // Location filter
+      if (
+        locationFilter.trim() &&
+        !item.location.toLowerCase().includes(locationFilter.toLowerCase())
+      ) {
+        return false;
+      }
+
+      return true;
+    })
+    .sort((a, b) => {
+      // Sort by created date if available, otherwise by ID as fallback
+      if (a.createdAt && b.createdAt) {
+        const dateA = new Date(a.createdAt).getTime();
+        const dateB = new Date(b.createdAt).getTime();
+
+        if (sortBy === "newest") {
+          return dateB - dateA; // Newest first
+        } else {
+          return dateA - dateB; // Oldest first
+        }
+      }
+
+      // Fallback to ID-based sorting if createdAt is not available
+      if (sortBy === "newest") {
+        return b.id.localeCompare(a.id);
+      } else {
+        return a.id.localeCompare(b.id);
+      }
+    });
 
   const toggleLike = (id: string) => {
     if (!currentUserId) {
@@ -311,8 +349,9 @@ export default function HomeShell({ items, currentUserId }: HomeShellProps) {
       const errorMessage: ChatMessage = {
         id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         role: "assistant",
-        content: `Error: ${error instanceof Error ? error.message : "Unknown error"
-          }`,
+        content: `Error: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`,
         timestamp: new Date(),
       };
       setChatMessages((prev) => [...prev, errorMessage]);
@@ -390,12 +429,6 @@ export default function HomeShell({ items, currentUserId }: HomeShellProps) {
         {/* Header Section */}
         <div className="mb-8 md:mb-12">
           <div className="mb-8 text-center">
-            <div className="inline-flex items-center gap-2 mb-4 px-4 py-2 rounded-full bg-white/80 backdrop-blur-md border border-slate-200/50 shadow-lg">
-              <Sparkles className="h-4 w-4 text-emerald-500" />
-              <span className="text-sm font-bold text-slate-700">
-                Discover & Share
-              </span>
-            </div>
             <div className="mb-4">
               <h1
                 className="text-4xl md:text-5xl font-bold text-slate-900 mb-3 tracking-tight inline-block cursor-pointer"
@@ -413,15 +446,15 @@ export default function HomeShell({ items, currentUserId }: HomeShellProps) {
                             ? "translateY(-4px) scale(1.2)"
                             : hoveredLetter !== null &&
                               Math.abs(hoveredLetter - index) <= 1
-                              ? "translateY(-2px) scale(1.1)"
-                              : "translateY(0) scale(1)",
+                            ? "translateY(-2px) scale(1.1)"
+                            : "translateY(0) scale(1)",
                         color:
                           hoveredLetter === index
                             ? "#1e40af"
                             : hoveredLetter !== null &&
                               Math.abs(hoveredLetter - index) <= 1
-                              ? "#3b82f6"
-                              : "#0f172a",
+                            ? "#3b82f6"
+                            : "#0f172a",
                         transitionDelay: `${index * 20}ms`,
                       }}
                       onMouseEnter={() => setHoveredLetter(index)}
@@ -431,12 +464,123 @@ export default function HomeShell({ items, currentUserId }: HomeShellProps) {
                   )
                 )}
                 <span className="ml-2">Listings</span>
-                <ChevronDown
-                  className={`inline-block h-5 w-5 ml-2 text-slate-600 transition-all duration-300 ${showCategoryDropdown ? "rotate-180" : ""
-                    }`}
-                />
               </h1>
             </div>
+          </div>
+
+          {/* Filter Bar */}
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mb-6">
+            <div className="flex flex-wrap gap-3 items-center">
+              {/* Category Filter */}
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
+                  className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors shadow-sm"
+                >
+                  <Filter className="h-4 w-4 text-slate-600" />
+                  <span className="font-medium text-slate-700">
+                    {categoryConfig[activeTab].label}
+                  </span>
+                  <ChevronDown className="h-4 w-4 text-slate-600" />
+                </button>
+
+                {showCategoryDropdown && (
+                  <div className="absolute top-full left-0 mt-2 w-56 bg-white border border-slate-200 rounded-lg shadow-lg z-50">
+                    <div className="p-2">
+                      {(Object.keys(categoryConfig) as CategoryType[]).map(
+                        (category) => {
+                          const config = categoryConfig[category];
+                          const Icon = config.icon;
+                          const count = getCategoryCount(category);
+
+                          return (
+                            <button
+                              key={category}
+                              onClick={() => handleCategorySelect(category)}
+                              className={`w-full flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 transition-colors ${
+                                activeTab === category
+                                  ? "bg-blue-50 text-blue-600"
+                                  : "text-slate-700"
+                              }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <Icon className="h-4 w-4" />
+                                <span className="font-medium">
+                                  {config.label}
+                                </span>
+                              </div>
+                              <span className="text-sm text-slate-500">
+                                {count}
+                              </span>
+                            </button>
+                          );
+                        }
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Sort Options */}
+              <div className="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg shadow-sm">
+                <ArrowUpDown className="h-4 w-4 text-slate-600" />
+                <select
+                  value={sortBy}
+                  onChange={(e) =>
+                    setSortBy(e.target.value as "newest" | "oldest")
+                  }
+                  className="bg-transparent border-none outline-none text-slate-700 font-medium cursor-pointer"
+                >
+                  <option value="newest">Newest First</option>
+                  <option value="oldest">Oldest First</option>
+                </select>
+              </div>
+
+              {/* Location Filter */}
+              <div className="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg shadow-sm">
+                <MapPin className="h-4 w-4 text-slate-600" />
+                <input
+                  type="text"
+                  value={locationFilter}
+                  onChange={(e) => setLocationFilter(e.target.value)}
+                  placeholder="Filter by location..."
+                  className="bg-transparent border-none outline-none text-slate-700 placeholder:text-slate-400 min-w-[150px]"
+                />
+              </div>
+            </div>
+
+            {/* View Mode Toggle */}
+            <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-lg shadow-sm p-1">
+              <button
+                onClick={() => setViewMode("grid")}
+                className={`p-2 rounded-md transition-colors ${
+                  viewMode === "grid"
+                    ? "bg-blue-600 text-white"
+                    : "text-slate-600 hover:bg-slate-100"
+                }`}
+              >
+                <Grid3x3 className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => setViewMode("list")}
+                className={`p-2 rounded-md transition-colors ${
+                  viewMode === "list"
+                    ? "bg-blue-600 text-white"
+                    : "text-slate-600 hover:bg-slate-100"
+                }`}
+              >
+                <List className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* Results Count */}
+          <div className="mb-6">
+            <p className="text-slate-600 text-sm">
+              Showing {filteredItems.length} of {displayItems.length} listings
+              {locationFilter && ` matching "${locationFilter}"`}
+              {activeTab !== "all" && ` in ${categoryConfig[activeTab].label}`}
+            </p>
           </div>
         </div>
         <HomeFeed
@@ -491,14 +635,16 @@ export default function HomeShell({ items, currentUserId }: HomeShellProps) {
             {chatMessages.map((msg) => (
               <div
                 key={msg.id}
-                className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"
-                  }`}
+                className={`flex ${
+                  msg.role === "user" ? "justify-end" : "justify-start"
+                }`}
               >
                 <div
-                  className={`max-w-[80%] rounded-lg px-4 py-2 ${msg.role === "user"
+                  className={`max-w-[80%] rounded-lg px-4 py-2 ${
+                    msg.role === "user"
                       ? "bg-blue-600 text-white"
                       : "bg-slate-100 text-slate-900"
-                    }`}
+                  }`}
                 >
                   <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
                   <span className="text-xs opacity-60 mt-1 block">
