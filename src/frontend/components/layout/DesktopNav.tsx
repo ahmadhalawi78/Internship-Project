@@ -131,7 +131,6 @@ export default function DesktopNav() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             </form>
           </div>
->>>>>>> d3ddc602b7202071245e8e9fef5209a0982f7ed7
 
           {/* Actions (Right) */}
           <div className="flex items-center gap-2 sm:gap-4">
@@ -161,6 +160,7 @@ export default function DesktopNav() {
                     </Link>
 
                     <div className="relative">
+                      <button
                         onClick={() => setMenuOpen(!menuOpen)}
                         className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white shadow-sm transition-all hover:border-blue-400 hover:shadow-md overflow-hidden"
                       >
@@ -169,7 +169,6 @@ export default function DesktopNav() {
                         ) : (
                           <User className="h-5 w-5 text-slate-600" />
                         )}
->>>>>>> d3ddc602b7202071245e8e9fef5209a0982f7ed7
                       </button>
 
                       {menuOpen && (
