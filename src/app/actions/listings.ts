@@ -27,6 +27,7 @@ export type CreateListingInput = {
   expires_at?: string | null;
   location?: string;
   contact_info?: string;
+  trade_requirements?: string;
   images?: ListingImageInput[];
 };
 
@@ -82,9 +83,7 @@ export async function toggleFavorite(listingId: string) {
   }
 }
 
-/**
- * Creates a new listing.
- */
+//Creates a new listing.
 export async function createListing(listing: CreateListingInput) {
   try {
     const supabase = await supabaseServer();
@@ -293,13 +292,15 @@ export async function getUserFavorites() {
 
     const { data, error } = await supabase
       .from("favorites")
-      .select(`
+      .select(
+        `
         listing_id,
         listings:listings (
           id, title, category, location, owner_id, created_at, status, type,
           listing_images (image_url)
         )
-      `)
+      `
+      )
       .eq("user_id", userData.user.id);
 
     if (error) return { error: error.message };
@@ -330,7 +331,6 @@ export async function getPendingListings() {
     return { error: "An unexpected error occurred" };
   }
 }
-
 
 export async function updateListingStatus(id: string, status: string) {
   try {
