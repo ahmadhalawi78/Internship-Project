@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createListingAndRedirect } from "@/app/actions/listings";
+import { createListing } from "@/app/actions/listings";
 
 export default function CreateListingForm() {
   const router = useRouter();
@@ -17,6 +17,7 @@ export default function CreateListingForm() {
     area: "",
     location: "",
     is_urgent: false,
+    trade_requirements: "",
   });
 
   const [step, setStep] = useState(0);
@@ -25,6 +26,7 @@ export default function CreateListingForm() {
   const [previews, setPreviews] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -97,6 +99,7 @@ export default function CreateListingForm() {
 
     setLoading(true);
     setError(null);
+    setSuccess(null);
 
     try {
       const uploaded = await uploadImages();
@@ -107,7 +110,7 @@ export default function CreateListingForm() {
         position: i + 1,
       }));
 
-      const result = await createListingAndRedirect({
+      const result = await createListing({
         ...formData,
         images: formattedImages,
       });
@@ -118,8 +121,17 @@ export default function CreateListingForm() {
         return;
       }
 
-      router.push("/");
-      router.refresh();
+      // Success - show confirmation message instead of redirecting
+      setSuccess(
+        "Your listing has been submitted and is pending approval. You'll be notified once it's approved!"
+      );
+      setLoading(false);
+
+      // Optionally redirect after a delay
+      setTimeout(() => {
+        router.push("/");
+        router.refresh();
+      }, 3000);
     } catch (err) {
       if (err instanceof Error) setError(err.message);
       else setError(String(err));
@@ -175,18 +187,20 @@ export default function CreateListingForm() {
             {["Details", "Location", "Images"].map((label, idx) => (
               <div key={label} className="flex items-center gap-2">
                 <div
-                  className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium ${idx === step
-                    ? "bg-linear-to-r from-blue-600 to-emerald-600 text-white"
-                    : "bg-slate-100 text-slate-700"
-                    }`}
+                  className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium ${
+                    idx === step
+                      ? "bg-linear-to-r from-blue-600 to-emerald-600 text-white"
+                      : "bg-slate-100 text-slate-700"
+                  }`}
                 >
                   {idx + 1}
                 </div>
                 <div
-                  className={`hidden sm:block ${idx === step
-                    ? "text-slate-900 font-semibold"
-                    : "text-slate-500"
-                    }`}
+                  className={`hidden sm:block ${
+                    idx === step
+                      ? "text-slate-900 font-semibold"
+                      : "text-slate-500"
+                  }`}
                 >
                   {label}
                 </div>
@@ -207,14 +221,26 @@ export default function CreateListingForm() {
           </div>
         )}
 
+        {success && (
+          <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-md">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <p className="text-green-800 font-medium">{success}</p>
+            </div>
+            <p className="text-green-700 text-sm mt-1">
+              You'll be redirected to the home page shortly...
+            </p>
+          </div>
+        )}
+
         <form
           onSubmit={
             step === totalSteps - 1
               ? handleSubmit
               : (e) => {
-                e.preventDefault();
-                next();
-              }
+                  e.preventDefault();
+                  next();
+                }
           }
           className="space-y-6"
         >
@@ -242,6 +268,25 @@ export default function CreateListingForm() {
                   onChange={handleChange}
                   required
                 />
+              </div>
+
+              <div className="mb-4">
+                <label className="font-medium block mb-1">
+                  What would you like in return?{" "}
+                  <span className="text-slate-400">(Optional)</span>
+                </label>
+                <textarea
+                  name="trade_requirements"
+                  rows={3}
+                  className="w-full p-3 border rounded-lg border-slate-200 shadow-sm focus:ring-2 focus:ring-emerald-200"
+                  value={formData.trade_requirements}
+                  onChange={handleChange}
+                  placeholder="Describe what you'd like to receive in exchange (e.g., 'Looking for fresh vegetables', 'Would trade for books', etc.)"
+                />
+                <p className="text-xs text-slate-500 mt-1">
+                  This helps other users understand what you're looking for in
+                  exchange.
+                </p>
               </div>
 
               <div className="grid sm:grid-cols-2 gap-4">
@@ -332,7 +377,6 @@ export default function CreateListingForm() {
                   onChange={handleChange}
                 />
               </div>
-
             </div>
           )}
 
@@ -363,8 +407,9 @@ export default function CreateListingForm() {
                 </button>
                 <div className="text-sm text-slate-500 mt-2">
                   {images.length > 0
-                    ? `${images.length} image${images.length !== 1 ? "s" : ""
-                    } selected (max 6)`
+                    ? `${images.length} image${
+                        images.length !== 1 ? "s" : ""
+                      } selected (max 6)`
                     : "You can add up to 6 images."}
                 </div>
               </div>

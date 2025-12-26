@@ -12,6 +12,7 @@ type ListingRow = {
   location: string | null;
   owner_id: string;
   type: string;
+  created_at: string;
   listing_images: { image_url: string }[];
 };
 
@@ -28,22 +29,27 @@ export default async function HomePage({ searchParams }: PageProps) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  let dbQuery = supabase
+  // Build the query
+  let queryBuilder = supabase
     .from("listings")
-    .select("id, title, category, location, owner_id, type, listing_images(image_url)")
+    .select(
+      "id, title, category, location, owner_id, type, created_at, listing_images(image_url)"
+    )
     .eq("status", "active")
     .order("created_at", { ascending: false });
 
   if (query) {
     // Simple ILIKE search on title or location
-    dbQuery = dbQuery.or(`title.ilike.%${query}%,location.ilike.%${query}%`);
+    queryBuilder = queryBuilder.or(
+      `title.ilike.%${query}%,location.ilike.%${query}%`
+    );
   }
 
   if (category && category !== "all") {
-    dbQuery = dbQuery.eq("category", category);
+    queryBuilder = queryBuilder.eq("category", category);
   }
 
-  const { data: listings, error } = await dbQuery;
+  const { data: listings, error } = await queryBuilder;
 
   let favoriteIds: string[] = [];
   if (user) {
@@ -88,6 +94,7 @@ export default async function HomePage({ searchParams }: PageProps) {
         userId: row.owner_id,
         imageUrl: row.listing_images?.[0]?.image_url ?? null,
         type: row.type,
+        createdAt: row.created_at,
       };
     }) ?? [];
 

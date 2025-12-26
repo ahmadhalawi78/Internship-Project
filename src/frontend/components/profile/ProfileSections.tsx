@@ -66,8 +66,13 @@ export default function ProfileSections({
     }
   };
 
-  const activeListings = listings.filter(l => l.status === "active" || l.status === "pending");
-  const previousListings = listings.filter(l => l.status === "traded" || l.status === "rejected" || l.status === "expired");
+  const activeListings = listings.filter(
+    (l) => l.status === "active" || l.status === "pending"
+  );
+  const previousListings = listings.filter(
+    (l) =>
+      l.status === "traded" || l.status === "rejected" || l.status === "expired"
+  );
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-slate-100 p-4 xs:p-6 sm:p-8">
@@ -80,7 +85,7 @@ export default function ProfileSections({
                 Active Listings
               </h3>
               <Link
-                href="/listings/new"
+                href="/create-listing"
                 className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-semibold shadow-sm hover:shadow-md"
               >
                 <Plus size={18} />
@@ -125,7 +130,7 @@ export default function ProfileSections({
                 className="py-12 border-none shadow-none bg-transparent"
                 action={{
                   label: "Create Listing",
-                  href: "/listings/new"
+                  href: "/create-listing",
                 }}
               />
             )}
@@ -170,7 +175,10 @@ export default function ProfileSections({
           ) : reviews.length > 0 ? (
             <div className="grid gap-6">
               {reviews.map((review) => (
-                <div key={review.id} className="p-6 bg-slate-50 rounded-2xl border border-slate-100 space-y-4">
+                <div
+                  key={review.id}
+                  className="p-6 bg-slate-50 rounded-2xl border border-slate-100 space-y-4"
+                >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="relative h-10 w-10 rounded-full overflow-hidden bg-slate-200">
@@ -183,13 +191,19 @@ export default function ProfileSections({
                           />
                         ) : (
                           <div className="h-full w-full flex items-center justify-center text-slate-400">
-                            <span className="text-sm font-bold">{(review.reviewer?.full_name || "U").charAt(0)}</span>
+                            <span className="text-sm font-bold">
+                              {(review.reviewer?.full_name || "U").charAt(0)}
+                            </span>
                           </div>
                         )}
                       </div>
                       <div>
-                        <p className="font-bold text-slate-900">{review.reviewer?.full_name || "Anonymous"}</p>
-                        <p className="text-xs text-slate-500">{new Date(review.created_at).toLocaleDateString()}</p>
+                        <p className="font-bold text-slate-900">
+                          {review.reviewer?.full_name || "Anonymous"}
+                        </p>
+                        <p className="text-xs text-slate-500">
+                          {new Date(review.created_at).toLocaleDateString()}
+                        </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-1">
@@ -197,14 +211,22 @@ export default function ProfileSections({
                         <Star
                           key={i}
                           size={16}
-                          className={`${i < review.rating ? "text-yellow-400 fill-yellow-400" : "text-slate-200"}`}
+                          className={`${
+                            i < review.rating
+                              ? "text-yellow-400 fill-yellow-400"
+                              : "text-slate-200"
+                          }`}
                         />
                       ))}
                     </div>
                   </div>
                   <div className="bg-white p-4 rounded-xl border border-slate-100">
-                    <p className="text-sm font-semibold text-blue-600 mb-1">On: {review.listing?.title || "Deleted Listing"}</p>
-                    <p className="text-slate-700 leading-relaxed italic">"{review.comment}"</p>
+                    <p className="text-sm font-semibold text-blue-600 mb-1">
+                      On: {review.listing?.title || "Deleted Listing"}
+                    </p>
+                    <p className="text-slate-700 leading-relaxed italic">
+                      "{review.comment}"
+                    </p>
                   </div>
                 </div>
               ))}
