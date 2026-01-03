@@ -349,13 +349,10 @@ export default function HomeShell({ items, currentUserId }: HomeShellProps) {
           <div className="mb-8 text-center">
             <div className="mb-4">
               <h1
-                className="text-4xl md:text-5xl font-bold text-slate-900 mb-3 tracking-tight inline-flex items-center gap-2 cursor-pointer group"
+                className="text-4xl md:text-5xl font-bold text-slate-900 mb-3 tracking-tight inline-block cursor-pointer group"
                 onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
               >
                 <span className="group-hover:text-blue-600 transition-colors duration-300">Community Listings</span>
-                <ChevronDown
-                  className={`h-6 w-6 text-slate-400 group-hover:text-blue-600 transition-all duration-300 ${showCategoryDropdown ? "rotate-180" : ""}`}
-                />
               </h1>
             </div>
 
@@ -433,14 +430,14 @@ export default function HomeShell({ items, currentUserId }: HomeShellProps) {
               </div>
 
               {/* Location Filter */}
-              <div className="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg shadow-sm">
+              <div className="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg shadow-sm w-full sm:w-auto">
                 <MapPin className="h-4 w-4 text-slate-600" />
                 <input
                   type="text"
                   value={locationFilter}
                   onChange={(e) => setLocationFilter(e.target.value)}
                   placeholder="Filter by location..."
-                  className="bg-transparent border-none outline-none text-slate-700 placeholder:text-slate-400 min-w-[150px]"
+                  className="bg-transparent border-none outline-none text-slate-700 placeholder:text-slate-400 min-w-[150px] w-full"
                 />
               </div>
             </div>

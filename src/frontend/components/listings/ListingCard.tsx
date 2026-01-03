@@ -1,6 +1,6 @@
 "use client";
 
-import { MapPin, Package, Utensils, Star, Clock } from "lucide-react";
+import { MapPin, Package, Utensils, Clock } from "lucide-react";
 import Image from "next/image";
 import { useCallback } from "react";
 import { useRouter } from "next/navigation";
@@ -73,9 +73,9 @@ export default function ListingCard({
 
   const shouldShowMessageButton = Boolean(
     showMessageButton &&
-      currentUserId &&
-      listingOwnerId &&
-      currentUserId !== listingOwnerId
+    currentUserId &&
+    listingOwnerId &&
+    currentUserId !== listingOwnerId
   );
 
   const getStatusColor = () => {
@@ -110,11 +110,10 @@ export default function ListingCard({
       role="article"
     >
       <div
-        className={`relative h-48 w-full overflow-hidden transition-all duration-300 ${
-          isFood
-            ? "bg-linear-to-br from-orange-100 via-rose-100 to-pink-100"
-            : "bg-linear-to-br from-blue-100 via-emerald-100 to-teal-100"
-        }`}
+        className={`relative h-48 w-full overflow-hidden transition-all duration-300 ${isFood
+          ? "bg-linear-to-br from-orange-100 via-rose-100 to-pink-100"
+          : "bg-linear-to-br from-blue-100 via-emerald-100 to-teal-100"
+          }`}
       >
         {imageUrl ? (
           <Image
@@ -135,29 +134,30 @@ export default function ListingCard({
           </div>
         )}
 
-        <div
-          className="absolute top-3 right-3 z-20"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <FavoriteToggle
-            listingId={id}
-            isInitiallyFavorited={isInitiallyFavorited}
-            onFavoriteChange={handleFavoriteChange}
-            variant="icon"
-            size={20}
-            className="h-10 w-10 rounded-xl bg-white/90 backdrop-blur-sm shadow-lg hover:scale-110 active:scale-95"
-            currentUserId={currentUserId}
-          />
-        </div>
+        {currentUserId !== listingOwnerId && (
+          <div
+            className="absolute top-3 right-3 z-20"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <FavoriteToggle
+              listingId={id}
+              isInitiallyFavorited={isInitiallyFavorited}
+              onFavoriteChange={handleFavoriteChange}
+              variant="icon"
+              size={20}
+              className="h-10 w-10 rounded-xl bg-white/90 backdrop-blur-sm shadow-lg hover:scale-110 active:scale-95"
+              currentUserId={currentUserId}
+            />
+          </div>
+        )}
 
         {/* Category Badge */}
         <div className="absolute top-3 left-3 z-20">
           <span
-            className={`rounded-xl px-3 py-1.5 text-xs font-black shadow-lg backdrop-blur-sm ${
-              isFood
-                ? "bg-orange-500/90 text-white"
-                : "bg-blue-500/90 text-white"
-            }`}
+            className={`rounded-xl px-3 py-1.5 text-xs font-black shadow-lg backdrop-blur-sm ${isFood
+              ? "bg-orange-500/90 text-white"
+              : "bg-blue-500/90 text-white"
+              }`}
             aria-label={`Category: ${category}`}
           >
             {category}

@@ -108,9 +108,9 @@ export const MobileNav = () => {
   };
 
   return (
-    <div className="relative mx-auto max-w-6xl px-4 py-3">
+    <div className="relative mx-auto max-w-6xl px-4 py-4 md:py-6">
       {/* Top Bar */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-4">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 group">
           <div className="relative h-9 w-9 flex-shrink-0 rounded-xl bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center shadow-md">
@@ -142,7 +142,7 @@ export const MobileNav = () => {
       </div>
 
       {/* Search */}
-      <div className="relative mb-3 z-50">
+      <div className="relative mb-6 z-40">
         <div className={`absolute inset-0 rounded-xl bg-gradient-to-r from-blue-400 to-emerald-400 blur-lg transition-all duration-300 ${searchValue ? 'opacity-20' : 'opacity-0'}`} />
         <div className="relative flex items-center gap-2 rounded-xl border-2 border-slate-200 bg-white px-3 py-2.5 shadow-lg">
           <Search className="h-4 w-4 text-slate-400" />

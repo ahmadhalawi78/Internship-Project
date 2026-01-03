@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { supabaseBrowser } from "@/frontend/lib/supabase/client";
 import Link from "next/link";
+import { PhoneInput } from 'react-international-phone';
+import 'react-international-phone/style.css';
 
 export default function SignupPage() {
   const [email, setEmail] = useState("");
@@ -155,21 +157,27 @@ export default function SignupPage() {
             </div>
           </div>
 
-          <div>
-            <label htmlFor="phone" className="block text-sm font-medium text-slate-700">
-              Phone Number
-            </label>
-            <input
-              id="phone"
-              name="phone"
-              type="tel"
-              required
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm placeholder-slate-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-              placeholder="+961 70 123 456"
-            />
-          </div>
+          <label htmlFor="phone" className="block text-sm font-medium text-slate-700 mb-1">
+            Phone Number
+          </label>
+          <PhoneInput
+            defaultCountry="lb"
+            value={phone}
+            onChange={(phone) => setPhone(phone)}
+            inputStyle={{
+              width: '100%',
+              height: '42px',
+              fontSize: '14px',
+              borderRadius: '0.375rem',
+              borderColor: '#e2e8f0',
+              borderWidth: '1px',
+            }}
+            style={{
+              '--react-international-phone-border-radius': '0.375rem',
+              '--react-international-phone-border-color': '#e2e8f0',
+            } as React.CSSProperties}
+            className="phone-input-container"
+          />
 
           <div>
             <label
