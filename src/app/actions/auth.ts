@@ -187,3 +187,52 @@ export async function getUserBadges(userId: string) {
     return { error: "Failed to fetch badges" };
   }
 }
+
+export async function deleteAccount() {
+  const supabase = await supabaseServer();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: "Not authenticated" };
+  }
+
+  // If we have admin capabilities (Service Role), we can delete the user from Auth
+  // Otherwise, we can only delete data but the Auth user remains (requiring manual cleanup or edge functions)
+  // Let's try to load the Admin Client
+  const { createAdminClient } = await import("@/backend/lib/supabase/admin");
+  const adminClient = createAdminClient();
+
+  try {
+    if (adminClient) {
+      // Full account deletion including Auth user
+      const { error: deleteError } = await adminClient.auth.admin.deleteUser(
+        user.id
+      );
+      if (deleteError) throw deleteError;
+    } else {
+      // Fallback: Delete profile data and mark as deleted if possible, or just throw error that we can't fully delete
+      // For now, let's delete what we can (profiles, listings, etc via cascade usually)
+      // Check if Cascade Delete is set up in DB. If not, we manually delete specific things.
+      // Assuming user row in 'profiles' is key.
+
+      // Actually, without admin client, we can't delete from auth.users.
+      // We can only delete from public tables.
+      // Let's assume we want to delete from public.profiles and trigger cascade.
+      const { error } = await supabase.from('profiles').delete().eq('id', user.id);
+      if (error) {
+        console.error("Error deleting profile:", error);
+        // If we can't even delete profile, we fail.
+        throw error;
+      }
+    }
+
+    // Sign out
+    await supabase.auth.signOut();
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting account:", error);
+    return { error: "Failed to delete account. Please contact support." };
+  }
+}

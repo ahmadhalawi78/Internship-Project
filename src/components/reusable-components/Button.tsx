@@ -1,12 +1,10 @@
 import React from "react";
 
-interface ButtonProps {
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
-  onClick?: () => void;
   variant?: "primary" | "secondary" | "outline";
   size?: "sm" | "md" | "lg";
-  className?: string;
-  disabled?: boolean;
+  className?: string; // className is already in ButtonHTMLAttributes but we keep it for clarity
 }
 
 const sizes = {
@@ -26,23 +24,21 @@ const variants = {
 
 export default function Button({
   children,
-  onClick,
   variant = "primary",
   size = "md",
   className = "",
-  disabled = false,
+  ...props
 }: ButtonProps) {
   return (
     <button
-      onClick={onClick}
-      disabled={disabled}
       className={`
         rounded-md font-medium transition-all flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 
         ${variants[variant]}
-        ${disabled ? "cursor-not-allowed" : "cursor-pointer"}
+        ${props.disabled ? "cursor-not-allowed" : "cursor-pointer"}
         ${className}
         ${sizes[size]}
       `}
+      {...props}
     >
       {children}
     </button>

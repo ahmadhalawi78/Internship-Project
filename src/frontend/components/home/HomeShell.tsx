@@ -2,7 +2,7 @@
 
 export type { FeedItem } from "@/frontend/components/feed/HomeFeed";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import {
   Package,
   Utensils,
@@ -60,96 +60,7 @@ type CategoryType =
   | "clothing"
   | "tools";
 
-const mockItems: FeedItem[] = [
-  {
-    id: "1",
-    title: "Vintage Camera",
-    category: "bartering",
-    location: "Beirut",
-    isFavorited: false,
-    userId: "user-1",
-  },
-  {
-    id: "2",
-    title: "Fresh Vegetables",
-    category: "food",
-    location: "Baabda",
-    isFavorited: false,
-    userId: "user-2",
-  },
-  {
-    id: "3",
-    title: "Handmade Pottery",
-    category: "bartering",
-    location: "Jounieh",
-    isFavorited: false,
-    userId: "user-3",
-  },
-  {
-    id: "4",
-    title: "Homemade Bread",
-    category: "food",
-    location: "Tripoli",
-    isFavorited: false,
-    userId: "user-4",
-  },
-  {
-    id: "5",
-    title: "Vintage Books",
-    category: "books",
-    location: "Zahle",
-    isFavorited: false,
-    userId: "user-5",
-  },
-  {
-    id: "6",
-    title: "Organic Honey",
-    category: "food",
-    location: "Byblos",
-    isFavorited: false,
-    userId: "user-6",
-  },
-  {
-    id: "7",
-    title: "2010 Toyota Camry",
-    category: "cars",
-    location: "Beirut",
-    isFavorited: false,
-    userId: "user-7",
-  },
-  {
-    id: "8",
-    title: "MacBook Pro 2020",
-    category: "electronics",
-    location: "Jounieh",
-    isFavorited: false,
-    userId: "user-8",
-  },
-  {
-    id: "9",
-    title: "Wooden Dining Table",
-    category: "furniture",
-    location: "Tripoli",
-    isFavorited: false,
-    userId: "user-9",
-  },
-  {
-    id: "10",
-    title: "Designer Jacket",
-    category: "clothing",
-    location: "Beirut",
-    isFavorited: false,
-    userId: "user-10",
-  },
-  {
-    id: "11",
-    title: "Power Drill Set",
-    category: "tools",
-    location: "Baabda",
-    isFavorited: false,
-    userId: "user-11",
-  },
-];
+
 
 const categoryConfig = {
   all: { label: "All Categories", icon: Filter, color: "slate" },
@@ -189,14 +100,14 @@ export default function HomeShell({ items, currentUserId }: HomeShellProps) {
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   // Process items with default values for optional properties
-  const displayItems = (items || []).map((item) => ({
+  const displayItems = useMemo(() => (items || []).map((item) => ({
     ...item,
     isFavorited: item.isFavorited ?? false,
     userId: item.userId ?? "unknown",
-  }));
+  })), [items]);
 
   // Apply all filters and sorting
-  const filteredItems = displayItems
+  const filteredItems = useMemo(() => displayItems
     .filter((item) => {
       // Category filter
       if (activeTab !== "all" && item.category !== activeTab) return false;
@@ -230,7 +141,7 @@ export default function HomeShell({ items, currentUserId }: HomeShellProps) {
       } else {
         return a.id.localeCompare(b.id);
       }
-    });
+    }), [displayItems, activeTab, locationFilter, sortBy]);
 
   const toggleLike = (id: string) => {
     if (!currentUserId) {
@@ -350,9 +261,8 @@ export default function HomeShell({ items, currentUserId }: HomeShellProps) {
       const errorMessage: ChatMessage = {
         id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         role: "assistant",
-        content: `Error: ${
-          error instanceof Error ? error.message : "Unknown error"
-        }`,
+        content: `Error: ${error instanceof Error ? error.message : "Unknown error"
+          }`,
         timestamp: new Date(),
       };
       setChatMessages((prev) => [...prev, errorMessage]);
@@ -432,7 +342,7 @@ export default function HomeShell({ items, currentUserId }: HomeShellProps) {
           {/* Discover & Share Tagline in 3D Badge */}
           <div className="mb-6 text-center">
             <div className="flex items-center justify-center">
-              <div 
+              <div
                 className="flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-white border border-blue-200 text-blue-600 font-semibold text-xs md:text-sm shadow-md hover:shadow-lg transition-all"
                 style={{
                   boxShadow: "0 4px 12px rgba(59, 130, 246, 0.25), 0 2px 4px rgba(0, 0, 0, 0.08), inset 0 1px 2px rgba(255, 255, 255, 0.8)",
@@ -463,15 +373,15 @@ export default function HomeShell({ items, currentUserId }: HomeShellProps) {
                             ? "translateY(-4px) scale(1.2)"
                             : hoveredLetter !== null &&
                               Math.abs(hoveredLetter - index) <= 1
-                            ? "translateY(-2px) scale(1.1)"
-                            : "translateY(0) scale(1)",
+                              ? "translateY(-2px) scale(1.1)"
+                              : "translateY(0) scale(1)",
                         color:
                           hoveredLetter === index
                             ? "#1e40af"
                             : hoveredLetter !== null &&
                               Math.abs(hoveredLetter - index) <= 1
-                            ? "#3b82f6"
-                            : "#0f172a",
+                              ? "#3b82f6"
+                              : "#0f172a",
                         transitionDelay: `${index * 20}ms`,
                       }}
                       onMouseEnter={() => setHoveredLetter(index)}
@@ -534,11 +444,10 @@ export default function HomeShell({ items, currentUserId }: HomeShellProps) {
                             <button
                               key={category}
                               onClick={() => handleCategorySelect(category)}
-                              className={`w-full flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 transition-colors ${
-                                activeTab === category
-                                  ? "bg-blue-50 text-blue-600"
-                                  : "text-slate-700"
-                              }`}
+                              className={`w-full flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 transition-colors ${activeTab === category
+                                ? "bg-blue-50 text-blue-600"
+                                : "text-slate-700"
+                                }`}
                             >
                               <div className="flex items-center gap-3">
                                 <Icon className="h-4 w-4" />
@@ -590,21 +499,19 @@ export default function HomeShell({ items, currentUserId }: HomeShellProps) {
             <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-lg shadow-sm p-1">
               <button
                 onClick={() => setViewMode("grid")}
-                className={`p-2 rounded-md transition-colors ${
-                  viewMode === "grid"
-                    ? "bg-blue-600 text-white"
-                    : "text-slate-600 hover:bg-slate-100"
-                }`}
+                className={`p-2 rounded-md transition-colors ${viewMode === "grid"
+                  ? "bg-blue-600 text-white"
+                  : "text-slate-600 hover:bg-slate-100"
+                  }`}
               >
                 <Grid3x3 className="h-4 w-4" />
               </button>
               <button
                 onClick={() => setViewMode("list")}
-                className={`p-2 rounded-md transition-colors ${
-                  viewMode === "list"
-                    ? "bg-blue-600 text-white"
-                    : "text-slate-600 hover:bg-slate-100"
-                }`}
+                className={`p-2 rounded-md transition-colors ${viewMode === "list"
+                  ? "bg-blue-600 text-white"
+                  : "text-slate-600 hover:bg-slate-100"
+                  }`}
               >
                 <List className="h-4 w-4" />
               </button>
@@ -672,16 +579,14 @@ export default function HomeShell({ items, currentUserId }: HomeShellProps) {
             {chatMessages.map((msg) => (
               <div
                 key={msg.id}
-                className={`flex ${
-                  msg.role === "user" ? "justify-end" : "justify-start"
-                }`}
+                className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"
+                  }`}
               >
                 <div
-                  className={`max-w-[80%] rounded-lg px-4 py-2 ${
-                    msg.role === "user"
-                      ? "bg-blue-600 text-white"
-                      : "bg-slate-100 text-slate-900"
-                  }`}
+                  className={`max-w-[80%] rounded-lg px-4 py-2 ${msg.role === "user"
+                    ? "bg-blue-600 text-white"
+                    : "bg-slate-100 text-slate-900"
+                    }`}
                 >
                   <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
                   <span className="text-xs opacity-60 mt-1 block">

@@ -1,11 +1,11 @@
 "use client";
 
-import { MessageSquare, Star, Plus } from "lucide-react";
+import { MessageSquare, Star, Plus, Trash2 } from "lucide-react";
 import ListingGrid from "@/frontend/components/listings/ListingGrid";
 import ListingCard from "@/frontend/components/listings/ListingCard";
 import Link from "next/link";
 import EmptyState from "@/components/reusable-components/EmptyState";
-import { markListingAsTraded } from "@/app/actions/listings";
+import { markListingAsTraded, deleteListing } from "@/app/actions/listings";
 import { useRouter } from "next/navigation";
 import Button from "@/components/reusable-components/Button";
 import { getUserReceivedReviews } from "@/app/actions/reviews";
@@ -66,6 +66,17 @@ export default function ProfileSections({
     }
   };
 
+  const handleDeleteListing = async (id: string) => {
+    if (confirm("Are you sure you want to delete this listing? This action cannot be undone.")) {
+      const result = await deleteListing(id);
+      if (result.success) {
+        router.refresh();
+      } else {
+        alert(result.error || "Failed to delete listing");
+      }
+    }
+  };
+
   const activeListings = listings.filter(
     (l) => l.status === "active" || l.status === "pending"
   );
@@ -110,14 +121,25 @@ export default function ProfileSections({
                       status={item.status as any}
                     />
                     {item.status === "active" && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleMarkAsTraded(item.id)}
-                        className="w-full text-xs font-bold py-2 rounded-xl border-slate-200 hover:border-blue-500 hover:text-blue-600 transition-all shadow-sm"
-                      >
-                        Mark as Traded
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleMarkAsTraded(item.id)}
+                          className="flex-1 text-xs font-bold py-2 rounded-xl border-slate-200 hover:border-blue-500 hover:text-blue-600 transition-all shadow-sm"
+                        >
+                          Mark as Traded
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDeleteListing(item.id)}
+                          className="px-3 text-xs font-bold py-2 rounded-xl border-slate-200 hover:border-red-500 hover:text-red-600 transition-all shadow-sm text-slate-500"
+                          title="Delete Listing"
+                        >
+                          <Trash2 size={16} />
+                        </Button>
+                      </div>
                     )}
                   </div>
                 ))}
@@ -211,11 +233,10 @@ export default function ProfileSections({
                         <Star
                           key={i}
                           size={16}
-                          className={`${
-                            i < review.rating
-                              ? "text-yellow-400 fill-yellow-400"
-                              : "text-slate-200"
-                          }`}
+                          className={`${i < review.rating
+                            ? "text-yellow-400 fill-yellow-400"
+                            : "text-slate-200"
+                            }`}
                         />
                       ))}
                     </div>

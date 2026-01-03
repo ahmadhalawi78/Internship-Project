@@ -77,9 +77,9 @@ export default function EditProfileModal({
           </button>
         </div>
 
-        {}
+        { }
         <div className="p-6 space-y-4">
-          {}
+          { }
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Bio
@@ -97,7 +97,7 @@ export default function EditProfileModal({
             </p>
           </div>
 
-          {}
+          { }
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Website
@@ -112,7 +112,7 @@ export default function EditProfileModal({
             />
           </div>
 
-          {}
+          { }
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Phone
@@ -127,7 +127,7 @@ export default function EditProfileModal({
             />
           </div>
 
-          {}
+          { }
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Language
@@ -144,7 +144,7 @@ export default function EditProfileModal({
             </select>
           </div>
 
-          {}
+          { }
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Profile Privacy
@@ -160,7 +160,7 @@ export default function EditProfileModal({
             </select>
           </div>
 
-          {}
+          { }
           <div className="flex items-center justify-between py-2">
             <label className="text-sm font-medium text-gray-700">
               Email Notifications
@@ -178,22 +178,47 @@ export default function EditProfileModal({
           </div>
         </div>
 
-        {}
+        { }
         <div className="border-t border-gray-200 px-6 py-4 flex gap-3">
-          <button
-            onClick={onClose}
-            className="flex-1 px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={isSaving}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors font-medium text-sm"
-          >
-            <Save size={16} />
-            {isSaving ? "Saving..." : "Save"}
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={async () => {
+                if (confirm("Are you sure you want to delete your account? This action is irreversible and will delete all your listings and data.")) {
+                  setIsSaving(true);
+                  try {
+                    const { deleteAccount } = await import("@/app/actions/auth");
+                    const res = await deleteAccount();
+                    if (res.error) {
+                      alert(res.error);
+                    } else {
+                      window.location.href = "/";
+                    }
+                  } finally {
+                    setIsSaving(false);
+                  }
+                }
+              }}
+              className="px-4 py-2 text-red-600 border border-red-200 bg-red-50 rounded-lg hover:bg-red-100 transition-colors font-medium text-sm"
+            >
+              Delete Account
+            </button>
+          </div>
+          <div className="flex gap-3">
+            <button
+              onClick={onClose}
+              className="flex-1 px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSave}
+              disabled={isSaving}
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors font-medium text-sm"
+            >
+              <Save size={16} />
+              {isSaving ? "Saving..." : "Save"}
+            </button>
+          </div>
         </div>
       </div>
     </div>
