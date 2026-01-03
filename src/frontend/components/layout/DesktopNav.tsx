@@ -238,12 +238,7 @@ export default function DesktopNav() {
               </>
             )}
 
-            {/* Mobile Menu Toggle (only visible on small screens to replace full nav) */}
-            <div className="lg:hidden">
-              <button className="p-2 text-slate-600 hover:bg-slate-100 rounded-xl">
-                <Menu className="h-6 w-6" />
-              </button>
-            </div>
+
           </div>
         </div>
       </div>

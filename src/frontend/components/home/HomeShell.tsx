@@ -82,8 +82,6 @@ export default function HomeShell({ items, currentUserId }: HomeShellProps) {
   const [likedItems, setLikedItems] = useState<Set<string>>(new Set());
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
-  const [hoveredLetter, setHoveredLetter] = useState<number | null>(null);
-  const [showStatement, setShowStatement] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // New filtering and sorting state
@@ -340,79 +338,31 @@ export default function HomeShell({ items, currentUserId }: HomeShellProps) {
         {/* Header Section */}
         <div className="mb-8 md:mb-12">
           {/* Discover & Share Tagline in 3D Badge */}
+          {/* Discover & Share Tagline */}
           <div className="mb-6 text-center">
-            <div className="flex items-center justify-center">
-              <div
-                className="flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-white border border-blue-200 text-blue-600 font-semibold text-xs md:text-sm shadow-md hover:shadow-lg transition-all"
-                style={{
-                  boxShadow: "0 4px 12px rgba(59, 130, 246, 0.25), 0 2px 4px rgba(0, 0, 0, 0.08), inset 0 1px 2px rgba(255, 255, 255, 0.8)",
-                  transform: "perspective(1200px) rotateX(1deg) translateZ(0)",
-                }}
-              >
-                <Sparkles className="h-3.5 w-3.5" />
-                <span>Discover & Share</span>
-              </div>
+            <div className="inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-100 text-blue-600 font-medium text-xs md:text-sm">
+              <Sparkles className="h-3.5 w-3.5" />
+              <span>Discover & Share</span>
             </div>
           </div>
 
           <div className="mb-8 text-center">
             <div className="mb-4">
               <h1
-                className="text-4xl md:text-5xl font-bold text-slate-900 mb-3 tracking-tight inline-block cursor-pointer"
+                className="text-4xl md:text-5xl font-bold text-slate-900 mb-3 tracking-tight inline-flex items-center gap-2 cursor-pointer group"
                 onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
-                onMouseLeave={() => setHoveredLetter(null)}
               >
-                {["C", "o", "m", "m", "u", "n", "i", "t", "y"].map(
-                  (letter, index) => (
-                    <span
-                      key={index}
-                      className="inline-block transition-all duration-300 ease-out"
-                      style={{
-                        transform:
-                          hoveredLetter === index
-                            ? "translateY(-4px) scale(1.2)"
-                            : hoveredLetter !== null &&
-                              Math.abs(hoveredLetter - index) <= 1
-                              ? "translateY(-2px) scale(1.1)"
-                              : "translateY(0) scale(1)",
-                        color:
-                          hoveredLetter === index
-                            ? "#1e40af"
-                            : hoveredLetter !== null &&
-                              Math.abs(hoveredLetter - index) <= 1
-                              ? "#3b82f6"
-                              : "#0f172a",
-                        transitionDelay: `${index * 20}ms`,
-                      }}
-                      onMouseEnter={() => setHoveredLetter(index)}
-                    >
-                      {letter}
-                    </span>
-                  )
-                )}
-                <span className="ml-2">Listings</span>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowStatement(!showStatement);
-                  }}
-                  className="ml-3 inline-block text-slate-700 hover:text-blue-600 transition-colors"
-                  style={{
-                    transform: showStatement ? "rotate(180deg)" : "rotate(0deg)",
-                    transition: "transform 0.3s ease",
-                  }}
-                >
-                  <ChevronDown className="h-6 w-6" />
-                </button>
+                <span className="group-hover:text-blue-600 transition-colors duration-300">Community Listings</span>
+                <ChevronDown
+                  className={`h-6 w-6 text-slate-400 group-hover:text-blue-600 transition-all duration-300 ${showCategoryDropdown ? "rotate-180" : ""}`}
+                />
               </h1>
             </div>
 
             {/* Statement below Community Listings - Collapsible */}
-            {showStatement && (
-              <p className="text-slate-600 text-sm md:text-base mt-3 max-w-2xl mx-auto animate-in fade-in duration-300">
-                Browse items shared by people in your area. <span className="font-semibold text-blue-600">100% barter, no money involved</span>
-              </p>
-            )}
+            <p className="text-slate-600 text-sm md:text-base mt-2 max-w-2xl mx-auto">
+              Browse items shared by people in your area. <span className="font-semibold text-blue-600">100% barter, no money involved</span>
+            </p>
           </div>
 
           {/* Filter Bar */}
