@@ -81,37 +81,19 @@ const RecCard = ({
         </div>
       </div>
 
-  {/* Favorite Button */}
-  <div onClick={(e) => e.stopPropagation()} className="shrink-0 max-[199px]:self-end max-[199px]:mt-2">
-    <FavoriteToggle
-      listingId={id}
-      isInitiallyFavorited={isInitiallyFavorited}
-      onFavoriteChange={handleFavoriteChange}
-      variant="icon"
-      size={16}
-    />
-  </div>
-</div>
-
       {/* Favorite Button */}
-      <button
-        onClick={handleFavorite}
-        disabled={isLoading}
-        className="
-      bg-white p-1.5 sm:p-2 rounded-full shadow 
-      hover:bg-gray-100 active:bg-gray-200 transition 
-      shrink-0 
-      max-[199px]:self-end max-[199px]:mt-2
-    "
-      >
-        <Heart
+      <div onClick={(e) => e.stopPropagation()} className="shrink-0 max-[199px]:self-end max-[199px]:mt-2">
+        <FavoriteToggle
+          listingId={id}
+          isInitiallyFavorited={isInitiallyFavorited}
+          onFavoriteChange={handleFavoriteChange}
+          variant="icon"
           size={16}
-          className={`${
-            isFavorite ? "fill-red-500 text-red-500" : "text-gray-700"
-          }`}
         />
-      </button>
+      </div>
     </div>
+
+
   );
 };
 

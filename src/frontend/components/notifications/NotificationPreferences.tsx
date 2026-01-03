@@ -43,98 +43,98 @@ const notificationTypes: Array<{
   description: string;
   category: "messages" | "listings" | "social" | "system";
 }> = [
-  {
-    id: "new_message",
-    label: "New Messages",
-    description: "When someone sends you a message",
-    category: "messages",
-  },
-  {
-    id: "new_listing_nearby",
-    label: "New Listings Nearby",
-    description: "When new listings are posted near you",
-    category: "listings",
-  },
-  {
-    id: "system",
-    label: "System Updates",
-    description: "Important system announcements",
-    category: "system",
-  },
-  {
-    id: "transaction_update",
-    label: "Transaction Updates",
-    description: "Updates on your transactions",
-    category: "system",
-  },
-  {
-    id: "review",
-    label: "Reviews",
-    description: "When someone reviews your listing or profile",
-    category: "social",
-  },
+    {
+      id: "new_message",
+      label: "New Messages",
+      description: "When someone sends you a message",
+      category: "messages",
+    },
+    {
+      id: "new_listing_nearby",
+      label: "New Listings Nearby",
+      description: "When new listings are posted near you",
+      category: "listings",
+    },
+    {
+      id: "system",
+      label: "System Updates",
+      description: "Important system announcements",
+      category: "system",
+    },
+    {
+      id: "transaction_update",
+      label: "Transaction Updates",
+      description: "Updates on your transactions",
+      category: "system",
+    },
+    {
+      id: "review",
+      label: "Reviews",
+      description: "When someone reviews your listing or profile",
+      category: "social",
+    },
 
-  {
-    id: "listing_created",
-    label: "Listing Created",
-    description: "When you create a new listing",
-    category: "listings",
-  },
-  {
-    id: "listing_updated",
-    label: "Listing Updated",
-    description: "When your listing is updated",
-    category: "listings",
-  },
-  {
-    id: "message_received",
-    label: "Message Received",
-    description: "When you receive a new message",
-    category: "messages",
-  },
-  {
-    id: "favorite_added",
-    label: "Favorite Added",
-    description: "When someone favorites your listing",
-    category: "social",
-  },
-  {
-    id: "chat_message",
-    label: "Chat Messages",
-    description: "New messages in chat threads",
-    category: "messages",
-  },
-  {
-    id: "system_alert",
-    label: "System Alerts",
-    description: "Important system alerts",
-    category: "system",
-  },
-  {
-    id: "listing_expired",
-    label: "Listing Expired",
-    description: "When your listing expires",
-    category: "listings",
-  },
-  {
-    id: "new_follower",
-    label: "New Follower",
-    description: "When someone follows you",
-    category: "social",
-  },
-  {
-    id: "mention",
-    label: "Mentions",
-    description: "When someone mentions you",
-    category: "social",
-  },
-  {
-    id: "admin_announcement",
-    label: "Admin Announcements",
-    description: "Announcements from administrators",
-    category: "system",
-  },
-];
+    {
+      id: "listing_created",
+      label: "Listing Created",
+      description: "When you create a new listing",
+      category: "listings",
+    },
+    {
+      id: "listing_updated",
+      label: "Listing Updated",
+      description: "When your listing is updated",
+      category: "listings",
+    },
+    {
+      id: "message_received",
+      label: "Message Received",
+      description: "When you receive a new message",
+      category: "messages",
+    },
+    {
+      id: "favorite_added",
+      label: "Favorite Added",
+      description: "When someone favorites your listing",
+      category: "social",
+    },
+    {
+      id: "chat_message",
+      label: "Chat Messages",
+      description: "New messages in chat threads",
+      category: "messages",
+    },
+    {
+      id: "system_alert",
+      label: "System Alerts",
+      description: "Important system alerts",
+      category: "system",
+    },
+    {
+      id: "listing_expired",
+      label: "Listing Expired",
+      description: "When your listing expires",
+      category: "listings",
+    },
+    {
+      id: "new_follower",
+      label: "New Follower",
+      description: "When someone follows you",
+      category: "social",
+    },
+    {
+      id: "mention",
+      label: "Mentions",
+      description: "When someone mentions you",
+      category: "social",
+    },
+    {
+      id: "admin_announcement",
+      label: "Admin Announcements",
+      description: "Announcements from administrators",
+      category: "system",
+    },
+  ];
 
 const categories = [
   {
@@ -249,7 +249,7 @@ export default function NotificationPreferences() {
 
   const handleMuteToggle = async (muted: boolean) => {
     await savePreferences({
-      muted_until: muted ? addDaysIso(1) : null,
+      muted_until: muted ? addDaysIso(new Date(), 1) : null,
     });
   };
 
@@ -350,16 +350,14 @@ export default function NotificationPreferences() {
                     handleToggleChannel("email", !preferences.email_enabled)
                   }
                   disabled={saving}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                    preferences.email_enabled ? "bg-blue-900" : "bg-slate-300"
-                  }`}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${preferences.email_enabled ? "bg-blue-900" : "bg-slate-300"
+                    }`}
                 >
                   <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                      preferences.email_enabled
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${preferences.email_enabled
                         ? "translate-x-6"
                         : "translate-x-1"
-                    }`}
+                      }`}
                   />
                 </button>
               </div>
@@ -411,16 +409,14 @@ export default function NotificationPreferences() {
                     handleToggleChannel("push", !preferences.push_enabled)
                   }
                   disabled={saving}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                    preferences.push_enabled ? "bg-blue-900" : "bg-slate-300"
-                  }`}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${preferences.push_enabled ? "bg-blue-900" : "bg-slate-300"
+                    }`}
                 >
                   <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                      preferences.push_enabled
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${preferences.push_enabled
                         ? "translate-x-6"
                         : "translate-x-1"
-                    }`}
+                      }`}
                   />
                 </button>
               </div>
@@ -448,16 +444,14 @@ export default function NotificationPreferences() {
                     handleToggleChannel("in_app", !preferences.in_app_enabled)
                   }
                   disabled={saving}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                    preferences.in_app_enabled ? "bg-blue-900" : "bg-slate-300"
-                  }`}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${preferences.in_app_enabled ? "bg-blue-900" : "bg-slate-300"
+                    }`}
                 >
                   <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                      preferences.in_app_enabled
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${preferences.in_app_enabled
                         ? "translate-x-6"
                         : "translate-x-1"
-                    }`}
+                      }`}
                   />
                 </button>
               </div>
@@ -473,9 +467,8 @@ export default function NotificationPreferences() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div
-                className={`p-2 rounded-full ${
-                  isMuted ? "bg-red-100" : "bg-slate-100"
-                }`}
+                className={`p-2 rounded-full ${isMuted ? "bg-red-100" : "bg-slate-100"
+                  }`}
               >
                 {isMuted ? (
                   <VolumeX className="h-5 w-5 text-red-600" />
@@ -490,8 +483,8 @@ export default function NotificationPreferences() {
                 <p className="text-sm text-slate-500">
                   {isMuted
                     ? `Muted until ${new Date(
-                        preferences.muted_until!
-                      ).toLocaleDateString()}`
+                      preferences.muted_until!
+                    ).toLocaleDateString()}`
                     : "Temporarily pause all notifications"}
                 </p>
               </div>
@@ -499,11 +492,10 @@ export default function NotificationPreferences() {
             <button
               onClick={() => handleMuteToggle(!isMuted)}
               disabled={saving}
-              className={`px-4 py-2 rounded-md text-sm font-medium ${
-                isMuted
+              className={`px-4 py-2 rounded-md text-sm font-medium ${isMuted
                   ? "bg-green-100 text-green-700 hover:bg-green-200"
                   : "bg-red-100 text-red-700 hover:bg-red-200"
-              }`}
+                }`}
             >
               {isMuted ? "Unmute" : "Mute for 24h"}
             </button>
@@ -561,19 +553,17 @@ export default function NotificationPreferences() {
                           )
                         }
                         disabled={saving}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                          preferences.preferences[notificationType.id] !== false
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${preferences.preferences[notificationType.id] !== false
                             ? "bg-blue-900"
                             : "bg-slate-300"
-                        }`}
+                          }`}
                       >
                         <span
-                          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                            preferences.preferences[notificationType.id] !==
-                            false
+                          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${preferences.preferences[notificationType.id] !==
+                              false
                               ? "translate-x-6"
                               : "translate-x-1"
-                          }`}
+                            }`}
                         />
                       </button>
                     </div>
